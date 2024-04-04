@@ -1,6 +1,7 @@
 using System.Reflection;
 using Bam.Data.Dynamic.Objects;
 using Bam.Data.Dynamic.TestClasses;
+using Bam.Data.Objects;
 using Bam.Net.CoreServices;
 using Bam.Storage;
 using Bam.Testing;
@@ -18,8 +19,7 @@ public class FsObjectPropertyWriterShould : UnitTestMenuContainer
     public override ServiceRegistry Configure(ServiceRegistry serviceRegistry)
     {
         return base.Configure(serviceRegistry)
-            .For<ObjectFsRootDirectory>().Use(new ObjectFsRootDirectory($"{Path.Combine(Environment.CurrentDirectory, $"{nameof(FsObjectPropertyWriterShould)}_Tests")}"))
-            .For<IObjectFs>().Use<ObjectFs>()
+            .For<IObjectStorageManager>().Use<ObjectStorageManager>()
             .For<IObjectHashCalculator>().Use<ObjectHashCalculator>()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyHashCalculator>().Use<CompositeKeyHashCalculator>()
@@ -30,7 +30,7 @@ public class FsObjectPropertyWriterShould : UnitTestMenuContainer
     public async Task CreateExpectedDirectories()
     {
         FsObjectPropertyWriter propertyWriter = Get<FsObjectPropertyWriter>();
-        string[] expected = new string[] {propertyWriter.ObjectFs.GetRootDirectory().FullName,"objects", "Bam","Data","Dynamic","TestClasses","TestData","local","id"};
+        string[] expected = new string[] {propertyWriter.ObjectStorageManager.GetRootStorage().Value,"objects", "Bam","Data","Dynamic","TestClasses","TestData","local","id"};
         string path = Path.Combine(expected);
         if (Directory.Exists(path))
         {

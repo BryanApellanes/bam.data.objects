@@ -1,7 +1,8 @@
 using System.Text;
+using Bam.Data.Dynamic.Objects;
 using Bam.Net;
 
-namespace Bam.Data.Dynamic.Objects;
+namespace Bam.Data.Objects;
 
 public class JsonObjectEncoder : ObjectEncoder
 {
@@ -36,7 +37,7 @@ public class JsonObjectEncoder : ObjectEncoder
 
     public override IObjectEncoding Encode(object data)
     {
-        return new JsonObjectEncoding(data, Encoding);
+        return new JsonObjectEncoding(Encoding.GetBytes(data.ToJson()), Encoding);
     }
 
     public override object Decode(byte[] encoding, Type type)

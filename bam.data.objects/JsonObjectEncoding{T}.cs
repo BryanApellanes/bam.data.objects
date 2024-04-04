@@ -1,4 +1,5 @@
 using System.Text;
+using Bam.Data.Objects;
 using Bam.Net;
 
 namespace Bam.Data.Dynamic.Objects;
@@ -9,7 +10,7 @@ public class JsonObjectEncoding<T> : JsonObjectEncoding
     {
     }
     
-    public JsonObjectEncoding(T data, Encoding encoding = null) : base(data, encoding)
+    public JsonObjectEncoding(T data, Encoding encoding = null) : base(encoding.GetBytes(data.ToJson()), encoding)
     {
     }
     

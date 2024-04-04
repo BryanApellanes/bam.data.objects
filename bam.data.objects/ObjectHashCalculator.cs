@@ -1,3 +1,4 @@
+using Bam.Data.Objects;
 using Bam.Net;
 
 namespace Bam.Data.Dynamic.Objects;

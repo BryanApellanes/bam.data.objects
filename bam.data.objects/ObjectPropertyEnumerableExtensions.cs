@@ -5,15 +5,15 @@ namespace Bam.Data.Dynamic.Objects;
 
 public static class ObjectPropertyEnumerableExtensions
 {
-    public static T? FromObjectProperties<T>(this IEnumerable<ObjectProperty> properties)
+    public static T? FromObjectProperties<T>(this IEnumerable<IObjectProperty> properties)
     {
         return (T)FromObjectProperties(properties);
     }
     
-    public static object? FromObjectProperties(this IEnumerable<ObjectProperty> properties)
+    public static object? FromObjectProperties(this IEnumerable<IObjectProperty> properties)
     {
         EnsureMatchingTypeNames(properties);
-        Type type = Type.GetType(properties.First().TypeName);
+        Type type = Type.GetType(properties.First().AssemblyQualifiedTypeName);
         if (type == null)
         {
             return null;
@@ -31,17 +31,17 @@ public static class ObjectPropertyEnumerableExtensions
         return data;
     }
     
-    private static void EnsureMatchingTypeNames(IEnumerable<ObjectProperty> properties)
+    private static void EnsureMatchingTypeNames(IEnumerable<IObjectProperty> properties)
     {
         string typeName = null;
         foreach (ObjectProperty property in properties)
         {
             if (string.IsNullOrEmpty(typeName))
             {
-                typeName = property.TypeName;
+                typeName = property.AssemblyQualifiedTypeName;
             }
 
-            if (!property.TypeName.Equals(typeName))
+            if (!property.AssemblyQualifiedTypeName.Equals(typeName))
             {
                 throw new InvalidOperationException("TypeNames must match");
             }

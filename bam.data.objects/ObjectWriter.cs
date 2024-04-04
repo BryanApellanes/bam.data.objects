@@ -8,16 +8,16 @@ namespace Bam.Data.Dynamic.Objects;
 
 public class ObjectWriter : IObjectWriter
 {
-    public ObjectWriter(IFsRawDataStorage rawDataStorage, IObjectFs objectFs, IObjectHashCalculator objectHashCalculator, IObjectPropertyWriter objectPropertyWriter)
+    public ObjectWriter(IObjectStorageManager objectStorageManager, IObjectHashCalculator objectHashCalculator, IObjectPropertyWriter objectPropertyWriter)
     {
-        this.ObjectFs = objectFs;
+        this.ObjectStorageManager = objectStorageManager;
         this.ObjectHashCalculator = objectHashCalculator;
         this.ObjectPropertyWriter = objectPropertyWriter;
         this.Process = (owr) => this.WriteAsync(owr);
     }
     
     protected BackgroundThreadQueue<ObjectWriteRequest> BackgroundThreadQueue { get; set; }
-    protected IObjectFs ObjectFs { get; set; }
+    protected IObjectStorageManager ObjectStorageManager { get; set; }
     protected IObjectHashCalculator ObjectHashCalculator { get; set; }
     protected IObjectPropertyWriter ObjectPropertyWriter { get; set; }
     

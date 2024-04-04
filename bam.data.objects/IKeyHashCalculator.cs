@@ -1,4 +1,4 @@
-namespace Bam.Data.Dynamic.Objects;
+namespace Bam.Data.Objects;
 
 public interface IKeyHashCalculator
 {

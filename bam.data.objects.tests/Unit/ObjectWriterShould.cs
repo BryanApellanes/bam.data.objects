@@ -1,5 +1,6 @@
 using Bam.Data.Dynamic.Objects;
 using Bam.Data.Dynamic.TestClasses;
+using Bam.Data.Objects;
 using Bam.Net.CoreServices;
 using Bam.Net.Data.Repositories;
 using Bam.Storage;
@@ -17,10 +18,9 @@ public class ObjectWriterShould : UnitTestMenuContainer
     public override ServiceRegistry Configure(ServiceRegistry serviceRegistry)
     {
         return base.Configure(serviceRegistry)
-            .For<ObjectFsRootDirectory>().Use(new ObjectFsRootDirectory(Path.Combine(Environment.CurrentDirectory, "testRoot")))
             .For<IObjectPropertyWriter>().Use<FsObjectPropertyWriter>()
             .For<IObjectConverter>().Use<JsonObjectEncoder>()
-            .For<IObjectFs>().Use<ObjectFs>()
+            .For<IObjectStorageManager>().Use<ObjectStorageManager>()
             .For<IObjectHashCalculator>().Use<ObjectHashCalculator>()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyHashCalculator>().Use<CompositeKeyHashCalculator>();

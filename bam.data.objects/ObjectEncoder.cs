@@ -1,9 +1,20 @@
+using Bam.Data.Dynamic.Objects;
 using Bam.Net;
 
-namespace Bam.Data.Dynamic.Objects;
+namespace Bam.Data.Objects;
 
 public abstract class ObjectEncoder: IObjectConverter, IObjectEncoder, IObjectDecoder
 {
+    private static readonly object _defaultLock = new();
+    private static JsonObjectEncoder _default;
+    public static JsonObjectEncoder Default
+    {
+        get
+        {
+            return _defaultLock.DoubleCheckLock(ref _default, () => new JsonObjectEncoder());
+        }
+    }
+    
     public abstract object Objectify(string data);
 
     public abstract T Objectify<T>(string data);

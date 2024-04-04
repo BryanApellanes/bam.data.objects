@@ -1,9 +1,10 @@
 using System.Reflection;
 using System.Text;
+using Bam.Data.Dynamic.Objects;
 using Bam.Net;
 using Bam.Net.Data.Repositories;
 
-namespace Bam.Data.Dynamic.Objects;
+namespace Bam.Data.Objects;
 
 public class CompositeKeyHashCalculator: IKeyHashCalculator
 {

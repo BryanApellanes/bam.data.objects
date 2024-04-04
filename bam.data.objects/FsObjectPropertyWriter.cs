@@ -1,21 +1,22 @@
 using System.Reflection;
+using Bam.Data.Dynamic.Objects;
 using Bam.Data.Repositories;
 using Bam.Net;
 using Bam.Net.Data.Repositories;
 using Bam.Storage;
 
-namespace Bam.Data.Dynamic.Objects;
+namespace Bam.Data.Objects;
 
 public class FsObjectPropertyWriter : IObjectPropertyWriter
 {
-    public FsObjectPropertyWriter(IObjectFs objectFs, IObjectHashCalculator objectHashCalculator, IObjectConverter objectConverter)
+    public FsObjectPropertyWriter(IObjectStorageManager objectStorageManager, IObjectHashCalculator objectHashCalculator, IObjectConverter objectConverter)
     {
-        this.ObjectFs = objectFs;
+        this.ObjectStorageManager = objectStorageManager;
         this.ObjectHashCalculator = objectHashCalculator;
         this.ObjectConverter = objectConverter;
     }
     
-    public IObjectFs ObjectFs { get; private set; }
+    public IObjectStorageManager ObjectStorageManager { get; private set; }
     public IObjectHashCalculator ObjectHashCalculator { get; private set; }
     
     public IObjectConverter ObjectConverter { get; private set; }
@@ -51,15 +52,15 @@ public class FsObjectPropertyWriter : IObjectPropertyWriter
 
     protected virtual void CommitProperty(PropertyInfo property, object parentDataObject)
     {
-        object propertyValue = property.GetValue(parentDataObject);
+        /*object propertyValue = property.GetValue(parentDataObject);
         ObjectProperty toWrite = new ObjectProperty(property, propertyValue);
-        DirectoryInfo directoryInfo = this.ObjectFs.GetPropertyDirectory(property.DeclaringType, property);
+        DirectoryInfo directoryInfo = this.ObjectStorageManager.GetPropertyStorage(property.DeclaringType, property);
 
         string parentKey = ObjectHashCalculator.CalculateKeyHash(parentDataObject);
         string parentHash = ObjectHashCalculator.CalculateHash(parentDataObject);
         string toWriteString = GetStringData(toWrite);
 
-        long version = GetCurrentVersion(ObjectFs.GetKeysDirectory(property));
+        long version = GetCurrentVersion(ObjectStorageManager.GetKeyStorage(property));*/
         throw new NotImplementedException("this is not complete");
     }
 
@@ -70,8 +71,8 @@ public class FsObjectPropertyWriter : IObjectPropertyWriter
     
     protected DirectoryInfo GetNextVersionDirectory(PropertyInfo property)
     {
-        DirectoryInfo keyDirectory = this.ObjectFs.GetKeysDirectory(property.DeclaringType, property);
-        return new DirectoryInfo(Path.Combine(keyDirectory.FullName, GetNextVersion(keyDirectory).ToString()));
+        IStorageIdentifier keyDirectory = this.ObjectStorageManager.GetKeyStorage(property.DeclaringType, property);
+        return new DirectoryInfo(Path.Combine(keyDirectory.Value, GetNextVersion(new DirectoryInfo(keyDirectory.Value)).ToString()));
     }
 
     public virtual long GetCurrentVersion(DirectoryInfo keyDirectory)

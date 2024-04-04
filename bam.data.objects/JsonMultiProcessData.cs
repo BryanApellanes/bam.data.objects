@@ -12,6 +12,7 @@ using System.IO;
 using Bam.Net.Logging;
 using Bam.Net.Configuration;
 using System.Configuration;
+using Bam.Data.Objects;
 using Bam.Net;
 using Bam.Storage;
 
@@ -19,12 +20,12 @@ namespace Bam.Data.Dynamic.Objects
 {
     public class JsonMultiProcessData : RawData
     {
-        public JsonMultiProcessData(object data, Encoding encoding = null) : base(data, encoding)
+        public JsonMultiProcessData(object data, Encoding encoding = null) : base(JsonObjectEncoder.Default.Encode(data).Value, encoding)
         {         
             Args.ThrowIfNull(data, nameof(data));
             LockTimeout = 150;
             AcquireLockRetryInterval = 50;
-            ObjectEncoder = new JsonObjectEncoder();
+            ObjectEncoder = JsonObjectEncoder.Default;
             DataType = data.GetType();
         }
 
@@ -148,15 +149,15 @@ namespace Bam.Data.Dynamic.Objects
 
         public string CurrentLockerMachineName { get; set; }
 
-        protected string LockFile => Path.Combine(RootDirectory, "{0}.lock".Format(Hash));
+        protected string LockFile => Path.Combine(RootDirectory, "{0}.lock".Format(HashString));
 
         protected string TempLockFile => $"{LockFile}.tmp";
 
-        protected internal string WriteFile => Path.Combine(RootDirectory, "{0}.write".Format(Hash));
+        protected internal string WriteFile => Path.Combine(RootDirectory, "{0}.write".Format(HashString));
 
-        protected internal string ReadFile => Path.Combine(RootDirectory, "{0}.read".Format(Hash));
+        protected internal string ReadFile => Path.Combine(RootDirectory, "{0}.read".Format(HashString));
 
-        protected internal string DataFile => Path.Combine(RootDirectory, Hash);
+        protected internal string DataFile => Path.Combine(RootDirectory, HashString);
 
         private void EnsureRoot()
         {
