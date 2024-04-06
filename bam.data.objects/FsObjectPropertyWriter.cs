@@ -32,7 +32,7 @@ public class FsObjectPropertyWriter : IObjectPropertyWriter
         {
             ObjectProperty = new ObjectProperty(property, propertyValue)
             {
-                ParentHash = ObjectHashCalculator.CalculateHash(parentDataObject)
+                ParentHashId = ObjectHashCalculator.CalculateHash(parentDataObject)
             },
             Success = true
         };
@@ -71,8 +71,9 @@ public class FsObjectPropertyWriter : IObjectPropertyWriter
     
     protected DirectoryInfo GetNextVersionDirectory(PropertyInfo property)
     {
-        IStorageIdentifier keyDirectory = this.ObjectStorageManager.GetKeyStorage(property.DeclaringType, property);
-        return new DirectoryInfo(Path.Combine(keyDirectory.Value, GetNextVersion(new DirectoryInfo(keyDirectory.Value)).ToString()));
+        throw new NotImplementedException();
+        /*IStorageIdentifier keyDirectory = this.ObjectStorageManager.GetKeyStorageIdentifier(property.DeclaringType, property);
+        return new DirectoryInfo(Path.Combine(keyDirectory.FullName, GetNextVersion(new DirectoryInfo(keyDirectory.FullName)).ToString()));*/
     }
 
     public virtual long GetCurrentVersion(DirectoryInfo keyDirectory)

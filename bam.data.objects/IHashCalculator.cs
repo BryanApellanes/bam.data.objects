@@ -1,6 +1,10 @@
+using Bam.Data.Objects;
+
 namespace Bam.Data.Dynamic.Objects;
 
 public interface IHashCalculator
 {
-    string CalculateHash(object instance);
+    ulong CalculateHash(object data);
+    ulong CalculateHash(IObjectData data);
+    
 }

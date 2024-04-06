@@ -1,17 +1,16 @@
 using System.Reflection;
+using Bam.Storage;
 
-namespace Bam.Storage;
+namespace Bam.Data.Objects;
 
 public interface IObjectStorageManager
 {
-    IStorageIdentifier GetRootStorage();
-    IStorageIdentifier GetTypeStorage(Type type);
-    IStorageIdentifier GetPropertyStorage(PropertyInfo property);
-    IStorageIdentifier GetPropertyStorage(Type type, PropertyInfo property);
-    IStorageIdentifier GetKeyStorage(PropertyInfo property);
-    IStorageIdentifier GetKeyStorage(Type type, PropertyInfo property);
-    IStorageIdentifier GetHashStorage(PropertyInfo property);
-    IStorageIdentifier GetHashStorage(Type type, PropertyInfo property);
+    IStorageContainer GetRootStorageContainer();
+    IStorageContainer GetTypeStorageContainer(Type type);
+    IStorageContainer GetPropertyStorageContainer(PropertyInfo property);
+    IStorageContainer GetPropertyStorageContainer(Type type, PropertyInfo property);
+    IStorageContainer GetKeyStorageContainer(IObjectKey objectKey);
+    IStorageContainer GetHashStorageIdentifier(IObjectIdentifier objectIdentifier);
 
-    IStorage GetStorage(IStorageIdentifier storageIdentifier);
+    IStorage GetStorage(IStorageContainer storageIdentifier);
 }

@@ -14,7 +14,7 @@ public class ObjectData : IObjectData
     public ObjectData(object data) : base()
     {
         this.Data = data;
-        this.Type = data?.GetType();
+        this.Type = new TypeDescriptor(data?.GetType());
         this.ObjectEncoder = JsonObjectEncoder.Default;
         this.DataTypeTranslator = Bam.Net.Data.DataTypeTranslator.Default;
     }
@@ -22,12 +22,14 @@ public class ObjectData : IObjectData
     public ObjectData(object data, Encoding encoding) : base()
     {
         this.Data = data;
-        this.Type = data?.GetType();
+        this.Type = new TypeDescriptor(data?.GetType());
         this.ObjectEncoder = JsonObjectEncoder.Default;
         this.DataTypeTranslator = Bam.Net.Data.DataTypeTranslator.Default;
     }
 
-    protected object Data
+    [JsonIgnore]
+    [YamlIgnore]
+    public object Data
     {
         get;
         set;
@@ -44,24 +46,11 @@ public class ObjectData : IObjectData
         get;
         set;
     }
-    
-    [JsonIgnore]
-    [YamlIgnore]
-    public virtual Type Type { get; init; }
 
-    private TypeDescriptor _typeDescriptor;
-    public TypeDescriptor TypeDescriptor
+    public TypeDescriptor Type
     {
-        get
-        {
-            if (_typeDescriptor == null && Type != null)
-            {
-                _typeDescriptor = new TypeDescriptor(Type);
-            }
-
-            return _typeDescriptor;
-        }
-        set => _typeDescriptor = value;
+        get;
+        set;
     }
 
     private IEnumerable<IObjectProperty> _properties;
@@ -76,7 +65,7 @@ public class ObjectData : IObjectData
                     yield return prop;
                 }
             }
-            if (TypeDescriptor != null && TypeDescriptor.Type != null)
+            if (Type != null && Type.Type != null)
             {
                 foreach (var objectProperty in GetObjectProperties()) yield return objectProperty;
             }
@@ -84,9 +73,14 @@ public class ObjectData : IObjectData
         set => _properties = value;
     }
 
+    public string ToJson()
+    {
+        return Data.ToJson();
+    }
+
     private IEnumerable<IObjectProperty> GetObjectProperties()
     {
-        foreach (PropertyInfo propertyInfo in TypeDescriptor.Type.GetProperties())
+        foreach (PropertyInfo propertyInfo in Type.Type.GetProperties())
         {
             DataTypes enumType = DataTypeTranslator.EnumFromType(propertyInfo.PropertyType);
             if (enumType != DataTypes.Default)

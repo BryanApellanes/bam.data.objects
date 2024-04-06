@@ -1,4 +1,5 @@
 using Bam.Data.Objects;
+using Bam.Storage;
 
 namespace Bam.Data.Dynamic.Objects;
 
@@ -6,25 +7,33 @@ namespace Bam.Data.Dynamic.Objects;
 
 public class ObjectIdentifierFactory : IObjectIdentifierFactory
 {
-    public ObjectIdentifierFactory(IKeyHashCalculator keyHashCalculator, IHashCalculator hashCalculator)
+    public ObjectIdentifierFactory(IObjectStorageManager objectStorageManager, IObjectHashCalculator objectHashCalculator)
     {
-        this.KeyHashCalculator = keyHashCalculator;
-        this.HashCalculator = hashCalculator;
+        this.ObjectStorageManager = objectStorageManager;
+        this.ObjectHashCalculator = objectHashCalculator;
     }
 
-    private IKeyHashCalculator KeyHashCalculator { get; set; }
-    private IHashCalculator HashCalculator { get; set; }
-    
-    public IObjectIdentifier GetObjectIdentifierFor(object instance)
+    private IObjectStorageManager ObjectStorageManager { get; init; }
+    private IObjectHashCalculator ObjectHashCalculator { get; init; }
+
+    public IObjectKey GetObjectKeyFor(IObjectData data)
     {
-        ObjectData data = new ObjectData(instance);
-        // TODO: create ObjectKey used to find object identifier
-        // object identifier identifies all properties
-        // object key identifies indexed/searchable key properties
+        return new ObjectKey()
+        {
+            Type = data.Type,
+            StorageIdentifier = ObjectStorageManager.GetTypeStorageContainer(data.Type),
+            Key = ObjectHashCalculator.CalculateKeyHash(data),
+            Hash = ObjectHashCalculator.CalculateHash(data)
+        };
+    }
+
+    public IObjectIdentifier GetObjectIdentifierFor(IObjectData data)
+    {
         return new ObjectIdentifier()
         {
-            Type = data.TypeDescriptor,
-            PropertyIdentifiers = data.Properties.Select(op => op.ToRawData().HashId).ToArray()
+            Type = data.Type,
+            StorageIdentifier = ObjectStorageManager.GetTypeStorageContainer(data.Type),
+            Hash = ObjectHashCalculator.CalculateHash(data)
         };
     }
 }

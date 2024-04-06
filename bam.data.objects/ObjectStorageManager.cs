@@ -1,4 +1,5 @@
 using System.Reflection;
+using Bam.Data.Objects;
 using Bam.Net;
 using Bam.Storage;
 using Type = System.Type;
@@ -7,60 +8,57 @@ namespace Bam.Data.Dynamic.Objects;
 
 public class ObjectStorageManager : IObjectStorageManager
 {
-    public ObjectStorageManager(FsStorageIdentifier rootDirectory, IObjectHashCalculator objectHashCalculator)
+    public ObjectStorageManager(IStorageContainer rootStorage, IObjectHashCalculator objectHashCalculator)
     {
-        this.RootDirectory = rootDirectory;
+        this.RootStorage = rootStorage;
         this.ObjectHashCalculator = objectHashCalculator;
     }
     
-    public FsStorageIdentifier RootDirectory { get; private set; }
+    public IStorageContainer RootStorage { get; private set; }
     public IObjectHashCalculator ObjectHashCalculator { get; private set; }
     
-    public IStorageIdentifier GetRootStorage()
+    public IStorageContainer GetRootStorageContainer()
     {
-        return RootDirectory;
+        return RootStorage;
     }
 
-    public IStorageIdentifier GetTypeStorage(Type type)
+    public IStorageContainer GetTypeStorageContainer(Type type)
     {
-        return new FsStorageIdentifier(Path.Combine(GetRootStorage().Value, GetRelativePathForType(type)));
+        return new DirectoryStorageContainer(Path.Combine(GetRootStorageContainer().FullName, GetRelativePathForType(type)));
     }
 
-    public IStorageIdentifier GetPropertyStorage(PropertyInfo property)
+    public IStorageContainer GetPropertyStorageContainer(PropertyInfo property)
     {
-        return new FsStorageIdentifier(Path.Combine(GetTypeStorage(property.DeclaringType).Value, property.Name));
+        return new DirectoryStorageContainer(Path.Combine(GetTypeStorageContainer(property.DeclaringType).FullName, property.Name));
     }
 
-    public IStorageIdentifier GetPropertyStorage(Type type, PropertyInfo property)
+    public IStorageContainer GetPropertyStorageContainer(Type type, PropertyInfo property)
     {
-        return new FsStorageIdentifier(Path.Combine(GetTypeStorage(type).Value, property.Name));
+        return new DirectoryStorageContainer(Path.Combine(GetTypeStorageContainer(type).FullName, property.Name));
     }
 
-    public IStorageIdentifier GetKeyStorage(PropertyInfo property)
+    public IStorageContainer GetKeyStorageContainer(IObjectKey objectKey)
     {
-        return GetKeyStorage(property.DeclaringType, property);
+        IStorageIdentifier directoryInfo = GetTypeStorageContainer(objectKey.Type);
+        List<string> parts = new List<string>() { directoryInfo.FullName };
+        parts.Add("key");
+        parts.AddRange(objectKey.Key.ToString().Split(2));
+        
+        return new DirectoryStorageContainer(Path.Combine(parts.ToArray()));
     }
 
-    public IStorageIdentifier GetKeyStorage(Type type, PropertyInfo property)
+    public IStorageContainer GetHashStorageIdentifier(IObjectIdentifier objectIdentifier)
     {
-        IStorageIdentifier directoryInfo = GetPropertyStorage(type, property);
-        return new FsStorageIdentifier(Path.Combine(directoryInfo.Value, "keys"));
+        IStorageIdentifier typeStorageIdentifier = GetTypeStorageContainer(objectIdentifier.Type);
+        List<string> parts = new List<string>() { typeStorageIdentifier.FullName };
+        parts.Add("hash");
+        parts.AddRange(objectIdentifier.Hash.ToString().Split(2));
+        return new DirectoryStorageContainer(Path.Combine(parts.ToArray()));
     }
 
-    public IStorageIdentifier GetHashStorage(PropertyInfo property)
+    public virtual IStorage GetStorage(IStorageContainer storageIdentifier)
     {
-        return GetHashStorage(property.DeclaringType, property);
-    }
-
-    public IStorageIdentifier GetHashStorage(Type type, PropertyInfo property)
-    {
-        IStorageIdentifier directoryInfo = GetPropertyStorage(type, property);
-        return new FsStorageIdentifier(Path.Combine(directoryInfo.Value, "hashes"));
-    }
-
-    public IStorage GetStorage(IStorageIdentifier storageIdentifier)
-    {
-        return new FsStorage(storageIdentifier.Value);
+        return new FsStorage(storageIdentifier.FullName);
     }
 
     private string GetRelativePathForType(Type type)

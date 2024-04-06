@@ -5,6 +5,7 @@ namespace Bam.Data.Objects;
 
 public interface IObjectData 
 {
-    Type Type { get; }
+    TypeDescriptor Type { get; }
     IEnumerable<IObjectProperty> Properties { get; }
+    string ToJson();
 }

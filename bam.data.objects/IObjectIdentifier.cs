@@ -1,7 +1,10 @@
+using Bam.Storage;
+
 namespace Bam.Data.Objects;
 
 public interface IObjectIdentifier
 {
-    TypeDescriptor Type { get; set; }
-    ulong[] PropertyIdentifiers { get; set; }
+    TypeDescriptor Type { get; }
+    IStorageIdentifier StorageIdentifier { get; }
+    ulong Hash { get; }
 }

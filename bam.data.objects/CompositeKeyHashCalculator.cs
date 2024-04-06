@@ -14,11 +14,11 @@ public class CompositeKeyHashCalculator: IKeyHashCalculator
     }
     public HashAlgorithms HashAlgorithm { get; set; }
     public Encoding Encoding { get; set; }
-    public string CalculateKeyHash(object instance)
+    public ulong CalculateKeyHash(object instance)
     {
         if (instance == null)
         {
-            return string.Empty.HashHexString(this.HashAlgorithm, this.Encoding);
+            return string.Empty.ToHashULong(this.HashAlgorithm, this.Encoding);
         }
 
         Type type = instance.GetType();
@@ -28,7 +28,7 @@ public class CompositeKeyHashCalculator: IKeyHashCalculator
         };
         this.AddCompositeKeys(type, instance, jsonify);
         
-        return jsonify.ToJson().HashHexString(this.HashAlgorithm, this.Encoding);
+        return jsonify.ToJson().ToHashULong(this.HashAlgorithm, this.Encoding);
     }
 
     protected void AddCompositeKeys(Type type, object instance, Dictionary<string, string> dictionary)

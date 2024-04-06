@@ -30,7 +30,7 @@ public class FsObjectPropertyWriterShould : UnitTestMenuContainer
     public async Task CreateExpectedDirectories()
     {
         FsObjectPropertyWriter propertyWriter = Get<FsObjectPropertyWriter>();
-        string[] expected = new string[] {propertyWriter.ObjectStorageManager.GetRootStorage().Value,"objects", "Bam","Data","Dynamic","TestClasses","TestData","local","id"};
+        string[] expected = new string[] {propertyWriter.ObjectStorageManager.GetRootStorageContainer().FullName,"objects", "Bam","Data","Dynamic","TestClasses","TestData","local","id"};
         string path = Path.Combine(expected);
         if (Directory.Exists(path))
         {

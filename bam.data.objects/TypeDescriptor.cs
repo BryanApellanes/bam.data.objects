@@ -16,6 +16,11 @@ public class TypeDescriptor : ITypeDescriptor
         return typeDescriptor.AssemblyQualifiedTypeName;
     }
 
+    public static implicit operator TypeDescriptor(Type type)
+    {
+        return new TypeDescriptor(type);
+    }
+    
     public TypeDescriptor(Type type)
     {
         this.Type = type;

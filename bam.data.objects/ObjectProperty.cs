@@ -39,7 +39,7 @@ public class ObjectProperty : IObjectProperty
         return ObjectEncoder.Decode(ObjectEncoding);
     }
     
-    public string ParentHash { get; set; }
+    public ulong ParentHashId { get; set; }
     /// <summary>
     /// Gets or sets the AssemblyQualifiedName of the type this property belongs to.
     /// </summary>

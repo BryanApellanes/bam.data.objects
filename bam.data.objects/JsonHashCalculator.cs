@@ -1,4 +1,5 @@
 using System.Text;
+using Bam.Data.Objects;
 using Bam.Net;
 
 namespace Bam.Data.Dynamic.Objects;
@@ -13,9 +14,14 @@ public class JsonHashCalculator : IHashCalculator
     
     public HashAlgorithms HashAlgorithm { get; set; }
     public Encoding Encoding { get; set; }
-    
-    public string CalculateHash(object instance)
+
+    public ulong CalculateHash(object instance)
     {
-        return instance.ToJson().HashHexString(this.HashAlgorithm, this.Encoding);
+        return CalculateHash(new ObjectData(instance));
+    }
+    
+    public ulong CalculateHash(IObjectData data)
+    {
+        return data.ToJson().ToHashULong(this.HashAlgorithm, this.Encoding);
     }
 }

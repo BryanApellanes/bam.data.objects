@@ -4,5 +4,5 @@ namespace Bam.Storage;
 
 public interface IObjectStorageSaveResult 
 {
-    IObjectIdentifier ObjectIdentifier { get; set; }
+    IObjectLoader ObjectLoader { get; set; }
 }

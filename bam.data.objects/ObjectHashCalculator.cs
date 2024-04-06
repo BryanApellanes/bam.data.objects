@@ -14,12 +14,17 @@ public class ObjectHashCalculator : IObjectHashCalculator
         this.KeyHashCalculator = keyHashCalculator;
     }
     
-    public string CalculateHash(object instance)
+    public ulong CalculateHash(object instance)
     {
         return this.HashCalculator.CalculateHash(instance);
     }
 
-    public string CalculateKeyHash(object instance)
+    public ulong CalculateHash(IObjectData data)
+    {
+        return this.HashCalculator.CalculateHash(data);
+    }
+
+    public ulong CalculateKeyHash(object instance)
     {
         return this.KeyHashCalculator.CalculateKeyHash(instance);
     }

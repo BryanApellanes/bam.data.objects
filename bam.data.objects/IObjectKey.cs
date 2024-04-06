@@ -1,7 +1,6 @@
 namespace Bam.Data.Objects;
 
-public interface IObjectKey
+public interface IObjectKey: IObjectIdentifier
 {
-    TypeDescriptor Type { get; set; }
-    ulong[] CompositeKeyPropertyIdentifiers { get; set; }
+    ulong Key { get; }
 }
