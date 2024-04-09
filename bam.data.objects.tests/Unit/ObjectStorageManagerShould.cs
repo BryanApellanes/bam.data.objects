@@ -80,7 +80,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         
         IStorageIdentifier keyStorageIdentifier = objectStorageManager.GetKeyStorageContainer(mockKey);
 
-        List<string> parts = new List<string> { root };
+        List<string> parts = new List<string> { root, "objects" };
         parts.AddRange(typeof(TestData).Namespace.Split('.'));
         parts.Add(nameof(TestData));
         parts.Add("key");
@@ -103,7 +103,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         mockKey.Key.Returns(testKey);
         mockKey.Type.Returns(new TypeDescriptor(typeof(TestData)));
         
-        List<string> parts = new List<string> { root };
+        List<string> parts = new List<string> { root,"objects" };
         parts.AddRange(typeof(TestData).Namespace.Split('.'));
         parts.Add(nameof(TestData));
         parts.Add("key");
@@ -115,6 +115,28 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
 
         IStorage keyStorage = objectStorageManager.GetStorage(keyStorageIdentifier);
         keyStorage.Identifier.FullName.ShouldEqual(expected);
+        Message.PrintLine(expected, ConsoleColor.Green);
+    }
+
+    [UnitTest]
+    public void GetPropertyStorageContainer()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(GetPropertyStorageContainer));
+        ServiceRegistry serviceRegistry = Configure(new ServiceRegistry());
+        serviceRegistry.CopyFrom(ConfigureDependencies(root));
+
+        List<string> parts = new List<string> { root, "objects" };
+        parts.AddRange(typeof(TestData).Namespace.Split('.'));
+        parts.Add(nameof(TestData));
+        
+        ObjectStorageManager objectStorageManager = serviceRegistry.Get<ObjectStorageManager>();
+        ObjectHashCalculator hashCalculator = Get<ObjectHashCalculator>();
+
+        /*IStorageContainer propertyStorage =
+            objectStorageManager.GetPropertyStorageContainer(typeof(TestData).GetProperty("StringProperty"));*/
+        
+        // {root}/objects/name/space/type/hash/{HashId}/{propertyName}
+        //propertyStorage.FullName.ShouldEqual();
     }
     
     public override ServiceRegistry Configure(ServiceRegistry serviceRegistry)
@@ -125,10 +147,10 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
             .For<IKeyHashCalculator>().Use<CompositeKeyHashCalculator>();
     }
     
-    private DependencyProvider ConfigureDependencies(string expected)
+    private DependencyProvider ConfigureDependencies(string rootPath)
     {
         ServiceRegistry testRegistry = new ServiceRegistry()
-            .For<IStorageIdentifier>().Use(new FsStorageIdentifier(expected));
+            .For<IRootStorageContainer>().Use(new RootStorageContainer(rootPath));
 
         DependencyProvider dependencyProvider = Configure(testRegistry);
         return dependencyProvider;

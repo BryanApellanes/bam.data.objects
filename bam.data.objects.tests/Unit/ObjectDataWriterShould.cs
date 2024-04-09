@@ -71,10 +71,10 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         mockStorageManager.Received().GetRootStorageContainer();
     }
     
-    private DependencyProvider ConfigureDependencies(string expected)
+    private DependencyProvider ConfigureDependencies(string rootPath)
     {
         ServiceRegistry testRegistry = new ServiceRegistry()
-            .For<IStorageIdentifier>().Use(new FsStorageIdentifier(expected));
+            .For<IStorageIdentifier>().Use(new FsStorageIdentifier(rootPath));
 
         DependencyProvider dependencyProvider = Configure(testRegistry);
         return dependencyProvider;

@@ -1,7 +1,25 @@
+using System.Runtime.InteropServices.JavaScript;
+using Bam.Net;
+
 namespace Bam.Data.Dynamic.TestClasses;
 
 public class TestData
 {
+    public TestData()
+    {
+    }
+
+    public TestData(bool init)
+    {
+        if (init)
+        {
+            IntProperty = RandomNumber.Between(100, 5000);
+            StringProperty = 32.RandomLetters();
+            LongProperty = RandomNumber.Between(10000, 50000);
+            DateTimeProperty = DateTime.Now;
+        }
+    }
+    
     public int IntProperty { get; set; }
     public string StringProperty { get; set; }
     public long LongProperty { get; set; }

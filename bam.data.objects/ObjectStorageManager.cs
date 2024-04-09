@@ -8,38 +8,37 @@ namespace Bam.Data.Dynamic.Objects;
 
 public class ObjectStorageManager : IObjectStorageManager
 {
-    public ObjectStorageManager(IStorageContainer rootStorage, IObjectHashCalculator objectHashCalculator)
+    public ObjectStorageManager(IRootStorageContainer rootStorage, IObjectHashCalculator objectHashCalculator)
     {
         this.RootStorage = rootStorage;
         this.ObjectHashCalculator = objectHashCalculator;
     }
     
-    public IStorageContainer RootStorage { get; private set; }
+    public IRootStorageContainer RootStorage { get; private set; }
     public IObjectHashCalculator ObjectHashCalculator { get; private set; }
     
-    public IStorageContainer GetRootStorageContainer()
+    public IRootStorageContainer GetRootStorageContainer()
     {
         return RootStorage;
     }
 
     public IStorageContainer GetTypeStorageContainer(Type type)
     {
-        return new DirectoryStorageContainer(Path.Combine(GetRootStorageContainer().FullName, GetRelativePathForType(type)));
+        IRootStorageContainer rootStorageContainer = GetRootStorageContainer();
+        string relativeTypePath = GetRelativePathForType(type);
+        return new DirectoryStorageContainer(Path.Combine(rootStorageContainer.FullName, "objects", relativeTypePath));
     }
 
-    public IStorageContainer GetPropertyStorageContainer(PropertyInfo property)
+    public IStorageContainer GetPropertyStorageContainer(IObjectProperty property)
     {
-        return new DirectoryStorageContainer(Path.Combine(GetTypeStorageContainer(property.DeclaringType).FullName, property.Name));
+        return new DirectoryStorageContainer(Path.Combine(GetTypeStorageContainer(property.Data.Type).FullName,
+            property.PropertyName));
     }
 
-    public IStorageContainer GetPropertyStorageContainer(Type type, PropertyInfo property)
-    {
-        return new DirectoryStorageContainer(Path.Combine(GetTypeStorageContainer(type).FullName, property.Name));
-    }
 
     public IStorageContainer GetKeyStorageContainer(IObjectKey objectKey)
     {
-        IStorageIdentifier directoryInfo = GetTypeStorageContainer(objectKey.Type);
+        IStorageIdentifier directoryInfo = GetTypeStorageContainer(objectKey.Type.Type);
         List<string> parts = new List<string>() { directoryInfo.FullName };
         parts.Add("key");
         parts.AddRange(objectKey.Key.ToString().Split(2));

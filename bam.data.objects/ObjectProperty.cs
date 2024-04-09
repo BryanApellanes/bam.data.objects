@@ -9,16 +9,12 @@ namespace Bam.Data.Dynamic.Objects;
 
 public class ObjectProperty : IObjectProperty
 {
-    public ObjectProperty(PropertyInfo property, object propertyValue): this(property.DeclaringType, property, propertyValue)
-    {
-    }
-
-    public ObjectProperty(Type type, PropertyInfo propertyInfo, object propertyValue)
+    public ObjectProperty(IObjectData parent, string propertyName, object propertyValue)
     {
         this.ObjectEncoder = JsonObjectEncoder.Default;
         this.ObjectEncoding = this.ObjectEncoder.Encode(propertyValue);
-        this.AssemblyQualifiedTypeName = type.AssemblyQualifiedName;
-        this.PropertyName = propertyInfo.Name;
+        this.AssemblyQualifiedTypeName = parent.Type.Type.AssemblyQualifiedName;
+        this.PropertyName = propertyName;
         this.Value = Encoding.UTF8.GetString(ObjectEncoding.Value) ?? "null";
     }
     
@@ -39,7 +35,8 @@ public class ObjectProperty : IObjectProperty
         return ObjectEncoder.Decode(ObjectEncoding);
     }
     
-    public ulong ParentHashId { get; set; }
+    public IObjectData Data { get; set; }
+
     /// <summary>
     /// Gets or sets the AssemblyQualifiedName of the type this property belongs to.
     /// </summary>
@@ -70,6 +67,6 @@ public class ObjectProperty : IObjectProperty
 
     public static ObjectProperty FromData(PropertyInfo property, object data)
     {
-        return new ObjectProperty(property, property.GetValue(data));
+        return new ObjectProperty(new ObjectData(data), property.Name, property.GetValue(data));
     }
 }

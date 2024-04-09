@@ -7,6 +7,9 @@ namespace Bam.Data.Objects;
 
 public class ObjectDataWriter : IObjectDataWriter
 {
+    private const string KeyFileName = "key";
+    private const string DataFileName = "dat";
+    
     public ObjectDataWriter(IObjectIdentifierFactory objectIdentifierFactory, IObjectStorageManager objectStorageManager, IObjectHashCalculator objectHashCalculator)
     {
         this.ObjectIdentifierFactory = objectIdentifierFactory;
@@ -29,23 +32,24 @@ public class ObjectDataWriter : IObjectDataWriter
         IStorageContainer keyStorageIdentifier = ObjectStorageManager.GetKeyStorageContainer(objectKey);
 
         // write the key to 
-        //  {root}/objects/name/space/type/key/{K/e/y}/dat -> {HashId}
+        //  {root}/objects/name/space/type/key/{K/e/y}/key -> {HashId}
         IStorage keyStorage = ObjectStorageManager.GetStorage(keyStorageIdentifier);
 
-        keyStorage.Save("dat", new RawData(objectKey.ToJson()));
+        IRawData keyData = keyStorage.Save(KeyFileName, new RawData(objectKey.ToJson()));
 
         Type type = data.Type;
         // write Object properties to
-        // {root}/objects/name/space/type/hash/{HashId}/{propertyName}/{version}/val.dat content -> {RawDataHash}
+        // {root}/objects/name/space/type/hash/{HashId}/{propertyName}/{version}/dat content -> {RawDataHash}
+        ulong hashId = ObjectHashCalculator.CalculateHash(data);
         foreach (IObjectProperty property in data.Properties)
         {
             PropertyInfo propertyInfo = type.GetProperty(property.PropertyName);
-            IStorageContainer propertyStorage = ObjectStorageManager.GetPropertyStorageContainer(propertyInfo);
+            IStorageContainer propertyStorage = ObjectStorageManager.GetPropertyStorageContainer(property);
 
             IStorage storage = ObjectStorageManager.GetStorage(propertyStorage);
             
             // TODO: handle versioning path
-            // Create IObjectPropertyValuePointer to save in val.dat
+            // Create IObjectPropertyValuePointer to save in dat
             // -> points to {RawDataHash}
             throw new NotImplementedException();
         }

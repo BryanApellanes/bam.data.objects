@@ -2,6 +2,7 @@ using System.Reflection;
 using Bam.Console;
 using Bam.Data.Dynamic.Objects;
 using Bam.Data.Dynamic.TestClasses;
+using Bam.Data.Objects;
 using Bam.Testing;
 
 namespace Bam.Net.Application.Unit;
@@ -49,7 +50,8 @@ public class ObjectPropertyShould
     {
         PropertyInfo prop = typeof(TestData).GetProperty("StringProperty");
         string expected = 16.RandomLetters();
-        ObjectProperty property = new ObjectProperty(prop, expected);
+        ObjectData data = new ObjectData(new TestData { StringProperty = expected });
+        ObjectProperty property = new ObjectProperty(data, prop.Name, expected);
         object actual = property.Decode();
         actual.ShouldEqual(expected);
     }
@@ -58,11 +60,12 @@ public class ObjectPropertyShould
     public void SetProperty()
     {
         string expected = 32.RandomLetters();
-        ObjectProperty prop = new ObjectProperty(typeof(TestData).GetProperty("StringProperty"), expected);
+        ObjectData data = new ObjectData(new TestData { StringProperty = expected });
+        ObjectProperty prop = new ObjectProperty(data, "StringProperty", expected);
 
-        TestData data = new TestData();
-        data.StringProperty.ShouldBeNull();
-        prop.SetValue(data);
-        data.StringProperty.ShouldEqual(expected);
+        TestData testData = new TestData();
+        testData.StringProperty.ShouldBeNull();
+        prop.SetValue(testData);
+        testData.StringProperty.ShouldEqual(expected);
     }
 }
