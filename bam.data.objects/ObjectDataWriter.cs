@@ -45,7 +45,6 @@ public class ObjectDataWriter : IObjectDataWriter
 
             IStorage storage = ObjectStorageManager.GetStorage(propertyStorage);
             
-            // TODO: handle versioning path
             // Create IObjectPropertyValuePointer to save in dat
             // -> points to {RawDataHash}
             throw new NotImplementedException();

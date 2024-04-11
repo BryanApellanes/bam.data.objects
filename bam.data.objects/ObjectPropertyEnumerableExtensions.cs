@@ -1,7 +1,8 @@
 using System.Reflection;
+using Bam.Data.Dynamic.Objects;
 using Bam.Net;
 
-namespace Bam.Data.Dynamic.Objects;
+namespace Bam.Data.Objects;
 
 public static class ObjectPropertyEnumerableExtensions
 {

@@ -110,12 +110,12 @@ public class ObjectData : IObjectData
         return ObjectEncoder.Encode(this.Data);
     }
 
-    public ulong GetHash(IHashCalculator hashCalculator)
+    public ulong GetHashId(IHashCalculator hashCalculator)
     {
         return hashCalculator.CalculateHash(this);
     }
 
-    public ulong GetKeyHash(IKeyHashCalculator keyHashCalculator)
+    public ulong GetKeyHashId(IKeyHashCalculator keyHashCalculator)
     {
         return keyHashCalculator.CalculateKeyHash(this);
     }

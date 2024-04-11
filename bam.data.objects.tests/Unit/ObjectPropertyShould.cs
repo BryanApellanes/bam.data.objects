@@ -68,4 +68,14 @@ public class ObjectPropertyShould
         prop.SetValue(testData);
         testData.StringProperty.ShouldEqual(expected);
     }
+
+    [UnitTest]
+    public void HaveParent()
+    {
+        ObjectData data = new ObjectData(new TestData { StringProperty = 16.RandomLetters() });
+        IObjectProperty property = data.Property("StringProperty");
+        property.ShouldNotBeNull();
+        property.Parent.ShouldNotBeNull();
+        property.Parent.ShouldEqual(data);
+    }
 }

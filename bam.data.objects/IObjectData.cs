@@ -17,6 +17,6 @@ public interface IObjectData
     IEnumerable<IObjectProperty> Properties { get; }
     string ToJson();
     IObjectEncoding Encode();
-    ulong GetHash(IHashCalculator hashCalculator);
-    ulong GetKeyHash(IKeyHashCalculator keyHashCalculator);
+    ulong GetHashId(IHashCalculator hashCalculator);
+    ulong GetKeyHashId(IKeyHashCalculator keyHashCalculator);
 }
