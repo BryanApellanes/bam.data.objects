@@ -132,8 +132,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         ObjectStorageManager objectStorageManager = serviceRegistry.Get<ObjectStorageManager>();
         ObjectHashCalculator hashCalculator = Get<ObjectHashCalculator>();
 
-        /*IStorageContainer propertyStorage =
-            objectStorageManager.GetPropertyStorageContainer(typeof(TestData).GetProperty("StringProperty"));*/
+        //IStorageContainer propertyStorage = objectStorageManager.GetPropertyStorageContainer()
         
         // {root}/objects/name/space/type/hash/{HashId}/{propertyName}
         //propertyStorage.FullName.ShouldEqual();

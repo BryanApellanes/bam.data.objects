@@ -3,8 +3,6 @@ using Bam.Storage;
 
 namespace Bam.Data.Dynamic.Objects;
 
-
-
 public class ObjectIdentifierFactory : IObjectIdentifierFactory
 {
     public ObjectIdentifierFactory(IObjectStorageManager objectStorageManager, IObjectHashCalculator objectHashCalculator)
@@ -16,7 +14,7 @@ public class ObjectIdentifierFactory : IObjectIdentifierFactory
     private IObjectStorageManager ObjectStorageManager { get; init; }
     private IObjectHashCalculator ObjectHashCalculator { get; init; }
 
-    public IObjectKey GetObjectKeyFor(IObjectData data)
+    public IObjectKey GetObjectKey(IObjectData data)
     {
         return new ObjectKey()
         {
@@ -27,7 +25,7 @@ public class ObjectIdentifierFactory : IObjectIdentifierFactory
         };
     }
 
-    public IObjectIdentifier GetObjectIdentifierFor(IObjectData data)
+    public IObjectIdentifier GetObjectIdentifier(IObjectData data)
     {
         return new ObjectIdentifier()
         {

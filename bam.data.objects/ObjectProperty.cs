@@ -11,6 +11,7 @@ public class ObjectProperty : IObjectProperty
 {
     public ObjectProperty(IObjectData parent, string propertyName, object propertyValue)
     {
+        this.Parent = parent;
         this.ObjectEncoder = JsonObjectEncoder.Default;
         this.ObjectEncoding = this.ObjectEncoder.Encode(propertyValue);
         this.AssemblyQualifiedTypeName = parent.Type.Type.AssemblyQualifiedName;
@@ -35,7 +36,7 @@ public class ObjectProperty : IObjectProperty
         return ObjectEncoder.Decode(ObjectEncoding);
     }
     
-    public IObjectData Data { get; set; }
+    public IObjectData Parent { get; set; }
 
     /// <summary>
     /// Gets or sets the AssemblyQualifiedName of the type this property belongs to.
@@ -58,6 +59,13 @@ public class ObjectProperty : IObjectProperty
         PropertyInfo property = type.GetProperty(PropertyName);
         property.SetValue(target, Decode());
         return target;
+    }
+
+    public object SetValue(object target, object value)
+    {
+        this.ObjectEncoding = this.ObjectEncoder.Encode(value);
+        this.Value = Encoding.UTF8.GetString(ObjectEncoding.Value) ?? "null";
+        return SetValue(target);
     }
     
     public IRawData ToRawData(Encoding encoding = null)

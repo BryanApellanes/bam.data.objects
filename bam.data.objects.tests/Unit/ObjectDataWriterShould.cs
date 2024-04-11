@@ -31,7 +31,7 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         TestData testData = new TestData();
         ObjectData objectData = new ObjectData(testData);
         await objectDataWriter.WriteAsync(objectData);
-        mockObjectIdentifierFactory.Received().GetObjectKeyFor(objectData);
+        mockObjectIdentifierFactory.Received().GetObjectKey(objectData);
     }
 
     [UnitTest]

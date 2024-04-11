@@ -1,8 +1,8 @@
 namespace Bam.Data.Objects;
 
-public interface IObjectIdentifierFactory
+public interface IObjectDataFactory
 {
+    IObjectData Wrap(object data);
     IObjectKey GetObjectKey(IObjectData data);
     IObjectIdentifier GetObjectIdentifier(IObjectData data);
-    
 }

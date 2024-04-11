@@ -31,7 +31,7 @@ public class ObjectStorageManager : IObjectStorageManager
 
     public IStorageContainer GetPropertyStorageContainer(IObjectProperty property)
     {
-        return new DirectoryStorageContainer(Path.Combine(GetTypeStorageContainer(property.Data.Type).FullName,
+        return new DirectoryStorageContainer(Path.Combine(GetTypeStorageContainer(property.Parent.Type).FullName,
             property.PropertyName));
     }
 

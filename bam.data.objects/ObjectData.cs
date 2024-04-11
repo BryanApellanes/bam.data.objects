@@ -16,17 +16,17 @@ public class ObjectData : IObjectData
         this.Data = data;
         this.Type = new TypeDescriptor(data?.GetType());
         this.ObjectEncoder = JsonObjectEncoder.Default;
-        this.DataTypeTranslator = Bam.Net.Data.DataTypeTranslator.Default;
+        this.DataTypeTranslator = Bam.Data.DataTypeTranslator.Default;
     }
 
-    public ObjectData(object data, Encoding encoding) : base()
+    internal ObjectData(object data, ObjectEncoder encoder)
     {
         this.Data = data;
         this.Type = new TypeDescriptor(data?.GetType());
-        this.ObjectEncoder = JsonObjectEncoder.Default;
-        this.DataTypeTranslator = Bam.Net.Data.DataTypeTranslator.Default;
+        this.ObjectEncoder = encoder;
+        this.DataTypeTranslator = Bam.Data.DataTypeTranslator.Default;
     }
-
+    
     [JsonIgnore]
     [YamlIgnore]
     public object Data
@@ -53,6 +53,32 @@ public class ObjectData : IObjectData
         set;
     }
 
+    private Dictionary<string, IObjectProperty> _propertyDictionary;
+    public IObjectProperty? Property(string propertyName)
+    {
+        if (_propertyDictionary == null)
+        {
+            _propertyDictionary = new Dictionary<string, IObjectProperty>();
+            foreach (IObjectProperty property in Properties)
+            {
+                _propertyDictionary.Add(property.PropertyName, property);
+            }
+        }
+
+        return _propertyDictionary.GetValueOrDefault(propertyName);
+    }
+
+    public IObjectData? Property(string propertyName, object value)
+    {
+        IObjectProperty? property = Property(propertyName);
+        if (property != null)
+        {
+            property.SetValue(this.Data, value);
+        }
+
+        return this;
+    }
+
     private IEnumerable<IObjectProperty> _properties;
     public IEnumerable<IObjectProperty> Properties
     {
@@ -67,7 +93,8 @@ public class ObjectData : IObjectData
             }
             if (Type != null && Type.Type != null)
             {
-                foreach (var objectProperty in GetObjectProperties()) yield return objectProperty;
+                _properties = GetObjectProperties();
+                foreach (var objectProperty in _properties) yield return objectProperty;
             }
         }
         set => _properties = value;
@@ -76,6 +103,21 @@ public class ObjectData : IObjectData
     public string ToJson()
     {
         return Data.ToJson();
+    }
+
+    public IObjectEncoding Encode()
+    {
+        return ObjectEncoder.Encode(this.Data);
+    }
+
+    public ulong GetHash(IHashCalculator hashCalculator)
+    {
+        return hashCalculator.CalculateHash(this);
+    }
+
+    public ulong GetKeyHash(IKeyHashCalculator keyHashCalculator)
+    {
+        return keyHashCalculator.CalculateKeyHash(this);
     }
 
     private IEnumerable<IObjectProperty> GetObjectProperties()

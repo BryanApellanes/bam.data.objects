@@ -32,7 +32,7 @@ public class ObjectIdentifierFactoryShould : UnitTestMenuContainer
         ObjectData data = new ObjectData(new TestData());
         
         ulong keyHash = objectHasher.CalculateKeyHash(data);
-        IObjectKey key = factory.GetObjectKeyFor(data);
+        IObjectKey key = factory.GetObjectKey(data);
         key.Key.ShouldEqual(keyHash);
     }
 }

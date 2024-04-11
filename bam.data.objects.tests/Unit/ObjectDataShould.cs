@@ -1,3 +1,5 @@
+using Bam.Console;
+using Bam.Data.Dynamic.Objects;
 using Bam.Data.Dynamic.TestClasses;
 using Bam.Data.Objects;
 using Bam.Net.CoreServices;
@@ -49,5 +51,85 @@ public class ObjectDataShould : UnitTestMenuContainer
         data.Properties.ShouldNotBeNull("data.Properties was null");
         int propCount = data.Properties.Count();
         propCount.ShouldEqual(4, $"data.Properties.Count() was {propCount} instead of 4");
+    }
+
+    [UnitTest]
+    public void OutputSameJson()
+    {
+        TestData testData = new TestData
+        {
+            IntProperty = RandomNumber.Between(1, 100),
+            StringProperty = 16.RandomLetters(),
+            LongProperty = RandomNumber.Between(100, 1000),
+            DateTimeProperty = DateTime.Now
+        };
+
+        ObjectData testObjectData = new ObjectData(testData);
+
+        string expected = testData.ToJson();
+        string actual = testObjectData.ToJson();
+        
+        expected.ShouldEqual(actual);
+        Message.PrintLine(expected);
+    }
+
+    [UnitTest]
+    public void GetIntPropertyValue()
+    {
+        int expected = RandomNumber.Between(100, 1000);
+        TestData testData = new TestData
+        {
+            IntProperty = expected,
+            StringProperty = 8.RandomLetters(),
+            LongProperty = RandomNumber.Between(100, 1000),
+            DateTimeProperty = DateTime.Now
+        };
+
+        ObjectData testObjectData = new ObjectData(testData);
+        IObjectProperty property = testObjectData.Property("IntProperty");
+        object decoded = property.Decode();
+        // convert to long because the decoded value of a number 
+        // gets converted to long by the underlying deserialization
+        (decoded).ShouldEqual((long)expected);
+    }
+    
+    [UnitTest]
+    public void GetStringPropertyValue()
+    {
+        string expected = 32.RandomLetters();
+        TestData testData = new TestData
+        {
+            IntProperty = RandomNumber.Between(1, 100),
+            StringProperty = expected,
+            LongProperty = RandomNumber.Between(100, 1000),
+            DateTimeProperty = DateTime.Now
+        };
+
+        ObjectData testObjectData = new ObjectData(testData);
+        IObjectProperty property = testObjectData.Property("StringProperty");
+        property.Decode().ShouldEqual(expected);
+    }
+    
+    [UnitTest]
+    public void SetPropertyValue()
+    {
+        string expected = 32.RandomLetters();
+        TestData testData = new TestData
+        {
+            IntProperty = RandomNumber.Between(1, 100),
+            StringProperty = 6.RandomLetters(),
+            LongProperty = RandomNumber.Between(100, 1000),
+            DateTimeProperty = DateTime.Now
+        };
+
+        ObjectData testObjectData = new ObjectData(testData);
+        IObjectProperty getProperty = testObjectData.Property("StringProperty");
+        getProperty.Decode().ShouldNotEqual(expected);
+        IObjectData setData = testObjectData.Property("StringProperty", expected);
+        
+        testObjectData.Property("StringProperty").Decode().ShouldEqual(expected);
+        setData.Property("StringProperty").Decode().ShouldEqual(expected);
+        setData.ShouldEqual(testObjectData);
+        setData.ShouldBe(testObjectData);
     }
 }

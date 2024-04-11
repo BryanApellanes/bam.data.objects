@@ -10,16 +10,15 @@ public class ObjectDataWriter : IObjectDataWriter
     private const string KeyFileName = "key";
     private const string DataFileName = "dat";
     
-    public ObjectDataWriter(IObjectIdentifierFactory objectIdentifierFactory, IObjectStorageManager objectStorageManager, IObjectHashCalculator objectHashCalculator)
+    public ObjectDataWriter(IObjectDataFactory objectDataFactory, IObjectStorageManager objectStorageManager)
     {
-        this.ObjectIdentifierFactory = objectIdentifierFactory;
+        this.ObjectDataFactory = objectDataFactory;
         this.ObjectStorageManager = objectStorageManager;
     }
     
-    public IObjectIdentifierFactory ObjectIdentifierFactory { get; init; }
+    public IObjectDataFactory ObjectDataFactory { get; init; }
+    
     public IObjectStorageManager ObjectStorageManager { get; init; }
-
-    public IObjectHashCalculator ObjectHashCalculator { get; init; }
     
     public Task<IObjectDataWriteResult> WriteAsync(object data)
     {
@@ -28,7 +27,7 @@ public class ObjectDataWriter : IObjectDataWriter
 
     public Task<IObjectDataWriteResult> WriteAsync(IObjectData data)
     {
-        IObjectKey objectKey = ObjectIdentifierFactory.GetObjectKeyFor(data);
+        IObjectKey objectKey = ObjectDataFactory.GetObjectKey(data);
         IStorageContainer keyStorageIdentifier = ObjectStorageManager.GetKeyStorageContainer(objectKey);
 
         // write the key to 
@@ -40,10 +39,8 @@ public class ObjectDataWriter : IObjectDataWriter
         Type type = data.Type;
         // write Object properties to
         // {root}/objects/name/space/type/hash/{HashId}/{propertyName}/{version}/dat content -> {RawDataHash}
-        ulong hashId = ObjectHashCalculator.CalculateHash(data);
         foreach (IObjectProperty property in data.Properties)
         {
-            PropertyInfo propertyInfo = type.GetProperty(property.PropertyName);
             IStorageContainer propertyStorage = ObjectStorageManager.GetPropertyStorageContainer(property);
 
             IStorage storage = ObjectStorageManager.GetStorage(propertyStorage);

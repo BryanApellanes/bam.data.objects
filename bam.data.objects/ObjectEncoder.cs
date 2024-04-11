@@ -3,7 +3,7 @@ using Bam.Net;
 
 namespace Bam.Data.Objects;
 
-public abstract class ObjectEncoder: IObjectConverter, IObjectEncoder, IObjectDecoder
+public abstract class ObjectEncoder: IObjectEncoderDecoder, IObjectConverter, IObjectEncoder, IObjectDecoder
 {
     private static readonly object _defaultLock = new();
     private static JsonObjectEncoder _default;
