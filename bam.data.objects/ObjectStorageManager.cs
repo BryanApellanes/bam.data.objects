@@ -29,14 +29,14 @@ public class ObjectStorageManager : IObjectStorageManager
         return new DirectoryStorageContainer(Path.Combine(rootStorageContainer.FullName, "objects", relativeTypePath));
     }
 
-    public IStorageContainer GetPropertyStorageContainer(IObjectProperty property)
+    public IObjectPropertyStorageContainer GetPropertyStorageContainer(IObjectProperty property)
     {
         List<string> parts = new List<string>();
         parts.Add(GetTypeStorageContainer(property.Parent.Type).FullName);
         parts.Add("hash");
         parts.AddRange(property.Parent.GetHashId(ObjectHashCalculator).ToString().Split(2));
         parts.Add(property.PropertyName);
-        return new PropertyStorageContainer(Path.Combine(parts.ToArray()));
+        return new ObjectPropertyStorageContainer(Path.Combine(parts.ToArray()));
     }
 
 

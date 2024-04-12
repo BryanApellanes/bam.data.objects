@@ -115,10 +115,7 @@ namespace Bam.Data.Dynamic.Objects
             {
                 return _rootDirectoryLock.DoubleCheckLock(ref _rootDirectory, () => Path.Combine(RuntimeSettings.ProcessDataFolder, DataType.Name));
             }
-            set
-            {
-                _rootDirectory = Path.Combine(value, DataType.Name);
-            } 
+            set => _rootDirectory = Path.Combine(value, DataType.Name);
         }
 
         public event EventHandler AcquireLockException;

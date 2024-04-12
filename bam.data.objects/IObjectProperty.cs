@@ -1,10 +1,11 @@
 using System.Text;
 using Bam.Data.Objects;
+using Bam.Net;
 using Bam.Storage;
 
 namespace Bam.Data.Dynamic.Objects;
 
-public interface IObjectProperty
+public interface IObjectProperty : IJsonable
 {
     IObjectData Parent { get; set; }
     string AssemblyQualifiedTypeName { get; set; }

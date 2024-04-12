@@ -75,6 +75,16 @@ public class ObjectProperty : IObjectProperty
 
     public static ObjectProperty FromData(PropertyInfo property, object data)
     {
-        return new ObjectProperty(new ObjectData(data), property.Name, property.GetValue(data));
+        IObjectData parent = new ObjectData(data);
+        if (data is IObjectData dataParent)
+        {
+            parent = dataParent;
+        }
+        return new ObjectProperty(parent, property.Name, property.GetValue(data));
+    }
+
+    public string ToJson()
+    {
+        return Value;
     }
 }

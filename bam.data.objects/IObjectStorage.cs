@@ -1,6 +1,6 @@
 namespace Bam.Storage;
 
-public interface IObjectStorage
+public interface IObjectStorage : IStorage
 {
     IObjectStorageSaveResult SaveObject(object data);
     IObjectStorageSaveResult<T> SaveObject<T>(T data);

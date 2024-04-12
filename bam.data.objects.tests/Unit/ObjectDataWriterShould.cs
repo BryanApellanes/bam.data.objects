@@ -33,27 +33,6 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         await objectDataWriter.WriteAsync(objectData);
         mockObjectIdentifierFactory.Received().GetObjectKey(objectData);
     }
-
-    [UnitTest]
-    public void WriteKeyFile()
-    {    
-        string root = Path.Combine(Environment.CurrentDirectory, nameof(WriteKeyFile));
-        DependencyProvider dependencyProvider = ConfigureDependencies(root);
-        ObjectStorageManager objectStorageManager = dependencyProvider.Get<ObjectStorageManager>();
-        
-        IObjectKey mockKey = Substitute.For<IObjectKey>();
-        ulong testKey = 32.RandomLetters().ToHashULong(HashAlgorithms.SHA256);
-        mockKey.Key.Returns(testKey);
-        mockKey.Type.Returns(new TypeDescriptor(typeof(TestData)));
-        
-        List<string> parts = new List<string> { root };
-        parts.AddRange(typeof(TestData).Namespace.Split('.'));
-        parts.Add(nameof(TestData));
-        parts.Add("key");
-        parts.AddRange(testKey.ToString().Split(2));
-        
-        string expected = Path.Combine(parts.ToArray());
-    }
     
     [UnitTest]
     public async Task CallObjectStorageManagerGetRootStorage()

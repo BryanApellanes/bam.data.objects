@@ -1,6 +1,7 @@
 using System.Text;
 using Bam.Data.Dynamic.Objects;
 using Bam.Net;
+using MongoDB.Bson;
 
 namespace Bam.Data.Objects;
 
@@ -37,7 +38,16 @@ public class JsonObjectEncoder : ObjectEncoder
 
     public override IObjectEncoding Encode(object data)
     {
-        return new JsonObjectEncoding(Encoding.GetBytes(data.ToJson()), Encoding);
+        string json = string.Empty;
+        if (data is IJsonable jsonable)
+        {
+            json = jsonable.ToJson();
+        }
+        else
+        {
+            json = data.ToJson();
+        }
+        return new JsonObjectEncoding(Encoding.GetBytes(json), Encoding);
     }
 
     public override object Decode(byte[] encoding, Type type)

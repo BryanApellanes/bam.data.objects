@@ -1,6 +1,5 @@
 using System.Reflection;
 using Bam.Data.Dynamic.Objects;
-using bam.storage;
 using Bam.Storage;
 
 namespace Bam.Data.Objects;
@@ -38,20 +37,14 @@ public class ObjectDataWriter : IObjectDataWriter
 
         Type type = data.Type;
         // write Object properties to
-        // {root}/objects/name/space/type/hash/{HashId}/{propertyName}/{version}/dat content -> {RawDataHash}
+        // {root}/objects/name/space/type/hash/{H/a/s/h/I/d}/{propertyName}/{version}/dat content -> {RawDataHash}
         foreach (IObjectProperty property in data.Properties)
         {
-            IStorageContainer propertyStorage = ObjectStorageManager.GetPropertyStorageContainer(property);
+            IObjectPropertyStorageContainer objectPropertyStorage = ObjectStorageManager.GetPropertyStorageContainer(property);
 
-            IStorage storage = ObjectStorageManager.GetStorage(propertyStorage);
-            
-            // Create IObjectPropertyValuePointer to save in dat
-            // -> points to {RawDataHash}
-            throw new NotImplementedException();
+            objectPropertyStorage.Save(property, ObjectStorageManager);
         }
         
-        // write properties to Raw data
-        // {root}/raw/{hash}.dat   
 
         throw new NotImplementedException();
     }

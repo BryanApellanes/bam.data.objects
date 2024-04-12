@@ -8,7 +8,7 @@ public interface IObjectStorageManager
 {
     IRootStorageContainer GetRootStorageContainer();
     IStorageContainer GetTypeStorageContainer(Type type);
-    IStorageContainer GetPropertyStorageContainer(IObjectProperty property);
+    IObjectPropertyStorageContainer GetPropertyStorageContainer(IObjectProperty property);
     IStorageContainer GetKeyStorageContainer(IObjectKey objectKey);
     IStorageContainer GetHashStorageIdentifier(IObjectIdentifier objectIdentifier);
 
