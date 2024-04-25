@@ -9,4 +9,5 @@ public interface IObjectPropertyWriteResult
     IRawData RawData { get; set; }
     bool Success { get; set; }
     string Message { get; set; }
+    string RawDataHash { get; set; }
 }

@@ -6,7 +6,7 @@ using YamlDotNet.Serialization;
 
 namespace Bam.Data.Objects;
 
-public interface IObjectData 
+public interface IObjectData : IJsonable
 {
     [JsonIgnore]
     [YamlIgnore]
