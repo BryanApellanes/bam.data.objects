@@ -57,13 +57,14 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         TestData testData = new TestData();
         ObjectData objectData = new ObjectData(testData);
         IObjectDataWriteResult result = await objectDataWriter.WriteAsync(objectData);
+        result.Data.ShouldNotBeNull("result.Data was null");
         result.Data.ShouldBe(objectData);
         
         List<string> parts = new List<string> { root };
         parts.AddRange(typeof(TestData).Namespace.Split('.'));
         parts.Add(nameof(TestData));
-        parts.Add("key");
         parts.AddRange(testKey.ToString().Split(2));
+        parts.Add("key");
         
         string expected = Path.Combine(parts.ToArray());
         File.Exists(expected).ShouldBeTrue($"Key file was not written to the expected path {expected}");

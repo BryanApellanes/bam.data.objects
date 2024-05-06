@@ -4,9 +4,10 @@ namespace Bam.Data.Objects;
 
 public class ObjectDataWriteResult : IObjectDataWriteResult
 {
-    public ObjectDataWriteResult()
+    public ObjectDataWriteResult(IObjectData data)
     {
         this.PropertyWriteResults = new Dictionary<string, IObjectPropertyWriteResult>();
+        this.Data = data;
     }
     
     public bool Success { get; set; }

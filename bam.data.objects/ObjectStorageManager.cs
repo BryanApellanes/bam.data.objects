@@ -51,7 +51,6 @@ public class ObjectStorageManager : IObjectStorageManager
         List<string> parts = new List<string>
         {
             directoryInfo.FullName,
-            "key"
         };
         parts.AddRange(objectKey.Key.ToString().Split(2));
         
@@ -81,7 +80,7 @@ public class ObjectStorageManager : IObjectStorageManager
     {
         return new FsStorage(storageIdentifier.FullName);
     }
-
+    
     private string GetRelativePathForType(Type type)
     {
         Args.ThrowIfNull(type, nameof(type));

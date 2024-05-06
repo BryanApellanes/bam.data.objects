@@ -3,7 +3,6 @@ using Bam.Data.Dynamic.Objects;
 
 using Bam.Net;
 using Bam.Net.Data.Repositories;
-using bam.storage;
 using Bam.Storage;
 
 namespace Bam.Data.Objects;
@@ -37,7 +36,7 @@ public class ObjectDataWriter : IObjectDataWriter
 
     public async Task<IObjectDataWriteResult> WriteAsync(IObjectData data)
     {
-        ObjectDataWriteResult objectDataWriteResult = new ObjectDataWriteResult();
+        ObjectDataWriteResult objectDataWriteResult = new ObjectDataWriteResult(data);
         try
         {
             IObjectKey objectKey = ObjectDataFactory.GetObjectKey(data);

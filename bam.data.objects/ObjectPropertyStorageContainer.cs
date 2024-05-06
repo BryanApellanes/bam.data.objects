@@ -37,17 +37,21 @@ public class ObjectPropertyStorageContainer : DirectoryStorageContainer, IObject
     {
         try
         {
-            IStorage storage = storageManager.GetStorage(this);
-            IRawData rawData = objectProperty.ToRawData();
-            string relativePath = Path.Combine(rawData.HashString.Split(2).ToArray());
-            relativePath = Path.Combine(relativePath, "dat");
-            rawData = storage.Save(relativePath, rawData);
+            IStorage referenceStorage = storageManager.GetStorage(this);
+            IRawData objectPropertyRawData = objectProperty.ToRawData();
+            RawDataReference reference = new RawDataReference(objectPropertyRawData.HashString);
+            string referenceDatFilePath = Path.Combine(objectPropertyRawData.HashString.Split(2).ToArray());
+            referenceDatFilePath = Path.Combine(referenceDatFilePath, "dat");
+            IRawData referenceDatFileRawData = referenceStorage.Save(referenceDatFilePath, reference);
+            
+            IStorage writeStorage = storageManager.GetRawStorage();
+            IRawData savedPropertyRawData = writeStorage.Save(objectPropertyRawData);
             return new ObjectPropertyWriteResult()
             {
                 Success = true,
                 ObjectProperty = objectProperty,
-                RawData = rawData,
-                StorageIdentifier = new ObjectPropertyStorageSlot(objectProperty, Path.Combine(storage.Identifier.FullName, relativePath))
+                RawData = objectPropertyRawData,
+                StorageIdentifier = new ObjectPropertyStorageSlot(objectProperty, Path.Combine(writeStorage.Identifier.FullName, objectPropertyRawData.HashId.ToString()))
             };
         }
         catch (Exception ex)
@@ -55,6 +59,7 @@ public class ObjectPropertyStorageContainer : DirectoryStorageContainer, IObject
             return new ObjectPropertyWriteResult()
             {
                 Success = false,
+                ObjectProperty = objectProperty,
                 Message = ProcessMode.Current.Mode == ProcessModes.Prod ? ex.Message : ex.GetMessageAndStackTrace()
             };
         }

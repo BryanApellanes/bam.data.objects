@@ -1,3 +1,4 @@
+using System.Reflection;
 using Bam.Data.Dynamic.Objects;
 using Bam.Net;
 using Bam.Net.Data.Repositories;
@@ -44,4 +45,5 @@ public class ObjectPropertyWriter : IObjectPropertyWriter
         }
 
     }
+
 }
