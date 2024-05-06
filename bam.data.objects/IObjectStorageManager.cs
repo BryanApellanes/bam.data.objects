@@ -20,5 +20,4 @@ public interface IObjectStorageManager
     IStorage GetStorage(IStorageContainer storageIdentifier);
 
     IStorage GetRawStorage();
-    IStorage GetWriteStorage();
 }

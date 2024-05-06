@@ -76,6 +76,7 @@ public class ObjectStorageManager : IObjectStorageManager
         return GetStorage(new DirectoryStorageContainer(Path.Combine(RootStorage.FullName, "raw")));
     }
     
+
     public virtual IStorage GetStorage(IStorageContainer storageIdentifier)
     {
         return new FsStorage(storageIdentifier.FullName);
