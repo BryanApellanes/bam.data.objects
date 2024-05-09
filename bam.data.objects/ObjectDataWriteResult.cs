@@ -1,4 +1,5 @@
 using Bam.Data.Dynamic.Objects;
+using Bam.Storage;
 
 namespace Bam.Data.Objects;
 
@@ -7,17 +8,19 @@ public class ObjectDataWriteResult : IObjectDataWriteResult
     public ObjectDataWriteResult(IObjectData data)
     {
         this.PropertyWriteResults = new Dictionary<string, IObjectPropertyWriteResult>();
-        this.Data = data;
+        this.ObjectData = data;
+        this.Success = true;
     }
     
     public bool Success { get; set; }
     public string Message { get; set; }
     
-    public IObjectData Data { get; }
+    public IObjectData ObjectData { get; }
     public IObjectKey ObjectKey { get; set; }
+    public IStorageSlot KeySlot { get; set; }
     public IDictionary<string, IObjectPropertyWriteResult> PropertyWriteResults { get; init; }
 
-    public void AddPropertyWriteResult(IObjectPropertyWriteResult propertyWriteResult)
+    internal void AddPropertyWriteResult(IObjectPropertyWriteResult propertyWriteResult)
     {
         PropertyWriteResults.Add(propertyWriteResult.ObjectProperty?.PropertyName, propertyWriteResult);
     }

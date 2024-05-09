@@ -9,5 +9,5 @@ public interface IObjectPropertyStorageContainer : IStorageContainer
     IList<IVersion> VersionHistory { get; }
     IVersion NextVersion { get; }
 
-    IObjectPropertyWriteResult Save(IObjectProperty objectProperty, IObjectStorageManager storageManager);
+    IObjectPropertyWriteResult Save(IObjectStorageManager storageManager, IObjectProperty objectProperty);
 }

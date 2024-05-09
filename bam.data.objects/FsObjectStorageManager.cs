@@ -6,9 +6,9 @@ using Type = System.Type;
 
 namespace Bam.Data.Dynamic.Objects;
 
-public class ObjectStorageManager : IObjectStorageManager
+public class FsObjectStorageManager : IObjectStorageManager
 {
-    public ObjectStorageManager(IRootStorageContainer rootStorage, IObjectHashCalculator objectHashCalculator)
+    public FsObjectStorageManager(IRootStorageContainer rootStorage, IObjectHashCalculator objectHashCalculator)
     {
         this.RootStorage = rootStorage;
         this.ObjectHashCalculator = objectHashCalculator;
@@ -33,9 +33,8 @@ public class ObjectStorageManager : IObjectStorageManager
     {
         List<string> parts = new List<string>();
         parts.Add(GetTypeStorageContainer(property.Parent.Type).FullName);
-        parts.Add("hash");
-        parts.AddRange(property.Parent.GetHashId(ObjectHashCalculator).ToString().Split(2));
         parts.Add(property.PropertyName);
+        parts.AddRange(property.Parent.GetKey(ObjectHashCalculator).ToString().Split(2));
         return new ObjectPropertyStorageContainer(Path.Combine(parts.ToArray()));
     }
 
@@ -43,7 +42,6 @@ public class ObjectStorageManager : IObjectStorageManager
     {
         return GetStorage(GetKeyStorageContainer(objectKey));
     }
-
 
     public IStorageContainer GetKeyStorageContainer(IObjectKey objectKey)
     {
@@ -56,21 +54,7 @@ public class ObjectStorageManager : IObjectStorageManager
         
         return new DirectoryStorageContainer(Path.Combine(parts.ToArray()));
     }
-
-    /*public IStorage GetHashStorage(IObjectIdentifier objectIdentifier)
-    {
-        return GetStorage(GetHashStorageContainer(objectIdentifier));
-    }
-
-    public IStorageContainer GetHashStorageContainer(IObjectIdentifier objectIdentifier)
-    {
-        IStorageIdentifier typeStorageIdentifier = GetTypeStorageContainer(objectIdentifier.Type);
-        List<string> parts = new List<string>() { typeStorageIdentifier.FullName };
-        parts.Add("hash");
-        parts.AddRange(objectIdentifier.Hash.ToString().Split(2));
-        return new DirectoryStorageContainer(Path.Combine(parts.ToArray()));
-    }*/
-
+    
     public virtual IStorage GetRawStorage()
     {
         return GetStorage(new DirectoryStorageContainer(Path.Combine(RootStorage.FullName, "raw")));

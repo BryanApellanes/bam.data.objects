@@ -5,7 +5,8 @@ namespace Bam.Data.Objects;
 
 public interface IObjectDataWriteResult : IResult
 {
-    IObjectData Data { get; }
+    IObjectData ObjectData { get; }
     IObjectKey ObjectKey { get; }
+    IStorageSlot KeySlot { get; }
     IDictionary<string, IObjectPropertyWriteResult> PropertyWriteResults { get; } 
 }

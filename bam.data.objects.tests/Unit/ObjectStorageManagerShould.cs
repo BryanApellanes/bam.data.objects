@@ -23,7 +23,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
     {
         string expected = Path.Combine(Environment.CurrentDirectory, nameof(GetRootStorage));
         DependencyProvider dependencyProvider = ConfigureDependencies(expected);
-        ObjectStorageManager storageManager = dependencyProvider.Get<ObjectStorageManager>();
+        FsObjectStorageManager storageManager = dependencyProvider.Get<FsObjectStorageManager>();
 
         string actual = storageManager.GetRootStorageContainer().FullName;
         actual.ShouldEqual(expected, $"root was not expected value {expected} but {actual}");
@@ -34,7 +34,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
     {        
         string root = Path.Combine(Environment.CurrentDirectory, nameof(GetTypeDirectoryForDynamicType));
         DependencyProvider dependencyProvider = ConfigureDependencies(root);
-        ObjectStorageManager ofs = dependencyProvider.Get<ObjectStorageManager>();
+        FsObjectStorageManager ofs = dependencyProvider.Get<FsObjectStorageManager>();
         dynamic ob = new
         {
         };
@@ -49,10 +49,10 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
     {        
         string root = Path.Combine(Environment.CurrentDirectory, nameof(GetTypeDirectoryForDynamicType));
         DependencyProvider dependencyProvider = ConfigureDependencies(root);
-        ObjectStorageManager objectStorageManager = dependencyProvider.Get<ObjectStorageManager>();
+        FsObjectStorageManager fsObjectStorageManager = dependencyProvider.Get<FsObjectStorageManager>();
         TestData ob = new TestData();
         
-        IStorageIdentifier directoryInfo = objectStorageManager.GetTypeStorageContainer(ob.GetType());
+        IStorageIdentifier directoryInfo = fsObjectStorageManager.GetTypeStorageContainer(ob.GetType());
         directoryInfo.ShouldNotBeNull();
         Message.PrintLine("typeDir = '{0}'", directoryInfo.FullName);
     }
@@ -62,14 +62,14 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(GetTypeDirectoryForDynamicType));
         DependencyProvider dependencyProvider = ConfigureDependencies(root);
-        ObjectStorageManager objectStorageManager = dependencyProvider.Get<ObjectStorageManager>();
+        FsObjectStorageManager fsObjectStorageManager = dependencyProvider.Get<FsObjectStorageManager>();
         
         IObjectKey mockKey = Substitute.For<IObjectKey>();
         ulong testKey = 32.RandomLetters().ToHashULong(HashAlgorithms.SHA256);
         mockKey.Key.Returns(testKey);
         mockKey.Type.Returns(new TypeDescriptor(typeof(TestData)));
         
-        IStorageIdentifier keyStorageIdentifier = objectStorageManager.GetKeyStorageContainer(mockKey);
+        IStorageIdentifier keyStorageIdentifier = fsObjectStorageManager.GetKeyStorageContainer(mockKey);
 
         List<string> parts = new List<string> { root, "objects" };
         parts.AddRange(typeof(TestData).Namespace.Split('.'));
@@ -87,7 +87,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(GetKeyStorage));
         DependencyProvider dependencyProvider = ConfigureDependencies(root);
-        ObjectStorageManager objectStorageManager = dependencyProvider.Get<ObjectStorageManager>();
+        FsObjectStorageManager fsObjectStorageManager = dependencyProvider.Get<FsObjectStorageManager>();
         
         IObjectKey mockKey = Substitute.For<IObjectKey>();
         ulong testKey = 32.RandomLetters().ToHashULong(HashAlgorithms.SHA256);
@@ -102,10 +102,10 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         
         string expected = Path.Combine(parts.ToArray());
         
-        IStorageContainer keyStorageIdentifier = objectStorageManager.GetKeyStorageContainer(mockKey);
+        IStorageContainer keyStorageIdentifier = fsObjectStorageManager.GetKeyStorageContainer(mockKey);
 
-        IStorage keyStorage = objectStorageManager.GetStorage(keyStorageIdentifier);
-        keyStorage.Identifier.FullName.ShouldEqual(expected);
+        IStorage keyStorage = fsObjectStorageManager.GetStorage(keyStorageIdentifier);
+        keyStorage.RootContainer.FullName.ShouldEqual(expected);
         Message.PrintLine(expected, ConsoleColor.Green);
     }
 
@@ -115,7 +115,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         string root = Path.Combine(Environment.CurrentDirectory, nameof(GetPropertyStorageContainer));
         ServiceRegistry serviceRegistry = Configure(ConfigureDependencies(root));
 
-        ObjectStorageManager objectStorageManager = serviceRegistry.Get<ObjectStorageManager>();
+        FsObjectStorageManager fsObjectStorageManager = serviceRegistry.Get<FsObjectStorageManager>();
         ObjectHashCalculator hashCalculator = serviceRegistry.Get<ObjectHashCalculator>();
         string propertyName = "StringProperty";
         
@@ -127,21 +127,21 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
             DateTimeProperty = DateTime.Now
         };
         ObjectData objectData = new ObjectData(testData);
-        ulong hash = objectData.GetHashId(hashCalculator);
+        ulong key = objectData.GetKey(hashCalculator);
         List<string> parts = new List<string> { root, "objects" };
         parts.AddRange(typeof(TestData).Namespace.Split('.'));
         parts.Add(nameof(TestData));
-        parts.Add("hash");
-        parts.AddRange(hash.ToString().Split(2));
+        parts.AddRange(key.ToString().Split(2));
         parts.Add(propertyName);
         parts.Add("1");
         string expected = Path.Combine(parts.ToArray());
 
         IStorageContainer propertyStorage =
-            objectStorageManager.GetPropertyStorageContainer(objectData.Property(propertyName));
+            fsObjectStorageManager.GetPropertyStorageContainer(objectData.Property(propertyName));
 
-        // {root}/objects/name/space/type/hash/{H/a/s/h/I/d}/{propertyName}/1
+        // {root}/objects/name/space/type/{propertyName}/{k/e/y}/1
         propertyStorage.FullName.ShouldEqual(expected);
+        Message.PrintLine(expected);
     }
     
     public override ServiceRegistry Configure(ServiceRegistry serviceRegistry)

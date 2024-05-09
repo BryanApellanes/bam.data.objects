@@ -6,5 +6,5 @@ public class ObjectIdentifier : IObjectIdentifier
 {
     public TypeDescriptor Type { get; set; }
     public IStorageIdentifier StorageIdentifier { get; set; }
-    public ulong Hash { get; set; }
+    public ulong Id { get; set; }
 }

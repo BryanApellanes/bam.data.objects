@@ -43,14 +43,15 @@ public class ObjectDataWriter : IObjectDataWriter
             IObjectIdentifier objectIdentifier = ObjectDataFactory.GetObjectIdentifier(data);
 
             // write the key to 
-            //  {root}/objects/name/space/type/key/{K/e/y}/key -> {HashId}
+            //  {root}/objects/name/space/type/key/{K/e/y}/key -> {ObjectId}
             IStorage keyStorage = ObjectStorageManager.GetKeyStorage(objectKey);
 
-            IRawData keyData = keyStorage.Save(KeyFileName, new RawData(objectIdentifier.Hash.ToString()));
+            IStorageSlot keySlot = keyStorage.Save(KeyFileName, new RawData(objectIdentifier.Id.ToString()));
             objectDataWriteResult.ObjectKey = objectKey;
+            objectDataWriteResult.KeySlot = keySlot;
             
             // write Object properties to
-            // {root}/objects/name/space/type/hash/{HashId}/{propertyName}/{version}/dat content -> {RawDataHash}
+            // {root}/objects/name/space/type/hash/{Ob/je/ct/Id}/{propertyName}/{version}/dat content -> {RawDataHash}
             foreach (IObjectProperty property in data.Properties)
             {
                 objectDataWriteResult.AddPropertyWriteResult(await ObjectPropertyWriter.WritePropertyAsync(property));

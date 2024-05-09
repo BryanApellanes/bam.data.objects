@@ -1,7 +1,6 @@
 using Bam.Data.Dynamic.Objects;
 using Bam.Storage;
 using Bam.Net;
-using Ban.Data.Objects;
 
 namespace Bam.Data.Objects;
 
@@ -33,25 +32,28 @@ public class ObjectPropertyStorageContainer : DirectoryStorageContainer, IObject
 
     public IVersion NextVersion => new Version(Version.Number);
 
-    public IObjectPropertyWriteResult Save(IObjectProperty objectProperty, IObjectStorageManager storageManager)
+    public IObjectPropertyWriteResult Save(IObjectStorageManager storageManager, IObjectProperty objectProperty)
     {
         try
         {
+            // write Object properties to
+            // {root}/objects/name/space/type/{Ob/je/ct/Ke/y_}/{propertyName}/{version}/dat content -> {RawDataHash}
+            
             IStorage referenceStorage = storageManager.GetStorage(this);
             IRawData objectPropertyRawData = objectProperty.ToRawData();
             RawDataReference reference = new RawDataReference(objectPropertyRawData.HashString);
             string referenceDatFilePath = Path.Combine(objectPropertyRawData.HashString.Split(2).ToArray());
             referenceDatFilePath = Path.Combine(referenceDatFilePath, "dat");
-            IRawData referenceDatFileRawData = referenceStorage.Save(referenceDatFilePath, reference);
+            referenceStorage.Save(referenceDatFilePath, reference);
             
             IStorage writeStorage = storageManager.GetRawStorage();
-            IRawData savedPropertyRawData = writeStorage.Save(objectPropertyRawData);
+            IStorageSlot savedPropertySlot = writeStorage.Save(objectPropertyRawData);
             return new ObjectPropertyWriteResult()
             {
                 Success = true,
                 ObjectProperty = objectProperty,
                 RawData = objectPropertyRawData,
-                StorageIdentifier = new ObjectPropertyStorageSlot(objectProperty, Path.Combine(writeStorage.Identifier.FullName, objectPropertyRawData.HashId.ToString()))
+                StorageSlot = savedPropertySlot
             };
         }
         catch (Exception ex)
@@ -85,7 +87,10 @@ public class ObjectPropertyStorageContainer : DirectoryStorageContainer, IObject
             {
                 string descriptionFile = Path.Combine(subDirectory.FullName, "desc");
                 string description = File.Exists(descriptionFile) ? File.ReadAllText(descriptionFile) : string.Empty;
-                versions.Add(new Version(version, description));
+                
+                string datFile = Path.Combine(subDirectory.FullName, "dat");
+                byte[]? data = File.Exists(datFile) ? File.ReadAllBytes(datFile) : null;
+                versions.Add(new Version(data, version, description));
             }
         }
 

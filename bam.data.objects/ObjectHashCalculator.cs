@@ -1,7 +1,7 @@
-using Bam.Data.Objects;
+using Bam.Data.Dynamic.Objects;
 using Bam.Net;
 
-namespace Bam.Data.Dynamic.Objects;
+namespace Bam.Data.Objects;
 
 public class ObjectHashCalculator : IObjectHashCalculator
 {

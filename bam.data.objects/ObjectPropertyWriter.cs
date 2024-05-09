@@ -23,16 +23,9 @@ public class ObjectPropertyWriter : IObjectPropertyWriter
             IStorage rawStorage = ObjectStorageManager.GetRawStorage();
             rawStorage.Save(rawPropertyData);
 
-            IStorageContainer propertyStorageContainer = ObjectStorageManager.GetPropertyStorageContainer(property);
+            IObjectPropertyStorageContainer propertyStorageContainer = ObjectStorageManager.GetPropertyStorageContainer(property);
 
-            IStorage propertyStorage = ObjectStorageManager.GetStorage(propertyStorageContainer);
-            propertyStorage.Save(new RawData(rawPropertyData.HashString));
-            return new ObjectPropertyWriteResult
-            {
-                Success = true,
-                ObjectProperty = property,
-                RawDataHash = rawPropertyData.HashString
-            };
+            return propertyStorageContainer.Save(ObjectStorageManager, property);
         }
         catch (Exception ex)
         {

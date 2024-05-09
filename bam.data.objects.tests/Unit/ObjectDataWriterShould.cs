@@ -10,7 +10,7 @@ using NSubstitute;
 
 namespace Bam.Net.Application.Unit;
 
-[UnitTestMenu("ObjectDataWriter should")]
+[UnitTestMenu("Unit: ObjectDataWriter should")]
 public class ObjectDataWriterShould: UnitTestMenuContainer
 {
     public ObjectDataWriterShould(ServiceRegistry serviceRegistry) : base(serviceRegistry)
@@ -45,11 +45,17 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         ulong testKey = 32.RandomLetters().ToHashULong(HashAlgorithms.SHA256);
         mockKey.Key.Returns(testKey);
         mockKey.Type.Returns(new TypeDescriptor(typeof(TestData)));
+        mockKey.Id.Returns(testKey);
         
         IObjectDataFactory mockDataFactory = Substitute.For<IObjectDataFactory>();
         mockDataFactory.GetObjectKey(Arg.Any<IObjectData>()).Returns(mockKey);
+        
+        IObjectIdentifier mockObjectIdentifier = Substitute.For<IObjectIdentifier>();
+        mockObjectIdentifier.Id.Returns(testKey);
+        mockDataFactory.GetObjectIdentifier(Arg.Any<IObjectData>()).Returns(mockObjectIdentifier);
+        
         testContainer.For<IObjectDataFactory>().Use(mockDataFactory);
-        testContainer.For<IObjectStorageManager>().Use<ObjectStorageManager>();
+        testContainer.For<IObjectStorageManager>().Use<FsObjectStorageManager>();
         testContainer.For<IObjectPropertyWriter>().Use<ObjectPropertyWriter>();
         
         ObjectDataWriter objectDataWriter = testContainer.Get<ObjectDataWriter>();
@@ -57,10 +63,11 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         TestData testData = new TestData();
         ObjectData objectData = new ObjectData(testData);
         IObjectDataWriteResult result = await objectDataWriter.WriteAsync(objectData);
-        result.Data.ShouldNotBeNull("result.Data was null");
-        result.Data.ShouldBe(objectData);
+        result.ObjectData.ShouldNotBeNull("result.Data was null");
+        result.ObjectData.ShouldBe(objectData);
         
         List<string> parts = new List<string> { root };
+        parts.Add("objects");
         parts.AddRange(typeof(TestData).Namespace.Split('.'));
         parts.Add(nameof(TestData));
         parts.AddRange(testKey.ToString().Split(2));
@@ -68,13 +75,11 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         
         string expected = Path.Combine(parts.ToArray());
         File.Exists(expected).ShouldBeTrue($"Key file was not written to the expected path {expected}");
+        string keyFileContent = await File.ReadAllTextAsync(expected);
+        keyFileContent.ShouldBeEqualTo(testKey.ToString());
     }
 
-    [UnitTest]
-    public void WriteData()
-    {
-        
-    }
+
     
     [UnitTest]
     public async Task CallObjectStorageManagerGetRootStorage()
@@ -100,7 +105,7 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
             .For<IObjectHashCalculator>().Use<ObjectHashCalculator>()
             .For<IObjectIdentifierFactory>().Use<ObjectIdentifierFactory>()
             .For<IRootStorageContainer>().Use( new RootStorageContainer(rootPath))
-            .For<IStorageIdentifier>().Use(new FsStorageIdentifier(rootPath));
+            .For<IStorageIdentifier>().Use(new FsStorageContainer(rootPath));
 
         ServiceRegistry dependencyProvider = Configure(testRegistry);
         return dependencyProvider;

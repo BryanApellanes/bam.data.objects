@@ -40,7 +40,7 @@ public class ObjectPropertyStorageContainerShould: UnitTestMenuContainer
     {
         ServiceRegistry testRegistry =
             ConfigureDependencies(Path.Combine(Environment.CurrentDirectory, nameof(SaveObjectProperty)));
-        ObjectStorageManager storageManager = testRegistry.Get<ObjectStorageManager>();
+        FsObjectStorageManager storageManager = testRegistry.Get<FsObjectStorageManager>();
         IObjectData objectData = new ObjectData(new TestData
         {
             StringProperty = $"StringProperty-SaveObjectPropertyTest"
@@ -49,9 +49,9 @@ public class ObjectPropertyStorageContainerShould: UnitTestMenuContainer
         IObjectPropertyStorageContainer propertyStorageContainer =
             storageManager.GetPropertyStorageContainer(property);
         
-        IObjectPropertyWriteResult writeResult = propertyStorageContainer.Save(property, storageManager);
-        Message.PrintLine(writeResult.StorageIdentifier.FullName);
-        File.Exists(writeResult.StorageIdentifier.FullName).ShouldBeTrue($"{writeResult.StorageIdentifier.FullName} doesn't exist");
+        IObjectPropertyWriteResult writeResult = propertyStorageContainer.Save(storageManager, property);
+        Message.PrintLine(writeResult.StorageSlot.FullName);
+        File.Exists(writeResult.StorageSlot.FullName).ShouldBeTrue($"{writeResult.StorageSlot.FullName} doesn't exist");
     }
     
     public override ServiceRegistry Configure(ServiceRegistry serviceRegistry)

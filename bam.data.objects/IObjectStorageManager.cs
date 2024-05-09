@@ -14,8 +14,6 @@ public interface IObjectStorageManager
     IStorage GetKeyStorage(IObjectKey objectKey);
 
     IStorageContainer GetKeyStorageContainer(IObjectKey objectKey);
-    /*IStorage GetHashStorage(IObjectIdentifier objectIdentifier);
-    IStorageContainer GetHashStorageContainer(IObjectIdentifier objectIdentifier);*/
 
     IStorage GetStorage(IStorageContainer storageIdentifier);
 

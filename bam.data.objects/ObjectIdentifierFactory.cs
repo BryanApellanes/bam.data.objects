@@ -21,7 +21,7 @@ public class ObjectIdentifierFactory : IObjectIdentifierFactory
             Type = data.Type,
             StorageIdentifier = ObjectStorageManager.GetTypeStorageContainer(data.Type),
             Key = ObjectHashCalculator.CalculateKeyHash(data),
-            Hash = ObjectHashCalculator.CalculateHash(data)
+            Id = ObjectHashCalculator.CalculateHash(data)
         };
     }
 
@@ -31,7 +31,7 @@ public class ObjectIdentifierFactory : IObjectIdentifierFactory
         {
             Type = data.Type,
             StorageIdentifier = ObjectStorageManager.GetTypeStorageContainer(data.Type),
-            Hash = ObjectHashCalculator.CalculateHash(data)
+            Id = ObjectHashCalculator.CalculateHash(data)
         };
     }
 }
