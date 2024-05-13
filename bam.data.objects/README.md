@@ -36,4 +36,8 @@ When an object is archived all deleted objects are moved to the archive folder m
 
 ## Loading
 
-When an object is loaded 
+To load an object by its key the property values are dereferenced from the dat files.
+- {root}/objects/name/space/type/{Ob/je/ct/Ke/y_}/{propertyName}/{version}/dat - contains the hash of the raw data which holds the property value
+
+Then loaded from raw storage:
+- {root}/raw/{Ra/wD/at/aH/as/h_}/dat
