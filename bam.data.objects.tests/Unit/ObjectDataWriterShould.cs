@@ -42,7 +42,7 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         ServiceRegistry testContainer = ConfigureDependencies(root);
         
         IObjectKey mockKey = Substitute.For<IObjectKey>();
-        ulong testKey = 32.RandomLetters().ToHashULong(HashAlgorithms.SHA256);
+        string testKey = 32.RandomLetters().HashHexString(HashAlgorithms.SHA256);
         mockKey.Key.Returns(testKey);
         mockKey.Type.Returns(new TypeDescriptor(typeof(TestData)));
         mockKey.Id.Returns(testKey);
@@ -87,8 +87,8 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         IObjectStorageManager mockStorageManager = Substitute.For<IObjectStorageManager>();
         ServiceRegistry testRegistry = new ServiceRegistry()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
-            .For<IKeyHashCalculator>().Use<CompositeKeyHashCalculator>()
-            .For<IObjectHashCalculator>().Use<ObjectHashCalculator>()
+            .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
+            .For<IObjectCalculator>().Use<ObjectCalculator>()
             .For<IObjectIdentifierFactory>().Use<ObjectIdentifierFactory>()
             .For<IObjectStorageManager>().Use(mockStorageManager);
 
@@ -101,8 +101,8 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
     {
         ServiceRegistry testRegistry = new ServiceRegistry()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
-            .For<IKeyHashCalculator>().Use<CompositeKeyHashCalculator>()
-            .For<IObjectHashCalculator>().Use<ObjectHashCalculator>()
+            .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
+            .For<IObjectCalculator>().Use<ObjectCalculator>()
             .For<IObjectIdentifierFactory>().Use<ObjectIdentifierFactory>()
             .For<IRootStorageContainer>().Use( new RootStorageContainer(rootPath))
             .For<IStorageIdentifier>().Use(new FsStorageContainer(rootPath));

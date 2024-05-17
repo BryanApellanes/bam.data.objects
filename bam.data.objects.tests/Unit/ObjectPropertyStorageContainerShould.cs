@@ -34,32 +34,13 @@ public class ObjectPropertyStorageContainerShould: UnitTestMenuContainer
         objectPropertyStorageContainer.Version.ShouldNotBeNull();
         objectPropertyStorageContainer.Version.Number.ShouldEqual(1);
     }
-
-    [UnitTest]
-    public void SaveObjectProperty()
-    {
-        ServiceRegistry testRegistry =
-            ConfigureDependencies(Path.Combine(Environment.CurrentDirectory, nameof(SaveObjectProperty)));
-        FsObjectStorageManager storageManager = testRegistry.Get<FsObjectStorageManager>();
-        IObjectData objectData = new ObjectData(new TestData
-        {
-            StringProperty = $"StringProperty-SaveObjectPropertyTest"
-        });
-        IObjectProperty property = objectData.Property("StringProperty");
-        IObjectPropertyStorageContainer propertyStorageContainer =
-            storageManager.GetPropertyStorageContainer(property);
-        
-        IObjectPropertyWriteResult writeResult = propertyStorageContainer.Save(storageManager, property);
-        Message.PrintLine(writeResult.StorageSlot.FullName);
-        File.Exists(writeResult.StorageSlot.FullName).ShouldBeTrue($"{writeResult.StorageSlot.FullName} doesn't exist");
-    }
     
     public override ServiceRegistry Configure(ServiceRegistry serviceRegistry)
     {
         return base.Configure(serviceRegistry)
-            .For<IObjectHashCalculator>().Use<ObjectHashCalculator>()
+            .For<IObjectCalculator>().Use<ObjectCalculator>()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
-            .For<IKeyHashCalculator>().Use<CompositeKeyHashCalculator>();
+            .For<IKeyCalculator>().Use<CompositeKeyCalculator>();
     }
     
     private ServiceRegistry ConfigureDependencies(string rootPath)

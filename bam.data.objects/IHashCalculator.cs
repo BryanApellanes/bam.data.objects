@@ -4,7 +4,8 @@ namespace Bam.Data.Dynamic.Objects;
 
 public interface IHashCalculator
 {
-    ulong CalculateHash(object data);
-    ulong CalculateHash(IObjectData data);
-    
+    ulong CalculateULongHash(object data);
+    ulong CalculateULongHash(IObjectData data);
+    string CalculateHashHex(object data);
+    string CalculateHashHex(IObjectData data);
 }

@@ -39,21 +39,16 @@ public class ObjectPropertyStorageContainer : DirectoryStorageContainer, IObject
             // write Object properties to
             // {root}/objects/name/space/type/{Ob/je/ct/Ke/y_}/{propertyName}/{version}/dat content -> {RawDataHash}
             
-            IStorage referenceStorage = storageManager.GetStorage(this);
-            IRawData objectPropertyRawData = objectProperty.ToRawData();
-            RawDataReference reference = new RawDataReference(objectPropertyRawData.HashString);
-            string referenceDatFilePath = Path.Combine(objectPropertyRawData.HashString.Split(2).ToArray());
-            referenceDatFilePath = Path.Combine(referenceDatFilePath, "dat");
-            referenceStorage.Save(referenceDatFilePath, reference);
+            IStorage propertyStorage = storageManager.GetStorage(this);
+            IRawData rawData = objectProperty.ToRawData();
+            propertyStorage.Save(rawData);
             
-            IStorage writeStorage = storageManager.GetRawStorage();
-            IStorageSlot savedPropertySlot = writeStorage.Save(objectPropertyRawData);
             return new ObjectPropertyWriteResult()
             {
                 Success = true,
                 ObjectProperty = objectProperty,
-                RawData = objectPropertyRawData,
-                StorageSlot = savedPropertySlot
+                RawData = rawData,
+                StorageSlot = propertyStorage.Save(objectProperty.ToRawData())
             };
         }
         catch (Exception ex)

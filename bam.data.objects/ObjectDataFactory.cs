@@ -26,8 +26,8 @@ public class ObjectDataFactory : IObjectDataFactory
         {
             return iObjectData;
         }
-        
-        return new ObjectData(data, ObjectEncoder);
+
+        return new ObjectData(data, ObjectEncoder){ObjectIdentifierFactory = this.ObjectIdentifierFactory};
     }
 
     public IObjectKey GetObjectKey(IObjectData data)

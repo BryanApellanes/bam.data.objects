@@ -15,13 +15,32 @@ public class JsonHashCalculator : IHashCalculator
     public HashAlgorithms HashAlgorithm { get; set; }
     public Encoding Encoding { get; set; }
 
-    public ulong CalculateHash(object instance)
+    public ulong CalculateULongHash(object instance)
     {
-        return CalculateHash(new ObjectData(instance));
+        if (instance is IObjectData data)
+        {
+            return CalculateULongHash(data);
+        }
+        return CalculateULongHash(new ObjectData(instance));
     }
     
-    public ulong CalculateHash(IObjectData data)
+    public ulong CalculateULongHash(IObjectData data)
     {
         return data.ToJson().ToHashULong(this.HashAlgorithm, this.Encoding);
+    }
+
+    public string CalculateHashHex(object data)
+    {
+        if (data is IObjectData objectData)
+        {
+            return CalculateHashHex(data);
+        }
+
+        return CalculateHashHex(new ObjectData(data));
+    }
+
+    public string CalculateHashHex(IObjectData data)
+    {
+        return data.ToJson().HashHexString(HashAlgorithm);
     }
 }

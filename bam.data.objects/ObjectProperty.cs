@@ -11,6 +11,9 @@ public class ObjectProperty : IObjectProperty
 {
     public ObjectProperty(IObjectData parent, string propertyName, object propertyValue)
     {
+        Args.ThrowIfNull(parent, nameof(parent));
+        Args.ThrowIfNull(parent.Type, nameof(parent.Type));
+        Args.ThrowIfNull(parent.Type.Type, nameof(parent.Type.Type));
         this.Parent = parent;
         this.ObjectEncoder = JsonObjectEncoder.Default;
         this.ObjectEncoding = this.ObjectEncoder.Encode(propertyValue);
@@ -29,6 +32,22 @@ public class ObjectProperty : IObjectProperty
     {
         get;
         set;
+    }
+
+    /// <summary>
+    /// Gets the unversioned relative storage slot path of this property.
+    /// </summary>
+    public string StorageSlotRelativePath
+    {
+        get
+        {
+            List<string> pathSegments = new List<string>();
+            pathSegments.AddRange(Parent.Type.Type.Namespace.Split('.'));
+            pathSegments.Add(Parent.Type.Type.Name);
+            pathSegments.AddRange(Parent.GetObjectKey().Key.Split(2));
+            pathSegments.Add(PropertyName);
+            return Path.Combine(pathSegments.ToArray());
+        }
     }
 
     public object Decode()

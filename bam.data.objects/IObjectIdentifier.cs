@@ -6,5 +6,5 @@ public interface IObjectIdentifier
 {
     TypeDescriptor Type { get; }
     IStorageIdentifier StorageIdentifier { get; }
-    ulong Id { get; }
+    string Id { get; }
 }

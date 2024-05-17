@@ -65,7 +65,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         FsObjectStorageManager fsObjectStorageManager = dependencyProvider.Get<FsObjectStorageManager>();
         
         IObjectKey mockKey = Substitute.For<IObjectKey>();
-        ulong testKey = 32.RandomLetters().ToHashULong(HashAlgorithms.SHA256);
+        string testKey = 32.RandomLetters().HashHexString(HashAlgorithms.SHA256);
         mockKey.Key.Returns(testKey);
         mockKey.Type.Returns(new TypeDescriptor(typeof(TestData)));
         
@@ -90,7 +90,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         FsObjectStorageManager fsObjectStorageManager = dependencyProvider.Get<FsObjectStorageManager>();
         
         IObjectKey mockKey = Substitute.For<IObjectKey>();
-        ulong testKey = 32.RandomLetters().ToHashULong(HashAlgorithms.SHA256);
+        string testKey = 32.RandomLetters().HashHexString(HashAlgorithms.SHA256);
         mockKey.Key.Returns(testKey);
         mockKey.Type.Returns(new TypeDescriptor(typeof(TestData)));
         
@@ -116,7 +116,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         ServiceRegistry serviceRegistry = Configure(ConfigureDependencies(root));
 
         FsObjectStorageManager fsObjectStorageManager = serviceRegistry.Get<FsObjectStorageManager>();
-        ObjectHashCalculator hashCalculator = serviceRegistry.Get<ObjectHashCalculator>();
+        ObjectCalculator calculator = serviceRegistry.Get<ObjectCalculator>();
         string propertyName = "StringProperty";
         
         TestData testData = new TestData
@@ -127,7 +127,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
             DateTimeProperty = DateTime.Now
         };
         ObjectData objectData = new ObjectData(testData);
-        ulong key = objectData.GetKey(hashCalculator);
+        ulong key = calculator.CalculateULongKey(objectData);//objectData.GetKey(calculator);
         List<string> parts = new List<string> { root, "objects" };
         parts.AddRange(typeof(TestData).Namespace.Split('.'));
         parts.Add(nameof(TestData));
@@ -147,9 +147,9 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
     public override ServiceRegistry Configure(ServiceRegistry serviceRegistry)
     {
         return base.Configure(serviceRegistry)
-            .For<IObjectHashCalculator>().Use<ObjectHashCalculator>()
+            .For<IObjectCalculator>().Use<ObjectCalculator>()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
-            .For<IKeyHashCalculator>().Use<CompositeKeyHashCalculator>();
+            .For<IKeyCalculator>().Use<CompositeKeyCalculator>();
     }
     
     private ServiceRegistry ConfigureDependencies(string rootPath)

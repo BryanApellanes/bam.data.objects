@@ -110,14 +110,18 @@ public class ObjectData : IObjectData
         return ObjectEncoder.Encode(this.Data);
     }
 
-    public ulong GetIdentifier(IHashCalculator hashCalculator)
+    public IObjectIdentifierFactory ObjectIdentifierFactory { get; set; }
+    
+    public IObjectKey GetObjectKey()
     {
-        return hashCalculator.CalculateHash(this);
+        Args.ThrowIfNull(this.ObjectIdentifierFactory, nameof(ObjectIdentifierFactory));
+        return this.ObjectIdentifierFactory.GetObjectKey(this);
     }
 
-    public ulong GetKey(IKeyHashCalculator keyHashCalculator)
+    public IObjectIdentifier GetObjectIdentifier()
     {
-        return keyHashCalculator.CalculateKeyHash(this);
+        Args.ThrowIfNull(this.ObjectIdentifierFactory, nameof(ObjectIdentifierFactory));
+        return this.ObjectIdentifierFactory.GetObjectIdentifier(this);
     }
 
     private IEnumerable<IObjectProperty> GetObjectProperties()

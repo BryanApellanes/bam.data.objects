@@ -2,10 +2,8 @@
 When an object is written to file system storage the following files are written:
 
 For each property of the object:
-- A dat file which contains the hash of the property value:
+- A dat file which contains the property value:
   - {root}/objects/name/space/type/{Ob/je/ct/Ke/y_}/{propertyName}/{version}/dat
-- A dat file which contains the value of the property:
-  - {root}/raw/{Ra/wD/at/aH/as/h_}/dat
 
 ## Indexing
 
@@ -36,4 +34,8 @@ When an object is archived all deleted objects are moved to the archive folder m
 
 ## Loading
 
-When an object is loaded 
+When an object is loaded the ObjectKey is used to identify the object to load.
+
+## Searching
+
+When objects are searched an ObjectSearch is used to provide search criteria for objects to load.

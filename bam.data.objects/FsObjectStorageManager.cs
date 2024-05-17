@@ -8,14 +8,14 @@ namespace Bam.Data.Dynamic.Objects;
 
 public class FsObjectStorageManager : IObjectStorageManager
 {
-    public FsObjectStorageManager(IRootStorageContainer rootStorage, IObjectHashCalculator objectHashCalculator)
+    public FsObjectStorageManager(IRootStorageContainer rootStorage, IObjectCalculator objectCalculator)
     {
         this.RootStorage = rootStorage;
-        this.ObjectHashCalculator = objectHashCalculator;
+        this.ObjectCalculator = objectCalculator;
     }
     
     public IRootStorageContainer RootStorage { get; private set; }
-    public IObjectHashCalculator ObjectHashCalculator { get; private set; }
+    public IObjectCalculator ObjectCalculator { get; private set; }
     
     public IRootStorageContainer GetRootStorageContainer()
     {
@@ -34,7 +34,7 @@ public class FsObjectStorageManager : IObjectStorageManager
         List<string> parts = new List<string>();
         parts.Add(GetTypeStorageContainer(property.Parent.Type).FullName);
         parts.Add(property.PropertyName);
-        parts.AddRange(property.Parent.GetKey(ObjectHashCalculator).ToString().Split(2));
+        parts.AddRange(ObjectCalculator.CalculateULongKey(property.Parent).ToString().Split(2));
         return new ObjectPropertyStorageContainer(Path.Combine(parts.ToArray()));
     }
 

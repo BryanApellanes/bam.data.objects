@@ -5,14 +5,14 @@ namespace Bam.Data.Dynamic.Objects;
 
 public class ObjectIdentifierFactory : IObjectIdentifierFactory
 {
-    public ObjectIdentifierFactory(IObjectStorageManager objectStorageManager, IObjectHashCalculator objectHashCalculator)
+    public ObjectIdentifierFactory(IObjectStorageManager objectStorageManager, IObjectCalculator objectCalculator)
     {
         this.ObjectStorageManager = objectStorageManager;
-        this.ObjectHashCalculator = objectHashCalculator;
+        this.ObjectCalculator = objectCalculator;
     }
 
     private IObjectStorageManager ObjectStorageManager { get; init; }
-    private IObjectHashCalculator ObjectHashCalculator { get; init; }
+    private IObjectCalculator ObjectCalculator { get; init; }
 
     public IObjectKey GetObjectKey(IObjectData data)
     {
@@ -20,8 +20,8 @@ public class ObjectIdentifierFactory : IObjectIdentifierFactory
         {
             Type = data.Type,
             StorageIdentifier = ObjectStorageManager.GetTypeStorageContainer(data.Type),
-            Key = ObjectHashCalculator.CalculateKeyHash(data),
-            Id = ObjectHashCalculator.CalculateHash(data)
+            Key = ObjectCalculator.CalculateHashHexKey(data),
+            Id = ObjectCalculator.CalculateHashHex(data)
         };
     }
 
@@ -31,7 +31,7 @@ public class ObjectIdentifierFactory : IObjectIdentifierFactory
         {
             Type = data.Type,
             StorageIdentifier = ObjectStorageManager.GetTypeStorageContainer(data.Type),
-            Id = ObjectHashCalculator.CalculateHash(data)
+            Id = ObjectCalculator.CalculateHashHex(data)
         };
     }
 }

@@ -11,6 +11,7 @@ public interface IObjectProperty : IJsonable
     string AssemblyQualifiedTypeName { get; set; }
     string PropertyName { get; set; }
     string Value { get; set; }
+    string StorageSlotRelativePath { get; }
 
     object Decode();
     object SetValue(object target);

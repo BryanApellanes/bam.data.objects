@@ -6,6 +6,6 @@ public class ObjectKey : IObjectKey
 {
     public TypeDescriptor Type { get; set; }
     public IStorageIdentifier StorageIdentifier { get; internal set; }
-    public ulong Id { get; internal set; }
-    public ulong Key { get; internal set; }
+    public string Id { get; internal set; }
+    public string Key { get; internal set; }
 }
