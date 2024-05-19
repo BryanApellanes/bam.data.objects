@@ -3,7 +3,7 @@ using Bam.Storage;
 
 namespace Bam.Data.Objects;
 
-public interface IObjectPropertyStorageContainer : IStorageContainer
+public interface IObjectPropertyStorageHolder : IStorageHolder
 {
     IVersion Version { get; }
     IList<IVersion> VersionHistory { get; }

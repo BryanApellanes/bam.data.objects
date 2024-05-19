@@ -23,9 +23,9 @@ public class ObjectPropertyWriter : IObjectPropertyWriter
             IStorage rawStorage = ObjectStorageManager.GetRawStorage();
             rawStorage.Save(rawPropertyData);
 
-            IObjectPropertyStorageContainer propertyStorageContainer = ObjectStorageManager.GetPropertyStorageContainer(property);
+            IObjectPropertyStorageHolder propertyStorageHolder = ObjectStorageManager.GetPropertyStorageContainer(property);
 
-            return propertyStorageContainer.Save(ObjectStorageManager, property);
+            return propertyStorageHolder.Save(ObjectStorageManager, property);
         }
         catch (Exception ex)
         {

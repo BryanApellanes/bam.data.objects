@@ -6,16 +6,16 @@ namespace Bam.Data.Objects;
 
 public interface IObjectStorageManager
 {
-    IRootStorageContainer GetRootStorageContainer();
-    IStorageContainer GetTypeStorageContainer(Type type);
+    IRootStorageHolder GetRootStorageContainer();
+    IStorageHolder GetTypeStorageContainer(Type type);
 
-    IObjectPropertyStorageContainer GetPropertyStorageContainer(IObjectProperty property);
+    IObjectPropertyStorageHolder GetPropertyStorageContainer(IObjectProperty property);
 
     IStorage GetKeyStorage(IObjectKey objectKey);
 
-    IStorageContainer GetKeyStorageContainer(IObjectKey objectKey);
+    IStorageHolder GetKeyStorageContainer(IObjectKey objectKey);
 
-    IStorage GetStorage(IStorageContainer storageIdentifier);
+    IStorage GetStorage(IStorageHolder storageIdentifier);
 
     IStorage GetRawStorage();
 }

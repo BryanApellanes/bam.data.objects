@@ -24,7 +24,7 @@ public class ObjectPropertyStorageContainerShould: UnitTestMenuContainer
         ObjectDataFactory dataFactory = testRegistry.Get<ObjectDataFactory>();
         IObjectStorageManager storageManager = testRegistry.Get<IObjectStorageManager>();
         
-        ObjectPropertyStorageContainer storageContainer = testRegistry.Get<ObjectPropertyStorageContainer>(new string[] {rootPath});
+        ObjectPropertyStorageHolder storageHolder = testRegistry.Get<ObjectPropertyStorageHolder>(new string[] {rootPath});
         
         IObjectData objectData = dataFactory.Wrap(new TestData
         {
@@ -41,7 +41,7 @@ public class ObjectPropertyStorageContainerShould: UnitTestMenuContainer
         pathSegments.Add("dat");
         
         string expected = Path.Combine(pathSegments.ToArray());
-        IObjectPropertyWriteResult writeResult = storageContainer.Save(storageManager, objectData.Property("StringProperty"));
+        IObjectPropertyWriteResult writeResult = storageHolder.Save(storageManager, objectData.Property("StringProperty"));
         writeResult.StorageSlot.FullName.ShouldEqual(expected);
     }
 
@@ -56,10 +56,10 @@ public class ObjectPropertyStorageContainerShould: UnitTestMenuContainer
             StringProperty = $"StringProperty-SaveObjectPropertyTest"
         });
         IObjectProperty property = objectData.Property("StringProperty");
-        IObjectPropertyStorageContainer propertyStorageContainer =
+        IObjectPropertyStorageHolder propertyStorageHolder =
             storageManager.GetPropertyStorageContainer(property);
         
-        IObjectPropertyWriteResult writeResult = propertyStorageContainer.Save(storageManager, property);
+        IObjectPropertyWriteResult writeResult = propertyStorageHolder.Save(storageManager, property);
         Message.PrintLine(writeResult.StorageSlot.FullName);
         File.Exists(writeResult.StorageSlot.FullName).ShouldBeTrue($"{writeResult.StorageSlot.FullName} doesn't exist");
     }

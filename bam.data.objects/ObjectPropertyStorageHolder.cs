@@ -4,13 +4,13 @@ using Bam.Net;
 
 namespace Bam.Data.Objects;
 
-public class ObjectPropertyStorageContainer : DirectoryStorageContainer, IObjectPropertyStorageContainer
+public class ObjectPropertyStorageHolder : DirectoryStorageHolder, IObjectPropertyStorageHolder
 {
-    public ObjectPropertyStorageContainer(string path) : base(path)
+    public ObjectPropertyStorageHolder(string path) : base(path)
     {
     }
 
-    public ObjectPropertyStorageContainer(DirectoryInfo directory) : base(directory)
+    public ObjectPropertyStorageHolder(DirectoryInfo directory) : base(directory)
     {
     }
 

@@ -21,18 +21,18 @@ public class ObjectPropertyStorageContainerShould: UnitTestMenuContainer
     {
         string testDataPath = Path.Combine(Environment.CurrentDirectory, nameof(HaveVersionPath), "testData");
         string expectedPath = Path.Combine(testDataPath, "1");
-        ObjectPropertyStorageContainer objectPropertyStorageContainer =
-            new ObjectPropertyStorageContainer(testDataPath);
-        objectPropertyStorageContainer.FullName.ShouldEqual(expectedPath);
+        ObjectPropertyStorageHolder objectPropertyStorageHolder =
+            new ObjectPropertyStorageHolder(testDataPath);
+        objectPropertyStorageHolder.FullName.ShouldEqual(expectedPath);
     }
     
     [UnitTest]
     public void HaveVersion()
     {
-        ObjectPropertyStorageContainer objectPropertyStorageContainer =
-            new ObjectPropertyStorageContainer(Path.Combine(Environment.CurrentDirectory, nameof(HaveVersion), "testData"));
-        objectPropertyStorageContainer.Version.ShouldNotBeNull();
-        objectPropertyStorageContainer.Version.Number.ShouldEqual(1);
+        ObjectPropertyStorageHolder objectPropertyStorageHolder =
+            new ObjectPropertyStorageHolder(Path.Combine(Environment.CurrentDirectory, nameof(HaveVersion), "testData"));
+        objectPropertyStorageHolder.Version.ShouldNotBeNull();
+        objectPropertyStorageHolder.Version.Number.ShouldEqual(1);
     }
     
     public override ServiceRegistry Configure(ServiceRegistry serviceRegistry)
@@ -46,7 +46,7 @@ public class ObjectPropertyStorageContainerShould: UnitTestMenuContainer
     private ServiceRegistry ConfigureDependencies(string rootPath)
     {
         ServiceRegistry testRegistry = new ServiceRegistry()
-            .For<IRootStorageContainer>().Use(new RootStorageContainer(rootPath));
+            .For<IRootStorageHolder>().Use(new RootStorageHolder(rootPath));
 
         ServiceRegistry serviceRegistry = Configure(testRegistry);
         return serviceRegistry;

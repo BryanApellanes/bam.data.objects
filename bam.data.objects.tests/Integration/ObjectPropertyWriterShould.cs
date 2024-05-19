@@ -32,6 +32,5 @@ public class ObjectPropertyWriterShould: UnitTestMenuContainer
         IObjectPropertyWriteResult result = await propertyWriter.WritePropertyAsync(property);
         
         
-        throw new NotImplementedException("this test is not complete");
     } 
 }

@@ -102,10 +102,10 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         
         string expected = Path.Combine(parts.ToArray());
         
-        IStorageContainer keyStorageIdentifier = fsObjectStorageManager.GetKeyStorageContainer(mockKey);
+        IStorageHolder keyStorageIdentifier = fsObjectStorageManager.GetKeyStorageContainer(mockKey);
 
         IStorage keyStorage = fsObjectStorageManager.GetStorage(keyStorageIdentifier);
-        keyStorage.RootContainer.FullName.ShouldEqual(expected);
+        keyStorage.RootHolder.FullName.ShouldEqual(expected);
         Message.PrintLine(expected, ConsoleColor.Green);
     }
 
@@ -136,7 +136,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         parts.Add("1");
         string expected = Path.Combine(parts.ToArray());
 
-        IStorageContainer propertyStorage =
+        IStorageHolder propertyStorage =
             fsObjectStorageManager.GetPropertyStorageContainer(objectData.Property(propertyName));
 
         // {root}/objects/name/space/type/{propertyName}/{k/e/y}/1
@@ -155,7 +155,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
     private ServiceRegistry ConfigureDependencies(string rootPath)
     {
         ServiceRegistry testRegistry = new ServiceRegistry()
-            .For<IRootStorageContainer>().Use(new RootStorageContainer(rootPath));
+            .For<IRootStorageHolder>().Use(new RootStorageHolder(rootPath));
 
         ServiceRegistry dependencyProvider = Configure(testRegistry);
         return dependencyProvider;
