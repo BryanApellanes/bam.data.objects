@@ -53,13 +53,13 @@ public class ObjectData : IObjectData
         set;
     }
 
-    private Dictionary<string, IObjectProperty> _propertyDictionary;
-    public IObjectProperty? Property(string propertyName)
+    private Dictionary<string, IProperty> _propertyDictionary;
+    public IProperty? Property(string propertyName)
     {
         if (_propertyDictionary == null)
         {
-            _propertyDictionary = new Dictionary<string, IObjectProperty>();
-            foreach (IObjectProperty property in Properties)
+            _propertyDictionary = new Dictionary<string, IProperty>();
+            foreach (IProperty property in Properties)
             {
                 _propertyDictionary.Add(property.PropertyName, property);
             }
@@ -70,7 +70,7 @@ public class ObjectData : IObjectData
 
     public IObjectData? Property(string propertyName, object value)
     {
-        IObjectProperty? property = Property(propertyName);
+        IProperty? property = Property(propertyName);
         if (property != null)
         {
             property.SetValue(this.Data, value);
@@ -79,14 +79,14 @@ public class ObjectData : IObjectData
         return this;
     }
 
-    private IEnumerable<IObjectProperty> _properties;
-    public IEnumerable<IObjectProperty> Properties
+    private IEnumerable<IProperty> _properties;
+    public IEnumerable<IProperty> Properties
     {
         get
         {
             if (_properties != null)
             {
-                foreach (IObjectProperty prop in _properties)
+                foreach (IProperty prop in _properties)
                 {
                     yield return prop;
                 }
@@ -124,14 +124,14 @@ public class ObjectData : IObjectData
         return this.ObjectIdentifierFactory.GetObjectIdentifier(this);
     }
 
-    private IEnumerable<IObjectProperty> GetObjectProperties()
+    private IEnumerable<IProperty> GetObjectProperties()
     {
         foreach (PropertyInfo propertyInfo in Type.Type.GetProperties())
         {
             DataTypes enumType = DataTypeTranslator.EnumFromType(propertyInfo.PropertyType);
             if (enumType != DataTypes.Default)
             {
-                yield return new ObjectProperty(this, propertyInfo.Name, propertyInfo.GetValue(this.Data));
+                yield return new Property(this, propertyInfo.Name, propertyInfo.GetValue(this.Data));
             }
         }
     }

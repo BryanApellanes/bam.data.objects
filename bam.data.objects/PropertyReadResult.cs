@@ -3,7 +3,7 @@ using Bam.Data.Dynamic.Objects;
 
 namespace Bam.Net.Data.Repositories;
 
-public class ObjectPropertyReadResult : IObjectPropertyReadResult
+public class PropertyReadResult : IPropertyReadResult
 {
     public Type Type { get; }
     public PropertyInfo Property { get; }

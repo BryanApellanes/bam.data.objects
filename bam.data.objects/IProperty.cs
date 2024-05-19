@@ -5,7 +5,7 @@ using Bam.Storage;
 
 namespace Bam.Data.Dynamic.Objects;
 
-public interface IObjectProperty : IJsonable
+public interface IProperty : IJsonable
 {
     IObjectData Parent { get; set; }
     string AssemblyQualifiedTypeName { get; set; }

@@ -1,22 +1,25 @@
 using Bam.Data.Dynamic.Objects;
+using bam.data.objects;
 using Bam.Storage;
 using Bam.Net;
 
 namespace Bam.Data.Objects;
 
-public class ObjectPropertyStorageHolder : DirectoryStorageHolder, IObjectPropertyStorageHolder
+public class PropertyStorageHolder : DirectoryStorageHolder, IPropertyStorageHolder
 {
-    public ObjectPropertyStorageHolder(string path) : base(path)
+    public PropertyStorageHolder(string path) : base(path)
     {
     }
 
-    public ObjectPropertyStorageHolder(DirectoryInfo directory) : base(directory)
+    public PropertyStorageHolder(DirectoryInfo directory) : base(directory)
     {
     }
 
     public override string? FullName => Path.Combine(base.FullName, GetNextVersion().ToString());
     
     private IVersion _version;
+
+    public ITypeStorageHolder TypeStorageHolder { get; internal set; }
 
     public IVersion Version
     {
@@ -32,7 +35,7 @@ public class ObjectPropertyStorageHolder : DirectoryStorageHolder, IObjectProper
 
     public IVersion NextVersion => new Version(Version.Number);
 
-    public IObjectPropertyWriteResult Save(IObjectStorageManager storageManager, IObjectProperty objectProperty)
+    public IPropertyWriteResult Save(IObjectStorageManager storageManager, IProperty property)
     {
         try
         {
@@ -40,23 +43,23 @@ public class ObjectPropertyStorageHolder : DirectoryStorageHolder, IObjectProper
             // {root}/objects/name/space/type/{Ob/je/ct/Ke/y_}/{propertyName}/{version}/dat content -> {RawDataHash}
             
             IStorage propertyStorage = storageManager.GetStorage(this);
-            IRawData rawData = objectProperty.ToRawData();
+            IRawData rawData = property.ToRawData();
             propertyStorage.Save(rawData);
             
-            return new ObjectPropertyWriteResult()
+            return new PropertyWriteResult()
             {
                 Success = true,
-                ObjectProperty = objectProperty,
+                Property = property,
                 RawData = rawData,
-                StorageSlot = propertyStorage.Save(objectProperty.ToRawData())
+                StorageSlot = propertyStorage.Save(property.ToRawData())
             };
         }
         catch (Exception ex)
         {
-            return new ObjectPropertyWriteResult()
+            return new PropertyWriteResult()
             {
                 Success = false,
-                ObjectProperty = objectProperty,
+                Property = property,
                 Message = ProcessMode.Current.Mode == ProcessModes.Prod ? ex.Message : ex.GetMessageAndStackTrace()
             };
         }

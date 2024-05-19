@@ -19,11 +19,13 @@ public class ObjectDataFactory : IObjectDataFactory
     {
         if (data is ObjectData objectData)
         {
+            objectData.ObjectIdentifierFactory ??= this.ObjectIdentifierFactory;
             return objectData;
         }
 
         if (data is IObjectData iObjectData)
         {
+            iObjectData.ObjectIdentifierFactory ??= this.ObjectIdentifierFactory;
             return iObjectData;
         }
 

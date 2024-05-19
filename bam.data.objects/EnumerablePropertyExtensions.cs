@@ -4,14 +4,14 @@ using Bam.Net;
 
 namespace Bam.Data.Objects;
 
-public static class ObjectPropertyEnumerableExtensions
+public static class EnumerablePropertyExtensions
 {
-    public static T? FromObjectProperties<T>(this IEnumerable<IObjectProperty> properties)
+    public static T? FromObjectProperties<T>(this IEnumerable<IProperty> properties)
     {
         return (T)FromObjectProperties(properties);
     }
     
-    public static object? FromObjectProperties(this IEnumerable<IObjectProperty> properties)
+    public static object? FromObjectProperties(this IEnumerable<IProperty> properties)
     {
         EnsureMatchingTypeNames(properties);
         Type type = Type.GetType(properties.First().AssemblyQualifiedTypeName);
@@ -20,7 +20,7 @@ public static class ObjectPropertyEnumerableExtensions
             return null;
         }
         object data = type.Construct();
-        foreach (ObjectProperty property in properties)
+        foreach (Property property in properties)
         {
             PropertyInfo propertyInfo = type.GetProperty(property.PropertyName);
 
@@ -32,10 +32,10 @@ public static class ObjectPropertyEnumerableExtensions
         return data;
     }
     
-    private static void EnsureMatchingTypeNames(IEnumerable<IObjectProperty> properties)
+    private static void EnsureMatchingTypeNames(IEnumerable<IProperty> properties)
     {
         string typeName = null;
-        foreach (ObjectProperty property in properties)
+        foreach (Property property in properties)
         {
             if (string.IsNullOrEmpty(typeName))
             {

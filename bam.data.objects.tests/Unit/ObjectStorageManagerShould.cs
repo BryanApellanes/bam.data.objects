@@ -2,8 +2,10 @@ using Bam.Console;
 using Bam.Data.Objects;
 using Bam.Data.Dynamic.Objects;
 using Bam.Data.Dynamic.TestClasses;
+using bam.data.objects;
 using Bam.Data.Objects;
 using Bam.Net.CoreServices;
+using Bam.Net.Data.Repositories;
 using Bam.Net.Incubation;
 using Bam.Storage;
 using Bam.Testing;
@@ -25,7 +27,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         DependencyProvider dependencyProvider = ConfigureDependencies(expected);
         FsObjectStorageManager storageManager = dependencyProvider.Get<FsObjectStorageManager>();
 
-        string actual = storageManager.GetRootStorageContainer().FullName;
+        string actual = storageManager.GetRootStorageHolder().FullName;
         actual.ShouldEqual(expected, $"root was not expected value {expected} but {actual}");
     }
     
@@ -39,84 +41,35 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         {
         };
         
-        DirectoryInfo directoryInfo = ofs.GetTypeStorageContainer(ob.GetType());
+        DirectoryInfo directoryInfo = ofs.GetTypeStorageHolder(ob.GetType());
         directoryInfo.ShouldNotBeNull();
         Message.PrintLine("typeDir = '{0}'", directoryInfo.FullName);
     }
 
     [UnitTest]
-    public void GetTypeDirectory()
+    public void GetTypeStorage()
     {        
         string root = Path.Combine(Environment.CurrentDirectory, nameof(GetTypeDirectoryForDynamicType));
         DependencyProvider dependencyProvider = ConfigureDependencies(root);
         FsObjectStorageManager fsObjectStorageManager = dependencyProvider.Get<FsObjectStorageManager>();
         TestData ob = new TestData();
         
-        IStorageIdentifier directoryInfo = fsObjectStorageManager.GetTypeStorageContainer(ob.GetType());
-        directoryInfo.ShouldNotBeNull();
-        Message.PrintLine("typeDir = '{0}'", directoryInfo.FullName);
+        ITypeStorageHolder typeStorageHolder = fsObjectStorageManager.GetTypeStorageHolder(ob.GetType());
+        typeStorageHolder.ShouldNotBeNull();
+        typeStorageHolder.RootStorageHolder.ShouldNotBeNull();
+        
+        Message.PrintLine("typeDir = '{0}'", typeStorageHolder.FullName);
     }
-
-    [UnitTest]
-    public void GetKeyStorageIdentifier()
-    {
-        string root = Path.Combine(Environment.CurrentDirectory, nameof(GetTypeDirectoryForDynamicType));
-        DependencyProvider dependencyProvider = ConfigureDependencies(root);
-        FsObjectStorageManager fsObjectStorageManager = dependencyProvider.Get<FsObjectStorageManager>();
-        
-        IObjectKey mockKey = Substitute.For<IObjectKey>();
-        string testKey = 32.RandomLetters().HashHexString(HashAlgorithms.SHA256);
-        mockKey.Key.Returns(testKey);
-        mockKey.Type.Returns(new TypeDescriptor(typeof(TestData)));
-        
-        IStorageIdentifier keyStorageIdentifier = fsObjectStorageManager.GetKeyStorageContainer(mockKey);
-
-        List<string> parts = new List<string> { root, "objects" };
-        parts.AddRange(typeof(TestData).Namespace.Split('.'));
-        parts.Add(nameof(TestData));
-        parts.Add("key");
-        parts.AddRange(testKey.ToString().Split(2));
-        
-        string expected = Path.Combine(parts.ToArray());
-        keyStorageIdentifier.FullName.ShouldEqual(expected);
-        Message.PrintLine(expected);
-    }
-
-    [UnitTest]
-    public void GetKeyStorage()
-    {
-        string root = Path.Combine(Environment.CurrentDirectory, nameof(GetKeyStorage));
-        DependencyProvider dependencyProvider = ConfigureDependencies(root);
-        FsObjectStorageManager fsObjectStorageManager = dependencyProvider.Get<FsObjectStorageManager>();
-        
-        IObjectKey mockKey = Substitute.For<IObjectKey>();
-        string testKey = 32.RandomLetters().HashHexString(HashAlgorithms.SHA256);
-        mockKey.Key.Returns(testKey);
-        mockKey.Type.Returns(new TypeDescriptor(typeof(TestData)));
-        
-        List<string> parts = new List<string> { root,"objects" };
-        parts.AddRange(typeof(TestData).Namespace.Split('.'));
-        parts.Add(nameof(TestData));
-        parts.Add("key");
-        parts.AddRange(testKey.ToString().Split(2));
-        
-        string expected = Path.Combine(parts.ToArray());
-        
-        IStorageHolder keyStorageIdentifier = fsObjectStorageManager.GetKeyStorageContainer(mockKey);
-
-        IStorage keyStorage = fsObjectStorageManager.GetStorage(keyStorageIdentifier);
-        keyStorage.RootHolder.FullName.ShouldEqual(expected);
-        Message.PrintLine(expected, ConsoleColor.Green);
-    }
-
+    
     [UnitTest]
     public void GetPropertyStorageContainer()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(GetPropertyStorageContainer));
-        ServiceRegistry serviceRegistry = Configure(ConfigureDependencies(root));
+        ServiceRegistry serviceRegistry = Configure(ConfigureDependencies(root))
+            .For<IObjectStorageManager>().Use<FsObjectStorageManager>();
 
         FsObjectStorageManager fsObjectStorageManager = serviceRegistry.Get<FsObjectStorageManager>();
-        ObjectCalculator calculator = serviceRegistry.Get<ObjectCalculator>();
+        ObjectDataFactory dataFactory = serviceRegistry.Get<ObjectDataFactory>();
         string propertyName = "StringProperty";
         
         TestData testData = new TestData
@@ -126,19 +79,18 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
             LongProperty = RandomNumber.Between(100, 1000),
             DateTimeProperty = DateTime.Now
         };
-        ObjectData objectData = new ObjectData(testData);
-        ulong key = calculator.CalculateULongKey(objectData);//objectData.GetKey(calculator);
-        List<string> parts = new List<string> { root, "objects" };
-        parts.AddRange(typeof(TestData).Namespace.Split('.'));
-        parts.Add(nameof(TestData));
-        parts.AddRange(key.ToString().Split(2));
+        IObjectData objectData = dataFactory.Wrap(new ObjectData(testData));
+        IObjectKey key = objectData.GetObjectKey();
+        List<string> parts = new List<string>();
+        parts.Add(key.ToString());
         parts.Add(propertyName);
         parts.Add("1");
         string expected = Path.Combine(parts.ToArray());
 
-        IStorageHolder propertyStorage =
-            fsObjectStorageManager.GetPropertyStorageContainer(objectData.Property(propertyName));
-
+        IPropertyStorageHolder propertyStorage =
+            fsObjectStorageManager.GetPropertyStorageHolder(objectData.Property(propertyName));
+        propertyStorage.TypeStorageHolder.ShouldNotBeNull("TypeStorageHolder was null");
+        
         // {root}/objects/name/space/type/{propertyName}/{k/e/y}/1
         propertyStorage.FullName.ShouldEqual(expected);
         Message.PrintLine(expected);
@@ -154,10 +106,6 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
     
     private ServiceRegistry ConfigureDependencies(string rootPath)
     {
-        ServiceRegistry testRegistry = new ServiceRegistry()
-            .For<IRootStorageHolder>().Use(new RootStorageHolder(rootPath));
-
-        ServiceRegistry dependencyProvider = Configure(testRegistry);
-        return dependencyProvider;
+        return UnitTests.ConfigureDependencies(rootPath);
     }
 }

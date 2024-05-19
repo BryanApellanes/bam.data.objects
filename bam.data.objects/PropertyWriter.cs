@@ -6,33 +6,34 @@ using Bam.Storage;
 
 namespace Bam.Data.Objects;
 
-public class ObjectPropertyWriter : IObjectPropertyWriter
+public class PropertyWriter : IPropertyWriter
 {
-    public ObjectPropertyWriter(IObjectStorageManager objectStorageManager)
+    public PropertyWriter(IObjectStorageManager objectStorageManager)
     {
         this.ObjectStorageManager = objectStorageManager;
     }
     
     public IObjectStorageManager ObjectStorageManager { get; init; }
     
-    public async Task<IObjectPropertyWriteResult> WritePropertyAsync(IObjectProperty property)
+    public async Task<IPropertyWriteResult> WritePropertyAsync(IProperty property)
     {
         try
         {
+            IObjectKey objectKey = property.Parent.GetObjectKey();
             IRawData rawPropertyData = property.ToRawData();
             IStorage rawStorage = ObjectStorageManager.GetRawStorage();
             rawStorage.Save(rawPropertyData);
 
-            IObjectPropertyStorageHolder propertyStorageHolder = ObjectStorageManager.GetPropertyStorageContainer(property);
+            IPropertyStorageHolder propertyStorageHolder = ObjectStorageManager.GetPropertyStorageHolder(property);
 
             return propertyStorageHolder.Save(ObjectStorageManager, property);
         }
         catch (Exception ex)
         {
-            return new ObjectPropertyWriteResult
+            return new PropertyWriteResult
             {
                 Success = false,
-                ObjectProperty = property,
+                Property = property,
                 Message = ProcessMode.Current.Mode == ProcessModes.Prod ? ex.Message : ex.GetMessageAndStackTrace()
             };
         }

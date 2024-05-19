@@ -1,4 +1,5 @@
 using System.Reflection;
+using bam.data.objects;
 using Bam.Data.Objects;
 using Bam.Net;
 using Bam.Storage;
@@ -17,42 +18,31 @@ public class FsObjectStorageManager : IObjectStorageManager
     public IRootStorageHolder RootStorage { get; private set; }
     public IObjectCalculator ObjectCalculator { get; private set; }
     
-    public IRootStorageHolder GetRootStorageContainer()
+    public IRootStorageHolder GetRootStorageHolder()
     {
         return RootStorage;
     }
 
-    public IStorageHolder GetTypeStorageContainer(Type type)
+    public ITypeStorageHolder GetTypeStorageHolder(Type type)
     {
-        IRootStorageHolder rootStorageHolder = GetRootStorageContainer();
+        IRootStorageHolder rootStorageHolder = GetRootStorageHolder();
         string relativeTypePath = GetRelativePathForType(type);
-        return new DirectoryStorageHolder(Path.Combine(rootStorageHolder.FullName, "objects", relativeTypePath));
+        return new TypeStorageHolder(Path.Combine(rootStorageHolder.FullName, "objects", relativeTypePath))
+        {
+            RootStorageHolder = this.RootStorage
+        };
     }
 
-    public IObjectPropertyStorageHolder GetPropertyStorageContainer(IObjectProperty property)
+    public IPropertyStorageHolder GetPropertyStorageHolder(IProperty property)
     {
         List<string> parts = new List<string>();
-        parts.Add(GetTypeStorageContainer(property.Parent.Type).FullName);
+        parts.Add(GetTypeStorageHolder(property.Parent.Type).FullName);
+        parts.AddRange(property.Parent.GetObjectKey().Key.Split(2));
         parts.Add(property.PropertyName);
-        parts.AddRange(ObjectCalculator.CalculateULongKey(property.Parent).ToString().Split(2));
-        return new ObjectPropertyStorageHolder(Path.Combine(parts.ToArray()));
-    }
-
-    public IStorage GetKeyStorage(IObjectKey objectKey)
-    {
-        return GetStorage(GetKeyStorageContainer(objectKey));
-    }
-
-    public IStorageHolder GetKeyStorageContainer(IObjectKey objectKey)
-    {
-        IStorageIdentifier directoryInfo = GetTypeStorageContainer(objectKey.Type.Type);
-        List<string> parts = new List<string>
+        return new PropertyStorageHolder(Path.Combine(parts.ToArray()))
         {
-            directoryInfo.FullName,
+            TypeStorageHolder = GetTypeStorageHolder(property.Parent.Type)
         };
-        parts.AddRange(objectKey.Key.ToString().Split(2));
-        
-        return new DirectoryStorageHolder(Path.Combine(parts.ToArray()));
     }
     
     public virtual IStorage GetRawStorage()

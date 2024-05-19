@@ -1,19 +1,16 @@
 using System.Reflection;
 using Bam.Data.Dynamic.Objects;
+using bam.data.objects;
 using Bam.Storage;
 
 namespace Bam.Data.Objects;
 
 public interface IObjectStorageManager
 {
-    IRootStorageHolder GetRootStorageContainer();
-    IStorageHolder GetTypeStorageContainer(Type type);
+    IRootStorageHolder GetRootStorageHolder();
+    ITypeStorageHolder GetTypeStorageHolder(Type type);
 
-    IObjectPropertyStorageHolder GetPropertyStorageContainer(IObjectProperty property);
-
-    IStorage GetKeyStorage(IObjectKey objectKey);
-
-    IStorageHolder GetKeyStorageContainer(IObjectKey objectKey);
+    IPropertyStorageHolder GetPropertyStorageHolder(IProperty property);
 
     IStorage GetStorage(IStorageHolder storageIdentifier);
 

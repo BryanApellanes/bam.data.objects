@@ -7,9 +7,9 @@ using Microsoft.CodeAnalysis;
 
 namespace Bam.Data.Dynamic.Objects;
 
-public class ObjectProperty : IObjectProperty
+public class Property : IProperty
 {
-    public ObjectProperty(IObjectData parent, string propertyName, object propertyValue)
+    public Property(IObjectData parent, string propertyName, object propertyValue)
     {
         Args.ThrowIfNull(parent, nameof(parent));
         Args.ThrowIfNull(parent.Type, nameof(parent.Type));
@@ -92,14 +92,14 @@ public class ObjectProperty : IObjectProperty
         return new RawData(this.ObjectEncoder.Encode(this).Value, encoding);
     }
 
-    public static ObjectProperty FromData(PropertyInfo property, object data)
+    public static Property FromData(PropertyInfo property, object data)
     {
         IObjectData parent = new ObjectData(data);
         if (data is IObjectData dataParent)
         {
             parent = dataParent;
         }
-        return new ObjectProperty(parent, property.Name, property.GetValue(data));
+        return new Property(parent, property.Name, property.GetValue(data));
     }
 
     public string ToJson()

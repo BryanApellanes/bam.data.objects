@@ -19,7 +19,7 @@ public class ObjectIdentifierFactory : IObjectIdentifierFactory
         return new ObjectKey()
         {
             Type = data.Type,
-            StorageIdentifier = ObjectStorageManager.GetTypeStorageContainer(data.Type),
+            StorageIdentifier = ObjectStorageManager.GetTypeStorageHolder(data.Type),
             Key = ObjectCalculator.CalculateHashHexKey(data),
             Id = ObjectCalculator.CalculateHashHex(data)
         };
@@ -30,7 +30,7 @@ public class ObjectIdentifierFactory : IObjectIdentifierFactory
         return new ObjectIdentifier()
         {
             Type = data.Type,
-            StorageIdentifier = ObjectStorageManager.GetTypeStorageContainer(data.Type),
+            StorageIdentifier = ObjectStorageManager.GetTypeStorageHolder(data.Type),
             Id = ObjectCalculator.CalculateHashHex(data)
         };
     }

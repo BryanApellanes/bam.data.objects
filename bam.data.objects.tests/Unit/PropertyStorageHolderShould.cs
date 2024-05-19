@@ -10,9 +10,9 @@ using Bam.Testing;
 namespace Bam.Net.Application.Unit;
 
 [UnitTestMenu("ObjectPropertyStorageContainerShould")]
-public class ObjectPropertyStorageContainerShould: UnitTestMenuContainer
+public class PropertyStorageHolderShould: UnitTestMenuContainer
 {
-    public ObjectPropertyStorageContainerShould(ServiceRegistry serviceRegistry) : base(serviceRegistry)
+    public PropertyStorageHolderShould(ServiceRegistry serviceRegistry) : base(serviceRegistry)
     {
     }
 
@@ -21,18 +21,18 @@ public class ObjectPropertyStorageContainerShould: UnitTestMenuContainer
     {
         string testDataPath = Path.Combine(Environment.CurrentDirectory, nameof(HaveVersionPath), "testData");
         string expectedPath = Path.Combine(testDataPath, "1");
-        ObjectPropertyStorageHolder objectPropertyStorageHolder =
-            new ObjectPropertyStorageHolder(testDataPath);
-        objectPropertyStorageHolder.FullName.ShouldEqual(expectedPath);
+        PropertyStorageHolder propertyStorageHolder =
+            new PropertyStorageHolder(testDataPath);
+        propertyStorageHolder.FullName.ShouldEqual(expectedPath);
     }
     
     [UnitTest]
     public void HaveVersion()
     {
-        ObjectPropertyStorageHolder objectPropertyStorageHolder =
-            new ObjectPropertyStorageHolder(Path.Combine(Environment.CurrentDirectory, nameof(HaveVersion), "testData"));
-        objectPropertyStorageHolder.Version.ShouldNotBeNull();
-        objectPropertyStorageHolder.Version.Number.ShouldEqual(1);
+        PropertyStorageHolder propertyStorageHolder =
+            new PropertyStorageHolder(Path.Combine(Environment.CurrentDirectory, nameof(HaveVersion), "testData"));
+        propertyStorageHolder.Version.ShouldNotBeNull();
+        propertyStorageHolder.Version.Number.ShouldEqual(1);
     }
     
     public override ServiceRegistry Configure(ServiceRegistry serviceRegistry)

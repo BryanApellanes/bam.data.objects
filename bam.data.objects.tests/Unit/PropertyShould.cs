@@ -8,7 +8,7 @@ using Bam.Testing;
 namespace Bam.Net.Application.Unit;
 
 [UnitTestMenu("ObjectPropertyShould", "ops")]
-public class ObjectPropertyShould
+public class PropertyShould
 {
     [UnitTest]
     public void ConvertDataToObjectPropertyList()
@@ -21,7 +21,7 @@ public class ObjectPropertyShould
             DateTimeProperty = DateTime.Now
         };
 
-        IEnumerable<IObjectProperty> properties = data.ToObjectProperties();
+        IEnumerable<IProperty> properties = data.ToObjectProperties();
         properties.Count().ShouldEqual(4);
         Message.PrintLine(properties.ToJson(true));
     }
@@ -37,7 +37,7 @@ public class ObjectPropertyShould
             DateTimeProperty = DateTime.Now
         };
 
-        IEnumerable<IObjectProperty> properties = data.ToObjectProperties();
+        IEnumerable<IProperty> properties = data.ToObjectProperties();
         TestData recovered = properties.FromObjectProperties<TestData>();
 
         string originalJson = data.ToJson();
@@ -51,7 +51,7 @@ public class ObjectPropertyShould
         PropertyInfo prop = typeof(TestData).GetProperty("StringProperty");
         string expected = 16.RandomLetters();
         ObjectData data = new ObjectData(new TestData { StringProperty = expected });
-        ObjectProperty property = new ObjectProperty(data, prop.Name, expected);
+        Property property = new Property(data, prop.Name, expected);
         object actual = property.Decode();
         actual.ShouldEqual(expected);
     }
@@ -61,7 +61,7 @@ public class ObjectPropertyShould
     {
         string expected = 32.RandomLetters();
         ObjectData data = new ObjectData(new TestData { StringProperty = expected });
-        ObjectProperty prop = new ObjectProperty(data, "StringProperty", expected);
+        Property prop = new Property(data, "StringProperty", expected);
 
         TestData testData = new TestData();
         testData.StringProperty.ShouldBeNull();
@@ -73,7 +73,7 @@ public class ObjectPropertyShould
     public void HaveParent()
     {
         ObjectData data = new ObjectData(new TestData { StringProperty = 16.RandomLetters() });
-        IObjectProperty property = data.Property("StringProperty");
+        IProperty property = data.Property("StringProperty");
         property.ShouldNotBeNull();
         property.Parent.ShouldNotBeNull();
         property.Parent.ShouldEqual(data);

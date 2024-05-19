@@ -8,5 +8,5 @@ public interface IObjectDataWriteResult : IResult
     IObjectData ObjectData { get; }
     IObjectKey ObjectKey { get; }
     IStorageSlot KeySlot { get; }
-    IDictionary<string, IObjectPropertyWriteResult> PropertyWriteResults { get; } 
+    IDictionary<string, IPropertyWriteResult> PropertyWriteResults { get; } 
 }

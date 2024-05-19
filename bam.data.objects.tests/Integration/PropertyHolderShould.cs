@@ -8,9 +8,9 @@ using Bam.Testing;
 namespace Bam.Data.Objects.Tests.Integration;
 
 [UnitTestMenu("ObjectPropertyStorageContainerShould")]
-public class ObjectPropertyStorageContainerShould: UnitTestMenuContainer
+public class PropertyHolderShould: UnitTestMenuContainer
 {
-    public ObjectPropertyStorageContainerShould(ServiceRegistry serviceRegistry) : base(serviceRegistry)
+    public PropertyHolderShould(ServiceRegistry serviceRegistry) : base(serviceRegistry)
     {
     }
 
@@ -24,7 +24,7 @@ public class ObjectPropertyStorageContainerShould: UnitTestMenuContainer
         ObjectDataFactory dataFactory = testRegistry.Get<ObjectDataFactory>();
         IObjectStorageManager storageManager = testRegistry.Get<IObjectStorageManager>();
         
-        ObjectPropertyStorageHolder storageHolder = testRegistry.Get<ObjectPropertyStorageHolder>(new string[] {rootPath});
+        PropertyStorageHolder storageHolder = testRegistry.Get<PropertyStorageHolder>(new string[] {rootPath});
         
         IObjectData objectData = dataFactory.Wrap(new TestData
         {
@@ -41,7 +41,7 @@ public class ObjectPropertyStorageContainerShould: UnitTestMenuContainer
         pathSegments.Add("dat");
         
         string expected = Path.Combine(pathSegments.ToArray());
-        IObjectPropertyWriteResult writeResult = storageHolder.Save(storageManager, objectData.Property("StringProperty"));
+        IPropertyWriteResult writeResult = storageHolder.Save(storageManager, objectData.Property("StringProperty"));
         writeResult.StorageSlot.FullName.ShouldEqual(expected);
     }
 
@@ -55,11 +55,11 @@ public class ObjectPropertyStorageContainerShould: UnitTestMenuContainer
         {
             StringProperty = $"StringProperty-SaveObjectPropertyTest"
         });
-        IObjectProperty property = objectData.Property("StringProperty");
-        IObjectPropertyStorageHolder propertyStorageHolder =
-            storageManager.GetPropertyStorageContainer(property);
+        IProperty property = objectData.Property("StringProperty");
+        IPropertyStorageHolder propertyStorageHolder =
+            storageManager.GetPropertyStorageHolder(property);
         
-        IObjectPropertyWriteResult writeResult = propertyStorageHolder.Save(storageManager, property);
+        IPropertyWriteResult writeResult = propertyStorageHolder.Save(storageManager, property);
         Message.PrintLine(writeResult.StorageSlot.FullName);
         File.Exists(writeResult.StorageSlot.FullName).ShouldBeTrue($"{writeResult.StorageSlot.FullName} doesn't exist");
     }

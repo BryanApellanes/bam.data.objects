@@ -56,7 +56,7 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         
         testContainer.For<IObjectDataFactory>().Use(mockDataFactory);
         testContainer.For<IObjectStorageManager>().Use<FsObjectStorageManager>();
-        testContainer.For<IObjectPropertyWriter>().Use<ObjectPropertyWriter>();
+        testContainer.For<IPropertyWriter>().Use<PropertyWriter>();
         
         ObjectDataWriter objectDataWriter = testContainer.Get<ObjectDataWriter>();
 
@@ -94,7 +94,7 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
 
         ObjectDataWriter objectDataWriter = testRegistry.Get<ObjectDataWriter>();
         await objectDataWriter.WriteAsync(new ObjectData(new TestData()));
-        mockStorageManager.Received().GetRootStorageContainer();
+        mockStorageManager.Received().GetRootStorageHolder();
     }
     
     private ServiceRegistry ConfigureDependencies(string rootPath)

@@ -2,10 +2,10 @@ using System.Reflection;
 
 namespace Bam.Data.Dynamic.Objects;
 
-public interface IObjectPropertyReadResult
+public interface IPropertyReadResult<TValue> : IPropertyReadResult
 {
     Type Type { get; }
     PropertyInfo Property { get; }
-    object Value { get; }
+    new TValue Value { get; }
     bool Success { get; }
 }

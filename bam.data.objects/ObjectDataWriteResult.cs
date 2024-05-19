@@ -7,7 +7,7 @@ public class ObjectDataWriteResult : IObjectDataWriteResult
 {
     public ObjectDataWriteResult(IObjectData data)
     {
-        this.PropertyWriteResults = new Dictionary<string, IObjectPropertyWriteResult>();
+        this.PropertyWriteResults = new Dictionary<string, IPropertyWriteResult>();
         this.ObjectData = data;
         this.Success = true;
     }
@@ -18,10 +18,10 @@ public class ObjectDataWriteResult : IObjectDataWriteResult
     public IObjectData ObjectData { get; }
     public IObjectKey ObjectKey { get; set; }
     public IStorageSlot KeySlot { get; set; }
-    public IDictionary<string, IObjectPropertyWriteResult> PropertyWriteResults { get; init; }
+    public IDictionary<string, IPropertyWriteResult> PropertyWriteResults { get; init; }
 
-    internal void AddPropertyWriteResult(IObjectPropertyWriteResult propertyWriteResult)
+    internal void AddPropertyWriteResult(IPropertyWriteResult propertyWriteResult)
     {
-        PropertyWriteResults.Add(propertyWriteResult.ObjectProperty?.PropertyName, propertyWriteResult);
+        PropertyWriteResults.Add(propertyWriteResult.Property?.PropertyName, propertyWriteResult);
     }
 }

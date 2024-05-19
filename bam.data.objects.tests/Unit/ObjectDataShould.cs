@@ -91,7 +91,7 @@ public class ObjectDataShould : UnitTestMenuContainer
         };
 
         ObjectData testObjectData = new ObjectData(testData);
-        IObjectProperty property = testObjectData.Property("IntProperty");
+        IProperty property = testObjectData.Property("IntProperty");
         object decoded = property.Decode();
         // convert to long because the decoded value of a number 
         // gets converted to long by the underlying deserialization
@@ -111,7 +111,7 @@ public class ObjectDataShould : UnitTestMenuContainer
         };
 
         ObjectData testObjectData = new ObjectData(testData);
-        IObjectProperty property = testObjectData.Property("StringProperty");
+        IProperty property = testObjectData.Property("StringProperty");
         property.Decode().ShouldEqual(expected);
     }
     
@@ -128,7 +128,7 @@ public class ObjectDataShould : UnitTestMenuContainer
         };
 
         ObjectData testObjectData = new ObjectData(testData);
-        IObjectProperty getProperty = testObjectData.Property("StringProperty");
+        IProperty getProperty = testObjectData.Property("StringProperty");
         getProperty.Decode().ShouldNotEqual(expected);
         IObjectData setData = testObjectData.Property("StringProperty", expected);
         

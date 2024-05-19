@@ -21,7 +21,7 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         string root = Path.Combine(Environment.CurrentDirectory, nameof(WriteData));
         ServiceRegistry testContainer = ConfigureDependencies(root);
         testContainer
-            .For<IObjectPropertyWriter>().Use<ObjectPropertyWriter>()
+            .For<IPropertyWriter>().Use<PropertyWriter>()
             .For<IObjectStorageManager>().Use<FsObjectStorageManager>()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
@@ -45,10 +45,10 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         
         foreach (string key in result.PropertyWriteResults.Keys)
         {
-            IObjectPropertyWriteResult propertyWriteResult = result.PropertyWriteResults[key];
+            IPropertyWriteResult propertyWriteResult = result.PropertyWriteResults[key];
             
             propertyWriteResult.ShouldNotBeNull("propertyWriteResult was null");
-            propertyWriteResult.ObjectProperty.ShouldNotBeNull("propertyWriteResult.ObjectProperty was null");
+            propertyWriteResult.Property.ShouldNotBeNull("propertyWriteResult.ObjectProperty was null");
             propertyWriteResult.RawData.ShouldNotBeNull("propertyWriteResult.RawData was null");
         }
         
@@ -59,7 +59,7 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         string root = Path.Combine(Environment.CurrentDirectory, nameof(WritePropertyFiles));
         ServiceRegistry testContainer = ConfigureDependencies(root);
         testContainer
-            .For<IObjectPropertyWriter>().Use<ObjectPropertyWriter>()
+            .For<IPropertyWriter>().Use<PropertyWriter>()
             .For<IObjectStorageManager>().Use<FsObjectStorageManager>()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
@@ -77,7 +77,7 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         foreach (string key in result.PropertyWriteResults.Keys)
         {
             
-            IObjectPropertyWriteResult propertyWriteResult = result.PropertyWriteResults[key];
+            IPropertyWriteResult propertyWriteResult = result.PropertyWriteResults[key];
             //propertyWriteResult.StorageSlot.FullName.ShouldEqual();
         }
         // rewrite implementation to conform to the README
