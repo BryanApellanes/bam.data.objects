@@ -41,8 +41,13 @@ public class PropertyHolderShould: UnitTestMenuContainer
         pathSegments.Add("dat");
         
         string expected = Path.Combine(pathSegments.ToArray());
+        if (File.Exists(expected))
+        {
+            File.Delete(expected);
+        }
         IPropertyWriteResult writeResult = storageHolder.Save(storageManager, objectData.Property("StringProperty"));
         writeResult.StorageSlot.FullName.ShouldEqual(expected);
+        File.Exists(writeResult.StorageSlot.FullName).ShouldBeTrue("file didn't exist");
     }
 
     [UnitTest]
@@ -56,10 +61,10 @@ public class PropertyHolderShould: UnitTestMenuContainer
             StringProperty = $"StringProperty-SaveObjectPropertyTest"
         });
         IProperty property = objectData.Property("StringProperty");
-        IPropertyStorageHolder propertyStorageHolder =
+        IPropertyHolder propertyHolder =
             storageManager.GetPropertyStorageHolder(property);
         
-        IPropertyWriteResult writeResult = propertyStorageHolder.Save(storageManager, property);
+        IPropertyWriteResult writeResult = propertyHolder.Save(storageManager, property);
         Message.PrintLine(writeResult.StorageSlot.FullName);
         File.Exists(writeResult.StorageSlot.FullName).ShouldBeTrue($"{writeResult.StorageSlot.FullName} doesn't exist");
     }

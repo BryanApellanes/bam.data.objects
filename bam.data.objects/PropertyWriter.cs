@@ -19,20 +19,15 @@ public class PropertyWriter : IPropertyWriter
     {
         try
         {
-            IObjectKey objectKey = property.Parent.GetObjectKey();
-            IRawData rawPropertyData = property.ToRawData();
-            IStorage rawStorage = ObjectStorageManager.GetRawStorage();
-            rawStorage.Save(rawPropertyData);
+            IPropertyHolder propertyHolder = ObjectStorageManager.GetPropertyStorageHolder(property);
 
-            IPropertyStorageHolder propertyStorageHolder = ObjectStorageManager.GetPropertyStorageHolder(property);
-
-            return propertyStorageHolder.Save(ObjectStorageManager, property);
+            return propertyHolder.Save(ObjectStorageManager, property);
         }
         catch (Exception ex)
         {
             return new PropertyWriteResult
             {
-                Success = false,
+                Status = PropertyWriteResults.Failed,
                 Property = property,
                 Message = ProcessMode.Current.Mode == ProcessModes.Prod ? ex.Message : ex.GetMessageAndStackTrace()
             };

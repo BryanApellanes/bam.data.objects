@@ -7,7 +7,7 @@ using Bam.Testing;
 
 namespace Bam.Data.Objects.Tests.Integration;
 
-[UnitTestMenu("ObjectPropertyWriterShould")]
+[UnitTestMenu("PropertyWriterShould")]
 public class PropertyWriterShould: UnitTestMenuContainer
 {
     public PropertyWriterShould(ServiceRegistry serviceRegistry) : base(serviceRegistry)

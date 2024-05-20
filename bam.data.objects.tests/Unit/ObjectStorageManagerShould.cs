@@ -13,7 +13,7 @@ using NSubstitute;
 
 namespace Bam.Net.Application.Unit;
 
-[UnitTestMenu("ObjectStorageManager Should", "ofs")]
+[UnitTestMenu("ObjectStorageManager Should", "utosms")]
 public class ObjectStorageManagerShould : UnitTestMenuContainer
 {
     public ObjectStorageManagerShould(ServiceRegistry serviceRegistry) : base(serviceRegistry)
@@ -84,15 +84,15 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         List<string> parts = new List<string>();
         parts.Add(key.ToString());
         parts.Add(propertyName);
-        parts.Add("1");
         string expected = Path.Combine(parts.ToArray());
 
-        IPropertyStorageHolder propertyStorage =
+        IPropertyHolder property =
             fsObjectStorageManager.GetPropertyStorageHolder(objectData.Property(propertyName));
-        propertyStorage.TypeStorageHolder.ShouldNotBeNull("TypeStorageHolder was null");
+        property.TypeStorageHolder.ShouldNotBeNull("TypeStorageHolder was null");
         
-        // {root}/objects/name/space/type/{propertyName}/{k/e/y}/1
-        propertyStorage.FullName.ShouldEqual(expected);
+        property.PropertyName.ShouldNotBeNull();
+        property.PropertyName.ShouldEqual(propertyName);
+        property.FullName.ShouldEqual(expected);
         Message.PrintLine(expected);
     }
     

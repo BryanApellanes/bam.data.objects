@@ -5,6 +5,8 @@ For each property of the object:
 - A dat file which contains the value of the property:
   - {root}/objects/name/space/type/{Ob/je/ct/Ke/y_}/{propertyName}/{version}/dat
 
+
+
 ## Indexing
 
 When an object is indexed the following file is written:

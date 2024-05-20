@@ -33,7 +33,7 @@ public class FsObjectStorageManager : IObjectStorageManager
         };
     }
 
-    public IPropertyStorageHolder GetPropertyStorageHolder(IProperty property)
+    public IPropertyHolder GetPropertyStorageHolder(IProperty property)
     {
         List<string> parts = new List<string>();
         parts.Add(GetTypeStorageHolder(property.Parent.Type).FullName);
@@ -41,6 +41,7 @@ public class FsObjectStorageManager : IObjectStorageManager
         parts.Add(property.PropertyName);
         return new PropertyStorageHolder(Path.Combine(parts.ToArray()))
         {
+            PropertyName = property.PropertyName,
             TypeStorageHolder = GetTypeStorageHolder(property.Parent.Type)
         };
     }
@@ -49,7 +50,47 @@ public class FsObjectStorageManager : IObjectStorageManager
     {
         return GetStorage(new DirectoryStorageHolder(Path.Combine(RootStorage.FullName, "raw")));
     }
-    
+
+    public bool IsSlotWritten(IStorageSlot slot)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IPropertyStorageVersionSlot GetPropertySlot(IProperty property)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IPropertyStorageVersionSlot GetPropertyVersionSlot(IProperty property, int version)
+    {
+        throw new NotImplementedException();
+    }
+
+    public int GetLatestVersionNumber(IProperty property)
+    {
+        throw new NotImplementedException();
+    }
+
+    public int GetNextVersionNumber(IProperty property)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool IsEqualToLatestVersion(IProperty property)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool VersionExists(IProperty property, int version = 1)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<IPropertyVersion> GetVersionsAsync(IProperty property)
+    {
+        throw new NotImplementedException();
+    }
+
 
     public virtual IStorage GetStorage(IStorageHolder storageIdentifier)
     {

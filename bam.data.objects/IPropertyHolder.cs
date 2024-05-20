@@ -4,12 +4,10 @@ using Bam.Storage;
 
 namespace Bam.Data.Objects;
 
-public interface IPropertyStorageHolder : IStorageHolder
+public interface IPropertyHolder : IStorageHolder
 {
+    string PropertyName { get; }
     ITypeStorageHolder TypeStorageHolder { get; }
-    IVersion Version { get; }
-    IList<IVersion> VersionHistory { get; }
-    IVersion NextVersion { get; }
-
+    IPropertyStorageVersionSlot GetPropertyVersionSlot(IProperty property, int version);
     IPropertyWriteResult Save(IObjectStorageManager storageManager, IProperty property);
 }

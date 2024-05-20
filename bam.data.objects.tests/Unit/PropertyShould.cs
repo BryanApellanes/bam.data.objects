@@ -7,7 +7,7 @@ using Bam.Testing;
 
 namespace Bam.Net.Application.Unit;
 
-[UnitTestMenu("ObjectPropertyShould", "ops")]
+[UnitTestMenu("PropertyShould", "ops")]
 public class PropertyShould
 {
     [UnitTest]
