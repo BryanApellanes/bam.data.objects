@@ -1,8 +1,8 @@
 using Bam.Data.Dynamic.Objects;
 using Bam.Data.Dynamic.TestClasses;
-using Bam.Net;
-using Bam.Net.CoreServices;
-using Bam.Net.Data.Repositories;
+using Bam;
+using Bam.CoreServices;
+using Bam.Data.Repositories;
 using Bam.Storage;
 using Bam.Testing;
 

@@ -1,6 +1,6 @@
 using System.Reflection;
 using Bam.Data.Objects;
-using Bam.Net;
+using Bam;
 using Bam.Storage;
 
 namespace Bam.Data.Dynamic.Objects;

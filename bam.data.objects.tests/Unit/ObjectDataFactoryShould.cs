@@ -3,10 +3,10 @@ using Bam.Data.Dynamic.Objects;
 using Bam.Data.Dynamic.TestClasses;
 using Bam.Data.Objects;
 using Bam.Data.Objects.Tests.Integration;
-using Bam.Net.CoreServices;
+using Bam.CoreServices;
 using Bam.Testing;
 
-namespace Bam.Net.Application.Unit;
+namespace Bam.Application.Unit;
 
 [UnitTestMenu("ObjectDataFactoryShould")]
 public class ObjectDataFactoryShould : UnitTestMenuContainer

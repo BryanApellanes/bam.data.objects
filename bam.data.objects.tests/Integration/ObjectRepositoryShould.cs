@@ -1,4 +1,4 @@
-using Bam.Net.CoreServices;
+using Bam.CoreServices;
 using Bam.Testing;
 
 namespace Bam.Data.Objects.Tests.Integration;

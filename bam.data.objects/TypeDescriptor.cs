@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-using Bam.Net;
+using Bam;
 using YamlDotNet.Serialization;
 
 namespace Bam.Data.Objects;

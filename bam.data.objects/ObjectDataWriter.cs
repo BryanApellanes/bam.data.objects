@@ -1,8 +1,8 @@
 using System.Reflection;
 using Bam.Data.Dynamic.Objects;
 
-using Bam.Net;
-using Bam.Net.Data.Repositories;
+using Bam;
+using Bam.Data.Repositories;
 using Bam.Storage;
 
 namespace Bam.Data.Objects;

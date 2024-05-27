@@ -1,6 +1,6 @@
 using System.Text;
 using Bam.Data.Dynamic.Objects;
-using Bam.Net;
+using Bam;
 using MongoDB.Bson;
 
 namespace Bam.Data.Objects;

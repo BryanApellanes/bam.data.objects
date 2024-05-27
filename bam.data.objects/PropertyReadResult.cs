@@ -1,7 +1,7 @@
 using System.Reflection;
 using Bam.Data.Dynamic.Objects;
 
-namespace Bam.Net.Data.Repositories;
+namespace Bam.Data.Repositories;
 
 public class PropertyReadResult : IPropertyReadResult
 {

@@ -4,14 +4,14 @@ using Bam.Data.Dynamic.Objects;
 using Bam.Data.Dynamic.TestClasses;
 using bam.data.objects;
 using Bam.Data.Objects;
-using Bam.Net.CoreServices;
-using Bam.Net.Data.Repositories;
-using Bam.Net.Incubation;
+using Bam.CoreServices;
+using Bam.Data.Repositories;
+using Bam.Incubation;
 using Bam.Storage;
 using Bam.Testing;
 using NSubstitute;
 
-namespace Bam.Net.Application.Unit;
+namespace Bam.Application.Unit;
 
 [UnitTestMenu("ObjectStorageManager Should", "utosms")]
 public class ObjectStorageManagerShould : UnitTestMenuContainer

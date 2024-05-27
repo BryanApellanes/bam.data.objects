@@ -5,7 +5,7 @@ using Bam.Data.Dynamic.TestClasses;
 using Bam.Data.Objects;
 using Bam.Testing;
 
-namespace Bam.Net.Application.Unit;
+namespace Bam.Application.Unit;
 
 [UnitTestMenu("PropertyShould", "ops")]
 public class PropertyShould

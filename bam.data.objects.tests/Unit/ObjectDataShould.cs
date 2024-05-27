@@ -2,11 +2,11 @@ using Bam.Console;
 using Bam.Data.Dynamic.Objects;
 using Bam.Data.Dynamic.TestClasses;
 using Bam.Data.Objects;
-using Bam.Net.CoreServices;
+using Bam.CoreServices;
 using Bam.Storage;
 using Bam.Testing;
 
-namespace Bam.Net.Application.Unit;
+namespace Bam.Application.Unit;
 
 [UnitTestMenu("ObjectData should")]
 public class ObjectDataShould : UnitTestMenuContainer

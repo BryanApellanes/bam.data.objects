@@ -1,7 +1,7 @@
 using System.Reflection;
 using bam.data.objects;
 using Bam.Data.Objects;
-using Bam.Net;
+using Bam;
 using Bam.Storage;
 using Type = System.Type;
 

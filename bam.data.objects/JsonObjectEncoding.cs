@@ -1,5 +1,5 @@
 using System.Text;
-using Bam.Net;
+using Bam;
 using Bam.Storage;
 
 namespace Bam.Data.Objects;

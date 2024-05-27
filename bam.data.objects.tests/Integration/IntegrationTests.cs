@@ -1,5 +1,5 @@
 using Bam.Data.Dynamic.Objects;
-using Bam.Net.CoreServices;
+using Bam.CoreServices;
 using Bam.Storage;
 
 namespace Bam.Data.Objects.Tests.Integration;

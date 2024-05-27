@@ -1,5 +1,5 @@
 using System.Runtime.InteropServices.JavaScript;
-using Bam.Net;
+using Bam;
 
 namespace Bam.Data.Dynamic.TestClasses;
 

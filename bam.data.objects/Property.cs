@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Text;
 using Bam.Data.Objects;
-using Bam.Net;
+using Bam;
 using Bam.Storage;
 using Microsoft.CodeAnalysis;
 

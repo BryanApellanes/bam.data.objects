@@ -1,9 +1,9 @@
 using Bam.Data.Dynamic.Objects;
 using Bam.Data.Objects;
-using Bam.Net.CoreServices;
+using Bam.CoreServices;
 using Bam.Storage;
 
-namespace Bam.Net.Application.Unit;
+namespace Bam.Application.Unit;
 
 public static class UnitTests
 {

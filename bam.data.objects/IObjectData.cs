@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 using Bam.Data.Dynamic.Objects;
-using Bam.Net;
+using Bam;
 using Bam.Storage;
 using YamlDotNet.Serialization;
 

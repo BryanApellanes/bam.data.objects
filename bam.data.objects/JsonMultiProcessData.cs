@@ -9,11 +9,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
-using Bam.Net.Logging;
-using Bam.Net.Configuration;
+using Bam.Logging;
+using Bam.Configuration;
 using System.Configuration;
 using Bam.Data.Objects;
-using Bam.Net;
+using Bam;
 using Bam.Storage;
 
 namespace Bam.Data.Dynamic.Objects

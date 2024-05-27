@@ -2,8 +2,8 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 using Bam.Data.Dynamic.Objects;
-using Bam.Net;
-using Bam.Net.Data;
+using Bam;
+using Bam.Data;
 using Bam.Storage;
 using YamlDotNet.Serialization;
 

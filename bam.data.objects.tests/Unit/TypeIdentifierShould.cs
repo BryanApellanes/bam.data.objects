@@ -1,9 +1,9 @@
 using Bam.Data.Dynamic.TestClasses;
 using Bam.Data.Objects;
-using Bam.Net.CoreServices;
+using Bam.CoreServices;
 using Bam.Testing;
 
-namespace Bam.Net.Application.Unit;
+namespace Bam.Application.Unit;
 
 [UnitTestMenu("Type identifier should")]
 public class TypeIdentifierShould : UnitTestMenuContainer

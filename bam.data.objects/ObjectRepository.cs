@@ -1,6 +1,6 @@
 using bam.data.objects;
-using Bam.Net.Data;
-using Bam.Net.Data.Repositories;
+using Bam.Data;
+using Bam.Data.Repositories;
 
 namespace Bam.Data.Objects;
 
