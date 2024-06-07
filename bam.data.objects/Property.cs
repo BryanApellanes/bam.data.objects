@@ -92,6 +92,11 @@ public class Property : IProperty
         return new RawData(this.ObjectEncoder.Encode(this).Value, encoding);
     }
 
+    public IRawData ToRawDataPointer(Encoding encoding = null)
+    {
+        return new RawData(ToRawData().HashString);
+    }
+
     public static Property FromData(PropertyInfo property, object data)
     {
         IObjectData parent = new ObjectData(data);

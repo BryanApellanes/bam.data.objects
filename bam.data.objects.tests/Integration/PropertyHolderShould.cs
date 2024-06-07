@@ -46,8 +46,8 @@ public class PropertyHolderShould: UnitTestMenuContainer
             File.Delete(expected);
         }
         IPropertyWriteResult writeResult = storageHolder.Save(storageManager, objectData.Property("StringProperty"));
-        writeResult.StorageSlot.FullName.ShouldEqual(expected);
-        File.Exists(writeResult.StorageSlot.FullName).ShouldBeTrue("file didn't exist");
+        writeResult.PointerStorageSlot.FullName.ShouldEqual(expected);
+        File.Exists(writeResult.PointerStorageSlot.FullName).ShouldBeTrue("file didn't exist");
     }
 
     [UnitTest]
@@ -61,11 +61,11 @@ public class PropertyHolderShould: UnitTestMenuContainer
             StringProperty = $"StringProperty-SaveObjectPropertyTest"
         });
         IProperty property = objectData.Property("StringProperty");
-        IPropertyHolder propertyHolder =
+        IPropertyStorageHolder propertyStorageHolder =
             storageManager.GetPropertyStorageHolder(property);
         
-        IPropertyWriteResult writeResult = propertyHolder.Save(storageManager, property);
-        Message.PrintLine(writeResult.StorageSlot.FullName);
-        File.Exists(writeResult.StorageSlot.FullName).ShouldBeTrue($"{writeResult.StorageSlot.FullName} doesn't exist");
+        IPropertyWriteResult writeResult = propertyStorageHolder.Save(storageManager, property);
+        Message.PrintLine(writeResult.PointerStorageSlot.FullName);
+        File.Exists(writeResult.PointerStorageSlot.FullName).ShouldBeTrue($"{writeResult.PointerStorageSlot.FullName} doesn't exist");
     }
 }

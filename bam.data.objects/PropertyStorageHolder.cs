@@ -5,7 +5,7 @@ using Bam;
 
 namespace Bam.Data.Objects;
 
-public class PropertyStorageHolder : DirectoryStorageHolder, IPropertyHolder
+public class PropertyStorageHolder : DirectoryStorageHolder, IPropertyStorageHolder
 {
     public PropertyStorageHolder(string path) : base(path)
     {
@@ -18,9 +18,9 @@ public class PropertyStorageHolder : DirectoryStorageHolder, IPropertyHolder
     public string PropertyName { get; internal set; }
     public ITypeStorageHolder TypeStorageHolder { get; internal set; }
     
-    public IPropertyStorageVersionSlot GetPropertyVersionSlot(IProperty property, int version)
+    public IPropertyStorageVersionSlot GetPropertyVersionSlot(IObjectStorageManager storageManager, IProperty property, int version)
     {
-        return new PropertyStorageVersionSlot(this, version);
+        return storageManager.GetPropertyStorageVersionSlot(property, version);
     }
 
     public IPropertyWriteResult Save(IObjectStorageManager storageManager, IProperty property)
@@ -34,7 +34,7 @@ public class PropertyStorageHolder : DirectoryStorageHolder, IPropertyHolder
                 // write Object properties to
                 // {root}/objects/name/space/type/{Ob/je/ct/Ke/y_}/{propertyName}/{version}/dat
             
-                IPropertyStorageVersionSlot slot = this.GetPropertyVersionSlot(property, nextVersion);
+                IPropertyStorageVersionSlot slot = this.GetPropertyVersionSlot(storageManager, property, nextVersion);
                 return slot.Save(storageManager, property);
             }
             else
@@ -43,7 +43,7 @@ public class PropertyStorageHolder : DirectoryStorageHolder, IPropertyHolder
                 {
                     Status = PropertyWriteResults.AlreadySaved,
                     Property = property,
-                    StorageSlot = this.GetPropertyVersionSlot(property, storageManager.GetLatestVersionNumber(property))
+                    PointerStorageSlot = this.GetPropertyVersionSlot(storageManager, property, storageManager.GetLatestVersionNumber(property))
                 };
             }
         }
@@ -56,5 +56,10 @@ public class PropertyStorageHolder : DirectoryStorageHolder, IPropertyHolder
                 Message = ProcessMode.Current.Mode == ProcessModes.Prod ? ex.Message : ex.GetMessageAndStackTrace()
             };
         }
+    }
+
+    public IEnumerable<IPropertyStorageVersionSlot> GetVersions(IObjectStorageManager storageManager, IProperty property)
+    {
+        return storageManager.GetVersions(property);
     }
 }

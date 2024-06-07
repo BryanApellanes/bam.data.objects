@@ -2,7 +2,7 @@ namespace Bam.Data.Objects;
 
 public enum PropertyWriteResults
 {
-    Invalid,
+    Undetermined,
     Success,
     Failed,
     AlreadySaved

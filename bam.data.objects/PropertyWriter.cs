@@ -19,9 +19,9 @@ public class PropertyWriter : IPropertyWriter
     {
         try
         {
-            IPropertyHolder propertyHolder = ObjectStorageManager.GetPropertyStorageHolder(property);
+            IPropertyStorageHolder propertyStorageHolder = ObjectStorageManager.GetPropertyStorageHolder(property);
 
-            return propertyHolder.Save(ObjectStorageManager, property);
+            return propertyStorageHolder.Save(ObjectStorageManager, property);
         }
         catch (Exception ex)
         {

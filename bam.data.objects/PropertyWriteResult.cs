@@ -7,7 +7,9 @@ namespace Bam.Data.Objects;
 
 public class PropertyWriteResult : IPropertyWriteResult
 {
-    public IStorageSlot StorageSlot { get; set; }
+    public IObjectKey ObjectKey { get; set; }
+    public IStorageSlot PointerStorageSlot { get; set; }
+    public IStorageSlot ValueStorageSlot { get; set; }
     public IProperty Property { get; set; }
     public IRawData RawData { get; set; }
     public PropertyWriteResults Status { get; set; }

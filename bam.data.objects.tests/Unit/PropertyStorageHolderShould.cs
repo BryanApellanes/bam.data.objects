@@ -38,7 +38,7 @@ public class PropertyStorageHolderShould: UnitTestMenuContainer
         PropertyStorageHolder propertyStorageHolder =
             new PropertyStorageHolder(testDataPath);
 
-        IPropertyStorageSlot propertyStorageSlot = propertyStorageHolder.GetPropertyVersionSlot(objectData.Property(propertyName), 1);
+        IPropertyStorageSlot propertyStorageSlot = propertyStorageHolder.GetPropertyVersionSlot(fsObjectStorageManager, objectData.Property(propertyName), 1);
         
         propertyStorageSlot.ShouldNotBeNull("PropertyStorageSlot was null");
     }
@@ -48,7 +48,8 @@ public class PropertyStorageHolderShould: UnitTestMenuContainer
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(GetVersionHolders));
         ServiceRegistry serviceRegistry = Configure(ConfigureDependencies(root))
-            .For<IObjectStorageManager>().Use<FsObjectStorageManager>();
+            .For<IObjectStorageManager>().Use<FsObjectStorageManager>()
+            .For<IObjectIdentifierFactory>().Use<ObjectIdentifierFactory>();
 
         FsObjectStorageManager fsObjectStorageManager = serviceRegistry.Get<FsObjectStorageManager>();
         ObjectDataFactory dataFactory = serviceRegistry.Get<ObjectDataFactory>();
@@ -63,7 +64,9 @@ public class PropertyStorageHolderShould: UnitTestMenuContainer
         };
         IObjectData objectData = dataFactory.Wrap(new ObjectData(testData));
 
-        IPropertyHolder propertyHolder = fsObjectStorageManager.GetPropertyStorageHolder(objectData.Property(propertyName));
+        IPropertyStorageHolder propertyStorageHolder = fsObjectStorageManager.GetPropertyStorageHolder(objectData.Property(propertyName));
+        
+        propertyStorageHolder.ShouldNotBeNull($"{nameof(propertyStorageHolder)} was null");
     }
     
     public override ServiceRegistry Configure(ServiceRegistry serviceRegistry)

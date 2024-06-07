@@ -40,6 +40,6 @@ public class PropertyWriterShould: UnitTestMenuContainer
         IProperty property = testData.Property(propertyName);
         property.ShouldNotBeNull("String property was null");
         IPropertyWriteResult result = await propertyWriter.WritePropertyAsync(property);
-        result.StorageSlot.FullName.ShouldEqual(Path.Combine(expectedParts.ToArray()));
+        result.PointerStorageSlot.FullName.ShouldEqual(Path.Combine(expectedParts.ToArray()));
     } 
 }

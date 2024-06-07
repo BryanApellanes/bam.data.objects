@@ -5,12 +5,12 @@ namespace Bam.Data.Objects;
 
 public abstract class PropertyStorageSlot : FsStorageSlot, IPropertyStorageSlot
 {
-    public PropertyStorageSlot(PropertyStorageHolder storageHolder)
+    public PropertyStorageSlot(IPropertyStorageHolder storageHolder)
     {
         this.StorageHolder = storageHolder;
     }
     
-    public IPropertyHolder PropertyHolder { get; }
+    public IPropertyStorageHolder PropertyStorageHolder { get; }
     
     public IPropertyVersion PropertyVersion { get; }
     

@@ -5,7 +5,7 @@ namespace Bam.Data.Objects;
 
 public interface IPropertyStorageSlot : IStorageSlot
 {
-    IPropertyHolder PropertyHolder { get; }
+    IPropertyStorageHolder PropertyStorageHolder { get; }
     
     IPropertyVersion PropertyVersion { get; }
     IList<IPropertyVersion> VersionHistory { get; }
