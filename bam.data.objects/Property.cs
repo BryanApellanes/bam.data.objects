@@ -19,6 +19,7 @@ public class Property : IProperty
         this.ObjectEncoding = this.ObjectEncoder.Encode(propertyValue);
         this.AssemblyQualifiedTypeName = parent.Type.Type.AssemblyQualifiedName;
         this.PropertyName = propertyName;
+        this.Type = propertyValue.GetType();
         this.Value = Encoding.UTF8.GetString(ObjectEncoding.Value) ?? "null";
     }
     
@@ -61,7 +62,9 @@ public class Property : IProperty
     /// Gets or sets the AssemblyQualifiedName of the type this property belongs to.
     /// </summary>
     public string AssemblyQualifiedTypeName { get; set; }
-    
+
+    public Type Type { get; set; }
+
     /// <summary>
     /// Gets or sets the property name.
     /// </summary>

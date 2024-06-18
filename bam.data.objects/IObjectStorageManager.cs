@@ -38,6 +38,6 @@ public interface IObjectStorageManager
     IPropertyWriteResult WriteProperty(IProperty property);
     
     IPropertyWriteResult WriteProperty(IPropertyStorageVersionSlot versionSlot, IProperty property);
-    IProperty ReadProperty(IPropertyStorageVersionSlot versionSlot);
+    IProperty ReadProperty(IPropertyDescriptor propertyDescriptor, IStorageSlot storageSlot);
     IProperty ReadObject(IObjectKey objectKey);
 }

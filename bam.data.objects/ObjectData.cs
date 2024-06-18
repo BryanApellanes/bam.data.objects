@@ -11,6 +11,13 @@ namespace Bam.Data.Objects;
 
 public class ObjectData : IObjectData
 {
+    internal ObjectData(Type type) // for reading
+    {
+        this.Type = new TypeDescriptor(type);
+        this.ObjectEncoder = JsonObjectEncoder.Default;
+        this.DataTypeTranslator = Bam.Data.DataTypeTranslator.Default;
+    }
+    
     public ObjectData(object data) : base()
     {
         this.Data = data;

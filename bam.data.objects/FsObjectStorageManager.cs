@@ -99,7 +99,7 @@ public class FsObjectStorageManager : IObjectStorageManager
 
     public bool IsEqualToLatestVersion(IProperty property)
     {
-        IProperty latest = ReadProperty(GetLatestPropertyStorageVersionSlot(property));
+        IProperty latest = ReadProperty(property, GetLatestPropertyStorageVersionSlot(property));
         return latest.Decode().Equals(property.Decode());
     }
 
@@ -174,15 +174,16 @@ public class FsObjectStorageManager : IObjectStorageManager
         return result;
     }
 
-    public IProperty ReadProperty(IPropertyStorageVersionSlot versionSlot)
+    public IProperty ReadProperty(IPropertyDescriptor propertyDescriptor, IStorageSlot storageSlot)
     {
         throw new NotImplementedException();
-        Args.ThrowIfNull(versionSlot);
+        Args.ThrowIfNull(storageSlot);
         
         PropertyReadStarted?.Invoke(this, new ObjectStorageEventArgs());
-        IStorage pointerStorage = this.GetStorage(versionSlot);
-        IRawData pointerData =pointerStorage.Load(versionSlot);
-
+        IStorage pointerStorage = this.GetStorage(storageSlot);
+        IRawData pointerData = pointerStorage.Load(storageSlot);
+        IRawStorage rawStorage = this.GetRawStorage();
+        IRawData rawData = rawStorage.Load(pointerData.Convert<ulong>());
 
         PropertyReadComplete?.Invoke(this, new ObjectStorageEventArgs());
     }
