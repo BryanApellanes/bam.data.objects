@@ -2,6 +2,6 @@ namespace Bam.Data.Objects;
 
 public interface IPropertyDescriptor
 {
-    Type Type { get; set; }
+    IObjectKey ObjectKey { get; set; }
     string PropertyName { get; set; }
 }

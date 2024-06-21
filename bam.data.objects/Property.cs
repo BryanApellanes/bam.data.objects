@@ -4,6 +4,7 @@ using Bam.Data.Objects;
 using Bam;
 using Bam.Storage;
 using Microsoft.CodeAnalysis;
+using NotImplementedException = System.NotImplementedException;
 
 namespace Bam.Data.Dynamic.Objects;
 
@@ -110,6 +111,11 @@ public class Property : IProperty
         return new Property(parent, property.Name, property.GetValue(data));
     }
 
+    public IPropertyDescriptor ToDescriptor()
+    {
+        return new PropertyDescriptor(this);
+    }
+    
     public string ToJson()
     {
         return Value;

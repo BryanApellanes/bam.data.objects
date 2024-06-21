@@ -62,7 +62,7 @@ public class PropertyHolderShould: UnitTestMenuContainer
         });
         IProperty property = objectData.Property("StringProperty");
         IPropertyStorageHolder propertyStorageHolder =
-            storageManager.GetPropertyStorageHolder(property);
+            storageManager.GetPropertyStorageHolder(property.ToDescriptor());
         
         IPropertyWriteResult writeResult = propertyStorageHolder.Save(storageManager, property);
         Message.PrintLine(writeResult.PointerStorageSlot.FullName);

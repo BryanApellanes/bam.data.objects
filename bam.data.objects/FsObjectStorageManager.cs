@@ -42,16 +42,16 @@ public class FsObjectStorageManager : IObjectStorageManager
         };
     }
 
-    public IPropertyStorageHolder GetPropertyStorageHolder(IProperty property)
+    public IPropertyStorageHolder GetPropertyStorageHolder(IPropertyDescriptor propertyDescriptor)
     {
         List<string> parts = new List<string>();
-        ITypeStorageHolder typeStorageHolder = GetTypeStorageHolder(property.Parent.Type);
+        ITypeStorageHolder typeStorageHolder = GetTypeStorageHolder(propertyDescriptor.ObjectKey.Type);
         parts.Add(typeStorageHolder.FullName);
-        parts.AddRange(property.Parent.GetObjectKey().Key.Split(2));
-        parts.Add(property.PropertyName);
+        parts.AddRange(propertyDescriptor.ObjectKey.Key.Split(2));
+        parts.Add(propertyDescriptor.PropertyName);
         return new PropertyStorageHolder(Path.Combine(parts.ToArray()))
         {
-            PropertyName = property.PropertyName,
+            PropertyName = propertyDescriptor.PropertyName,
             TypeStorageHolder = typeStorageHolder
         };
     }
@@ -66,22 +66,23 @@ public class FsObjectStorageManager : IObjectStorageManager
         return File.Exists(slot.FullName);
     }
 
-    public IPropertyStorageVersionSlot GetLatestPropertyStorageVersionSlot(IProperty property)
+    public IPropertyStorageVersionSlot GetLatestPropertyStorageVersionSlot(IPropertyDescriptor propertyDescriptor)
     {
-        return GetPropertyStorageVersionSlot(property, GetLatestVersionNumber(property));
+        return GetPropertyStorageVersionSlot(propertyDescriptor, GetLatestVersionNumber(propertyDescriptor));
     }
-
+    
     public IPropertyStorageVersionSlot GetNextPropertyStorageVersionSlot(IProperty property)
     {
-        return GetPropertyStorageVersionSlot(property, GetNextVersionNumber(property));
+        return GetPropertyStorageVersionSlot(property.ToDescriptor(), GetNextVersionNumber(property));
     }
 
-    public IPropertyStorageVersionSlot GetPropertyStorageVersionSlot(IProperty property, int version)
+    public IPropertyStorageVersionSlot GetPropertyStorageVersionSlot(IPropertyDescriptor propertyDescriptor,
+        int version)
     {
-        return new PropertyStorageVersionSlot(GetPropertyStorageHolder(property), version);
+        return new PropertyStorageVersionSlot(GetPropertyStorageHolder(propertyDescriptor), version);
     }
-
-    public int GetLatestVersionNumber(IProperty property)
+    
+    public int GetLatestVersionNumber(IPropertyDescriptor property)
     {
         List<IPropertyStorageVersionSlot> slots = GetVersions(property).ToList();
         if (slots.Any())
@@ -94,21 +95,21 @@ public class FsObjectStorageManager : IObjectStorageManager
 
     public int GetNextVersionNumber(IProperty property)
     {
-        return GetLatestVersionNumber(property) + 1;
+        return GetLatestVersionNumber(property.ToDescriptor()) + 1;
     }
 
     public bool IsEqualToLatestVersion(IProperty property)
     {
-        IProperty latest = ReadProperty(property, GetLatestPropertyStorageVersionSlot(property));
+        IProperty latest = ReadProperty(property.ToDescriptor(), GetLatestPropertyStorageVersionSlot(property.ToDescriptor()));
         return latest.Decode().Equals(property.Decode());
     }
 
-    public bool VersionExists(IProperty property, int version = 1)
+    public bool VersionExists(IPropertyDescriptor property, int version = 1)
     {
         return IsSlotWritten(GetPropertyStorageVersionSlot(property, version));
     }
-
-    public IEnumerable<IPropertyStorageVersionSlot> GetVersions(IProperty property)
+    
+    public IEnumerable<IPropertyStorageVersionSlot> GetVersions(IPropertyDescriptor property)
     {
         int number = 1;
 
@@ -174,6 +175,11 @@ public class FsObjectStorageManager : IObjectStorageManager
         return result;
     }
 
+    public IProperty ReadProperty(IPropertyDescriptor propertyDescriptor)
+    {
+        return ReadProperty(propertyDescriptor, GetLatestPropertyStorageVersionSlot(propertyDescriptor));
+    }
+    
     public IProperty ReadProperty(IPropertyDescriptor propertyDescriptor, IStorageSlot storageSlot)
     {
         throw new NotImplementedException();

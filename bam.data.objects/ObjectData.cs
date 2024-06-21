@@ -36,7 +36,7 @@ public class ObjectData : IObjectData
     
     [JsonIgnore]
     [YamlIgnore]
-    public object Data
+    public virtual object Data
     {
         get;
         set;

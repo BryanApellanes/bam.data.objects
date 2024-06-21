@@ -4,7 +4,7 @@ using Bam.Storage;
 
 namespace Bam.Data.Objects;
 
-public interface IProperty : IPropertyDescriptor, IJsonable
+public interface IProperty : IJsonable
 {
     IObjectData Parent { get; set; }
     string AssemblyQualifiedTypeName { get; set; }
@@ -17,4 +17,6 @@ public interface IProperty : IPropertyDescriptor, IJsonable
     object SetValue(object target, object value);
     IRawData ToRawData(Encoding encoding = null);
     IRawData ToRawDataPointer(Encoding encoding = null);
+
+    IPropertyDescriptor ToDescriptor();
 }

@@ -22,4 +22,18 @@ public static class ObjectExtensions
         }
         return new ObjectData(data).Properties;
     }
+
+    public static bool TryCast<T>(this object data, out T obj)
+    {
+        try
+        {
+            obj = (T)data;
+            return true;
+        }
+        catch
+        {
+            obj = default;
+            return false;
+        }
+    }
 }

@@ -32,4 +32,13 @@ public class ObjectKey : IObjectKey
 
         return Path.Combine(parts.ToArray());
     }
+
+    public IPropertyDescriptor Property(string propertyName)
+    {
+        return new PropertyDescriptor()
+        {
+            ObjectKey = this,
+            PropertyName = propertyName
+        };
+    }
 }

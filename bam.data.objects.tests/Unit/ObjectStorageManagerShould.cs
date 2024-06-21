@@ -86,7 +86,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         parts.Add(propertyName);
         string expected = Path.Combine(parts.ToArray());
 
-        IPropertyStorageHolder propertyStorage = fsObjectStorageManager.GetPropertyStorageHolder(objectData.Property(propertyName));
+        IPropertyStorageHolder propertyStorage = fsObjectStorageManager.GetPropertyStorageHolder(objectData.Property(propertyName).ToDescriptor());
         propertyStorage.TypeStorageHolder.ShouldNotBeNull("TypeStorageHolder was null");
         
         propertyStorage.PropertyName.ShouldNotBeNull();

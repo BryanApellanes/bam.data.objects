@@ -64,7 +64,7 @@ public class PropertyStorageHolderShould: UnitTestMenuContainer
         };
         IObjectData objectData = dataFactory.Wrap(new ObjectData(testData));
 
-        IPropertyStorageHolder propertyStorageHolder = fsObjectStorageManager.GetPropertyStorageHolder(objectData.Property(propertyName));
+        IPropertyStorageHolder propertyStorageHolder = fsObjectStorageManager.GetPropertyStorageHolder(objectData.Property(propertyName).ToDescriptor());
         
         propertyStorageHolder.ShouldNotBeNull($"{nameof(propertyStorageHolder)} was null");
     }

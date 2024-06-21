@@ -1,4 +1,5 @@
 using System.Text;
+using Bam.Data.Dynamic.Objects;
 using Bam.Data.Objects;
 using Bam.Storage;
 
@@ -11,7 +12,31 @@ public class ObjectData<T>: ObjectData, IObjectData<T>
         return (T)data.Data;
     }
     
-    public ObjectData(object data) : base(data)
+    public ObjectData(T data) : base(data)
     {
+        this.Data = data;
+    }
+
+    private T _data;
+    public new T Data
+    {
+        get
+        {
+            if (_data != null)
+            {
+                return _data;
+            }
+            if(base.Data != null && base.Data.TryCast<T>(out T obj))
+            {
+                _data = obj;
+            }
+
+            return _data;
+        }
+        set
+        {
+            _data = value;
+            base.Data = value;
+        }
     }
 }

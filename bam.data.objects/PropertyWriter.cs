@@ -19,7 +19,7 @@ public class PropertyWriter : IPropertyWriter
     {
         try
         {
-            IPropertyStorageHolder propertyStorageHolder = ObjectStorageManager.GetPropertyStorageHolder(property);
+            IPropertyStorageHolder propertyStorageHolder = ObjectStorageManager.GetPropertyStorageHolder(property.ToDescriptor());
 
             return propertyStorageHolder.Save(ObjectStorageManager, property);
         }

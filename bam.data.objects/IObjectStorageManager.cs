@@ -18,7 +18,7 @@ public interface IObjectStorageManager
     IRootStorageHolder GetRootStorageHolder();
     ITypeStorageHolder GetTypeStorageHolder(Type type);
 
-    IPropertyStorageHolder GetPropertyStorageHolder(IProperty property);
+    IPropertyStorageHolder GetPropertyStorageHolder(IPropertyDescriptor property);
 
     IStorage GetStorage();
     IStorage GetStorage(IStorageSlot slot);
@@ -27,17 +27,18 @@ public interface IObjectStorageManager
     IRawStorage GetRawStorage();
 
     bool IsSlotWritten(IStorageSlot slot);
-    IPropertyStorageVersionSlot GetLatestPropertyStorageVersionSlot(IProperty property);
+    IPropertyStorageVersionSlot GetLatestPropertyStorageVersionSlot(IPropertyDescriptor property);
     IPropertyStorageVersionSlot GetNextPropertyStorageVersionSlot(IProperty property);
-    IPropertyStorageVersionSlot GetPropertyStorageVersionSlot(IProperty property, int version);
-    int GetLatestVersionNumber(IProperty property);
+    IPropertyStorageVersionSlot GetPropertyStorageVersionSlot(IPropertyDescriptor property, int version);
+    int GetLatestVersionNumber(IPropertyDescriptor property);
     int GetNextVersionNumber(IProperty property);
     bool IsEqualToLatestVersion(IProperty property);
-    bool VersionExists(IProperty property, int version = 1);
-    IEnumerable<IPropertyStorageVersionSlot> GetVersions(IProperty property);
+    bool VersionExists(IPropertyDescriptor property, int version = 1);
+    IEnumerable<IPropertyStorageVersionSlot> GetVersions(IPropertyDescriptor property);
     IPropertyWriteResult WriteProperty(IProperty property);
     
     IPropertyWriteResult WriteProperty(IPropertyStorageVersionSlot versionSlot, IProperty property);
+    IProperty ReadProperty(IPropertyDescriptor propertyDescriptor);
     IProperty ReadProperty(IPropertyDescriptor propertyDescriptor, IStorageSlot storageSlot);
     IProperty ReadObject(IObjectKey objectKey);
 }

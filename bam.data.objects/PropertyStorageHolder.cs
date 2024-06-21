@@ -20,7 +20,7 @@ public class PropertyStorageHolder : DirectoryStorageHolder, IPropertyStorageHol
     
     public IPropertyStorageVersionSlot GetPropertyVersionSlot(IObjectStorageManager storageManager, IProperty property, int version)
     {
-        return storageManager.GetPropertyStorageVersionSlot(property, version);
+        return storageManager.GetPropertyStorageVersionSlot(property.ToDescriptor(), version);
     }
 
     public IPropertyWriteResult Save(IObjectStorageManager storageManager, IProperty property)
@@ -43,7 +43,7 @@ public class PropertyStorageHolder : DirectoryStorageHolder, IPropertyStorageHol
                 {
                     Status = PropertyWriteResults.AlreadySaved,
                     Property = property,
-                    PointerStorageSlot = this.GetPropertyVersionSlot(storageManager, property, storageManager.GetLatestVersionNumber(property))
+                    PointerStorageSlot = this.GetPropertyVersionSlot(storageManager, property, storageManager.GetLatestVersionNumber(property.ToDescriptor()))
                 };
             }
         }
@@ -60,6 +60,6 @@ public class PropertyStorageHolder : DirectoryStorageHolder, IPropertyStorageHol
 
     public IEnumerable<IPropertyStorageVersionSlot> GetVersions(IObjectStorageManager storageManager, IProperty property)
     {
-        return storageManager.GetVersions(property);
+        return storageManager.GetVersions(property.ToDescriptor());
     }
 }
