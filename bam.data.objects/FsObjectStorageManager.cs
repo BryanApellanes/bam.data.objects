@@ -187,9 +187,9 @@ public class FsObjectStorageManager : IObjectStorageManager
         
         PropertyReadStarted?.Invoke(this, new ObjectStorageEventArgs());
         IStorage pointerStorage = this.GetStorage(storageSlot);
-        IRawData pointerData = pointerStorage.Load(storageSlot);
+        IRawData pointerData = pointerStorage.LoadSlot(storageSlot);
         IRawStorage rawStorage = this.GetRawStorage();
-        IRawData rawData = rawStorage.Load(pointerData.Convert<ulong>());
+        IRawData rawData = rawStorage.LoadHashId(pointerData.Convert<ulong>());
 
         PropertyReadComplete?.Invoke(this, new ObjectStorageEventArgs());
     }
