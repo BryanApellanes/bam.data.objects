@@ -1,3 +1,4 @@
+using Bam.Console;
 using Bam.CoreServices;
 using Bam.Data.Dynamic.Objects;
 using Bam.Data.Dynamic.TestClasses;
@@ -8,7 +9,7 @@ using Bam.Testing.Integration;
 
 namespace Bam.Data.Objects.Tests.Integration;
 
-[Menu("FsObjectStorageManager Should")]
+[UnitTestMenu("FsObjectStorageManager Should")]
 public class FsObjectStorageManagerShould : UnitTestMenuContainer
 {
     public FsObjectStorageManagerShould(ServiceRegistry serviceRegistry) : base(serviceRegistry)
@@ -16,7 +17,7 @@ public class FsObjectStorageManagerShould : UnitTestMenuContainer
     }
 
 
-    [IntegrationTest]
+    [UnitTest]
     public async Task WriteAndReadProperty()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(WriteAndReadProperty));
@@ -27,11 +28,13 @@ public class FsObjectStorageManagerShould : UnitTestMenuContainer
 
         FsObjectStorageManager fsObjectStorageManager = serviceRegistry.Get<FsObjectStorageManager>();
 
-        ObjectData<TestData> testObjectData = new ObjectData<TestData>(new TestData(true));
+        IObjectDataFactory objectDataFactory = serviceRegistry.Get<IObjectDataFactory>();
+        IObjectData testObjectData = objectDataFactory.Wrap(new TestData(true));
         
         IProperty stringProperty = testObjectData.Property(nameof(TestData.StringProperty));
         string stringPropertyValue = stringProperty.Value;
-        fsObjectStorageManager.WriteProperty(stringProperty);
+        IPropertyWriteResult propertyWriteResult = fsObjectStorageManager.WriteProperty(stringProperty);
+        Message.PrintLine(propertyWriteResult.PointerStorageSlot.FullName);
         //IProperty propertyRead = fsObjectStorageManager.ReadProperty(stringProperty);
         throw new NotImplementedException();
     }

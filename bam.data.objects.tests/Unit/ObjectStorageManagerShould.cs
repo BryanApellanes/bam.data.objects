@@ -182,6 +182,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         IStorage storage = fsObjectStorageManager.GetStorage(propertyStorageVersionSlot);
         IStorageSlot slot = storage.Save(property.ToRawData());
         slot.FullName.ShouldBeEqualTo(propertyStorageVersionSlot.FullName);
+        fsObjectStorageManager.IsSlotWritten(slot).ShouldBeTrue("slot was not written");
     }
 
     public override ServiceRegistry Configure(ServiceRegistry serviceRegistry)

@@ -13,6 +13,7 @@ public static class IntegrationTests
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
             .For<IObjectCalculator>().Use<ObjectCalculator>()
             .For<IObjectIdentifierFactory>().Use<ObjectIdentifierFactory>()
+            .For<IObjectDataFactory>().Use<ObjectDataFactory>()
             .For<IRootStorageHolder>().Use( new RootStorageHolder(rootPath))
             .For<IStorageIdentifier>().Use(new FsStorageHolder(rootPath));
     }
