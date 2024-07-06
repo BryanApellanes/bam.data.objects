@@ -16,7 +16,7 @@ public interface IObjectStorageManager
     event EventHandler<ObjectStorageEventArgs> PropertyReadException;
     
     IRootStorageHolder GetRootStorageHolder();
-    ITypeStorageHolder GetTypeStorageHolder(Type type);
+    ITypeStorageHolder GetObjectStorageHolder(Type type);
 
     IPropertyStorageHolder GetPropertyStorageHolder(IPropertyDescriptor property);
 

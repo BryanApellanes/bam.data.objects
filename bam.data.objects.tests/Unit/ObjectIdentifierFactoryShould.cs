@@ -21,17 +21,17 @@ public class ObjectIdentifierFactoryShould : UnitTestMenuContainer
         return base.Configure(serviceRegistry)
             .For<IObjectStorageManager>().Use(mockObjectStorageManager)
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
-            .For<IHashCalculator>().Use<JsonHashCalculator>()          .For<IObjectCalculator>().Use<ObjectCalculator>();
+            .For<IHashCalculator>().Use<JsonHashCalculator>()          .For<IObjectIdentityCalculator>().Use<ObjectIdentityCalculator>();
     }
     
     [UnitTest]
     public void GetObjectKey()
     {
         ObjectIdentifierFactory factory = Get<ObjectIdentifierFactory>();
-        ObjectCalculator objectHasher = Get<ObjectCalculator>();
+        ObjectIdentityCalculator objectIdentityHasher = Get<ObjectIdentityCalculator>();
         ObjectData data = new ObjectData(new TestData());
         
-        ulong keyHash = objectHasher.CalculateULongKey(data);
+        ulong keyHash = objectIdentityHasher.CalculateULongKey(data);
         IObjectKey key = factory.GetObjectKey(data);
         key.Key.ShouldEqual(keyHash);
     }

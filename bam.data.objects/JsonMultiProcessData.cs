@@ -146,15 +146,15 @@ namespace Bam.Data.Dynamic.Objects
 
         public string CurrentLockerMachineName { get; set; }
 
-        protected string LockFile => Path.Combine(RootDirectory, "{0}.lock".Format(HashString));
+        protected string LockFile => Path.Combine(RootDirectory, "{0}.lock".Format(HashHexString));
 
         protected string TempLockFile => $"{LockFile}.tmp";
 
-        protected internal string WriteFile => Path.Combine(RootDirectory, "{0}.write".Format(HashString));
+        protected internal string WriteFile => Path.Combine(RootDirectory, "{0}.write".Format(HashHexString));
 
-        protected internal string ReadFile => Path.Combine(RootDirectory, "{0}.read".Format(HashString));
+        protected internal string ReadFile => Path.Combine(RootDirectory, "{0}.read".Format(HashHexString));
 
-        protected internal string DataFile => Path.Combine(RootDirectory, HashString);
+        protected internal string DataFile => Path.Combine(RootDirectory, HashHexString);
 
         private void EnsureRoot()
         {

@@ -10,15 +10,10 @@ using Bam.Testing.Integration;
 namespace Bam.Data.Objects.Tests.Integration;
 
 [UnitTestMenu("FsObjectStorageManager Should")]
-public class FsObjectStorageManagerShould : UnitTestMenuContainer
+public class FsObjectStorageManagerShould(ServiceRegistry serviceRegistry) : UnitTestMenuContainer(serviceRegistry)
 {
-    public FsObjectStorageManagerShould(ServiceRegistry serviceRegistry) : base(serviceRegistry)
-    {
-    }
-
-
     [UnitTest]
-    public async Task WriteAndReadProperty()
+    public Task WriteAndReadProperty()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(WriteAndReadProperty));
         ServiceRegistry serviceRegistry = IntegrationTests.ConfigureDependencies(root);
@@ -31,11 +26,16 @@ public class FsObjectStorageManagerShould : UnitTestMenuContainer
         IObjectDataFactory objectDataFactory = serviceRegistry.Get<IObjectDataFactory>();
         IObjectData testObjectData = objectDataFactory.Wrap(new TestData(true));
         
-        IProperty stringProperty = testObjectData.Property(nameof(TestData.StringProperty));
-        string stringPropertyValue = stringProperty.Value;
-        IPropertyWriteResult propertyWriteResult = fsObjectStorageManager.WriteProperty(stringProperty);
+        IProperty? stringProperty = testObjectData.Property(nameof(TestData.StringProperty));
+        stringProperty?.ShouldNotBeNull();
+        string? stringPropertyValue = stringProperty?.Value;
+        
+        IPropertyWriteResult propertyWriteResult = fsObjectStorageManager.WriteProperty(stringProperty!);
+        
         Message.PrintLine(propertyWriteResult.PointerStorageSlot.FullName);
-        //IProperty propertyRead = fsObjectStorageManager.ReadProperty(stringProperty);
-        throw new NotImplementedException();
+        
+        IProperty readProperty = fsObjectStorageManager.ReadProperty(propertyWriteResult.GetDescriptor());
+        readProperty.Value.ShouldBeEqualTo(stringPropertyValue!);
+        return Task.CompletedTask;
     }
 }

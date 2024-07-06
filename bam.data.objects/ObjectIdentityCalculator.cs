@@ -3,9 +3,9 @@ using Bam;
 
 namespace Bam.Data.Objects;
 
-public class ObjectCalculator : IObjectCalculator
+public class ObjectIdentityCalculator : IObjectIdentityCalculator
 {
-    public ObjectCalculator(IHashCalculator hashCalculator, IKeyCalculator keyCalculator)
+    public ObjectIdentityCalculator(IHashCalculator hashCalculator, IKeyCalculator keyCalculator)
     {
         Args.ThrowIfNull(hashCalculator, nameof(hashCalculator));
         Args.ThrowIfNull(keyCalculator, nameof(keyCalculator));

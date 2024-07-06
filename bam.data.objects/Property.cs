@@ -98,7 +98,7 @@ public class Property : IProperty
 
     public IRawData ToRawDataPointer(Encoding encoding = null)
     {
-        return new RawData(ToRawData().HashString);
+        return new RawData(ToRawData().HashHexString);
     }
 
     public static Property FromData(PropertyInfo property, object data)

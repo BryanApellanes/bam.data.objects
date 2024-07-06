@@ -25,7 +25,7 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
             .For<IObjectStorageManager>().Use<FsObjectStorageManager>()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
-            .For<IObjectCalculator>().Use<ObjectCalculator>()
+            .For<IObjectIdentityCalculator>().Use<ObjectIdentityCalculator>()
             .For<IObjectIdentifierFactory>().Use<ObjectIdentifierFactory>()
             .For<IObjectDataFactory>().Use<ObjectDataFactory>();
         
@@ -63,7 +63,7 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
             .For<IObjectStorageManager>().Use<FsObjectStorageManager>()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
-            .For<IObjectCalculator>().Use<ObjectCalculator>()
+            .For<IObjectIdentityCalculator>().Use<ObjectIdentityCalculator>()
             .For<IObjectIdentifierFactory>().Use<ObjectIdentifierFactory>()
             .For<IObjectDataFactory>().Use<ObjectDataFactory>();
         

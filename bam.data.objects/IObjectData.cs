@@ -16,7 +16,7 @@ public interface IObjectData : IJsonable
     IProperty? Property(string propertyName);
     IObjectData? Property(string propertyName, object value);
     IEnumerable<IProperty> Properties { get; }
-    string ToJson();
+    
     IObjectEncoding Encode();
 
     IObjectKey GetObjectKey();

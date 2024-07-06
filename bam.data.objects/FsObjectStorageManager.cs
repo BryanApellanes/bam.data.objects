@@ -11,14 +11,17 @@ namespace Bam.Data.Dynamic.Objects;
 
 public class FsObjectStorageManager : IObjectStorageManager
 {
-    public FsObjectStorageManager(IRootStorageHolder rootStorage, IObjectCalculator objectCalculator)
+    public FsObjectStorageManager(IRootStorageHolder rootStorage, IObjectIdentityCalculator objectIdentityCalculator, IObjectLoader objectLoader)
     {
         this.RootStorage = rootStorage;
-        this.ObjectCalculator = objectCalculator;
+        this.ObjectIdentityCalculator = objectIdentityCalculator;
+        this.ObjectLoader = objectLoader;
     }
     
     public IRootStorageHolder RootStorage { get; private set; }
-    public IObjectCalculator ObjectCalculator { get; private set; }
+    public IObjectIdentityCalculator ObjectIdentityCalculator { get; private set; }
+    
+    public IObjectLoader ObjectLoader { get; private set; }
 
     public event EventHandler<ObjectStorageEventArgs>? PropertyWriteStarted;
     public event EventHandler<ObjectStorageEventArgs>? PropertyWriteComplete;
@@ -32,7 +35,7 @@ public class FsObjectStorageManager : IObjectStorageManager
         return RootStorage;
     }
 
-    public ITypeStorageHolder GetTypeStorageHolder(Type type)
+    public ITypeStorageHolder GetObjectStorageHolder(Type type)
     {
         IRootStorageHolder rootStorageHolder = GetRootStorageHolder();
         string relativeTypePath = GetRelativePathForType(type);
@@ -45,7 +48,7 @@ public class FsObjectStorageManager : IObjectStorageManager
     public IPropertyStorageHolder GetPropertyStorageHolder(IPropertyDescriptor propertyDescriptor)
     {
         List<string> parts = new List<string>();
-        ITypeStorageHolder typeStorageHolder = GetTypeStorageHolder(propertyDescriptor.ObjectKey.Type);
+        ITypeStorageHolder typeStorageHolder = GetObjectStorageHolder(propertyDescriptor.ObjectKey.Type);
         parts.Add(typeStorageHolder.FullName);
         parts.AddRange(propertyDescriptor.ObjectKey.Key.Split(2));
         parts.Add(propertyDescriptor.PropertyName);
@@ -233,8 +236,10 @@ public class FsObjectStorageManager : IObjectStorageManager
     private string GetRelativePathForType(Type type)
     {
         Args.ThrowIfNull(type, nameof(type));
+        string fullName = type.FullName ?? "UNSPECIFIED_TYPE_NAME";
+        
         List<string> parts = new List<string>();
-        parts.AddRange(type.FullName.DelimitSplit("."));
+        parts.AddRange(fullName.DelimitSplit("."));
         return Path.Combine(parts.ToArray());
     }
 }

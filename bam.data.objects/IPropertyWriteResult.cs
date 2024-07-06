@@ -13,4 +13,6 @@ public interface IPropertyWriteResult
     PropertyWriteResults Status { get; set; }
     string Message { get; set; }
     string RawDataHash { get; set; }
+
+    IPropertyDescriptor GetDescriptor();
 }

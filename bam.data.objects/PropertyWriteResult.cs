@@ -15,4 +15,12 @@ public class PropertyWriteResult : IPropertyWriteResult
     public PropertyWriteResults Status { get; set; }
     public string Message { get; set; }
     public string RawDataHash { get; set; }
+    public IPropertyDescriptor GetDescriptor()
+    {
+        return new PropertyDescriptor()
+        {
+            ObjectKey = this.ObjectKey,
+            PropertyName = Property.PropertyName
+        };
+    }
 }

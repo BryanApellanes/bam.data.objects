@@ -11,10 +11,11 @@ public static class IntegrationTests
         return new ServiceRegistry()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
-            .For<IObjectCalculator>().Use<ObjectCalculator>()
+            .For<IObjectIdentityCalculator>().Use<ObjectIdentityCalculator>()
             .For<IObjectIdentifierFactory>().Use<ObjectIdentifierFactory>()
             .For<IObjectDataFactory>().Use<ObjectDataFactory>()
             .For<IRootStorageHolder>().Use( new RootStorageHolder(rootPath))
+            .For<IObjectLoader>().Use<ObjectLoader>()
             .For<IStorageIdentifier>().Use(new FsStorageHolder(rootPath));
     }
 }

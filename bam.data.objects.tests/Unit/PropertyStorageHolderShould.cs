@@ -72,7 +72,7 @@ public class PropertyStorageHolderShould: UnitTestMenuContainer
     public override ServiceRegistry Configure(ServiceRegistry serviceRegistry)
     {
         return base.Configure(serviceRegistry)
-            .For<IObjectCalculator>().Use<ObjectCalculator>()
+            .For<IObjectIdentityCalculator>().Use<ObjectIdentityCalculator>()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>();
     }

@@ -5,23 +5,23 @@ namespace Bam.Data.Dynamic.Objects;
 
 public class ObjectIdentifierFactory : IObjectIdentifierFactory
 {
-    public ObjectIdentifierFactory(IObjectStorageManager objectStorageManager, IObjectCalculator objectCalculator)
+    public ObjectIdentifierFactory(IObjectStorageManager objectStorageManager, IObjectIdentityCalculator objectIdentityCalculator)
     {
         this.ObjectStorageManager = objectStorageManager;
-        this.ObjectCalculator = objectCalculator;
+        this.ObjectIdentityCalculator = objectIdentityCalculator;
     }
 
     private IObjectStorageManager ObjectStorageManager { get; init; }
-    private IObjectCalculator ObjectCalculator { get; init; }
+    private IObjectIdentityCalculator ObjectIdentityCalculator { get; init; }
 
     public IObjectKey GetObjectKey(IObjectData data)
     {
         return new ObjectKey()
         {
             Type = data.Type,
-            StorageIdentifier = ObjectStorageManager.GetTypeStorageHolder(data.Type),
-            Key = ObjectCalculator.CalculateHashHexKey(data),
-            Id = ObjectCalculator.CalculateHashHex(data)
+            StorageIdentifier = ObjectStorageManager.GetObjectStorageHolder(data.Type),
+            Key = ObjectIdentityCalculator.CalculateHashHexKey(data),
+            Id = ObjectIdentityCalculator.CalculateHashHex(data)
         };
     }
 
@@ -30,8 +30,8 @@ public class ObjectIdentifierFactory : IObjectIdentifierFactory
         return new ObjectIdentifier()
         {
             Type = data.Type,
-            StorageIdentifier = ObjectStorageManager.GetTypeStorageHolder(data.Type),
-            Id = ObjectCalculator.CalculateHashHex(data)
+            StorageIdentifier = ObjectStorageManager.GetObjectStorageHolder(data.Type),
+            Id = ObjectIdentityCalculator.CalculateHashHex(data)
         };
     }
 }

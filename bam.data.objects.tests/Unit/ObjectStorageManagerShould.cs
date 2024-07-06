@@ -41,7 +41,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         {
         };
         
-        DirectoryInfo directoryInfo = ofs.GetTypeStorageHolder(ob.GetType());
+        DirectoryInfo directoryInfo = ofs.GetObjectStorageHolder(ob.GetType());
         directoryInfo.ShouldNotBeNull();
         Message.PrintLine("typeDir = '{0}'", directoryInfo.FullName);
     }
@@ -54,7 +54,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         FsObjectStorageManager fsObjectStorageManager = dependencyProvider.Get<FsObjectStorageManager>();
         TestData ob = new TestData();
         
-        ITypeStorageHolder typeStorageHolder = fsObjectStorageManager.GetTypeStorageHolder(ob.GetType());
+        ITypeStorageHolder typeStorageHolder = fsObjectStorageManager.GetObjectStorageHolder(ob.GetType());
         typeStorageHolder.ShouldNotBeNull();
         typeStorageHolder.RootStorageHolder.ShouldNotBeNull();
         
@@ -188,7 +188,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
     public override ServiceRegistry Configure(ServiceRegistry serviceRegistry)
     {
         return base.Configure(serviceRegistry)
-            .For<IObjectCalculator>().Use<ObjectCalculator>()
+            .For<IObjectIdentityCalculator>().Use<ObjectIdentityCalculator>()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>();
     }
