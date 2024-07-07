@@ -185,7 +185,7 @@ public class FsObjectStorageManager : IObjectStorageManager
     
     public IProperty ReadProperty(IPropertyDescriptor propertyDescriptor, IStorageSlot storageSlot)
     {
-        throw new NotImplementedException();
+        Args.ThrowIfNull(propertyDescriptor);
         Args.ThrowIfNull(storageSlot);
         
         PropertyReadStarted?.Invoke(this, new ObjectStorageEventArgs());
@@ -195,6 +195,7 @@ public class FsObjectStorageManager : IObjectStorageManager
         IRawData rawData = rawStorage.LoadHashId(pointerData.Convert<ulong>());
 
         PropertyReadComplete?.Invoke(this, new ObjectStorageEventArgs());
+        throw new NotImplementedException();
     }
 
     public IProperty ReadObject(IObjectKey objectKey)
