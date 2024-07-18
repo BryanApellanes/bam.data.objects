@@ -8,6 +8,5 @@ public interface IPropertyVersion
     IObjectData? Parent { get; }
     IProperty? Property { get; }
     int Number { get; }
-    string Description { get; }
-    byte[]? Value { get; }
+    string MetaData { get; }
 }

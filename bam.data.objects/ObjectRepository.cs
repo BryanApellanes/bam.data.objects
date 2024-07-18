@@ -6,13 +6,13 @@ namespace Bam.Data.Objects;
 
 public class ObjectRepository : Repository
 {
-    public ObjectRepository(IObjectDataWriter writer, IObjectIndexer indexer, IObjectDeleter deleter, IObjectArchiver archiver, IObjectLoader loader, IObjectSearcher searcher)
+    public ObjectRepository(IObjectDataWriter writer, IObjectIndexer indexer, IObjectDeleter deleter, IObjectArchiver archiver, IObjectDataReader dataReader, IObjectSearcher searcher)
     {
         this.Writer = writer;
         this.Indexer = indexer;
         this.Deleter = deleter;
         this.Archiver = archiver;
-        this.Loader = loader;
+        this.DataReader = dataReader;
         this.Searcher = searcher;
     }
     
@@ -20,7 +20,7 @@ public class ObjectRepository : Repository
     protected IObjectIndexer Indexer { get; }
     protected IObjectDeleter Deleter { get; }
     protected IObjectArchiver Archiver { get; }
-    protected IObjectLoader Loader { get; }
+    protected IObjectDataReader DataReader { get; }
     protected IObjectSearcher Searcher { get; }
     
     public override T Create<T>(T toCreate)

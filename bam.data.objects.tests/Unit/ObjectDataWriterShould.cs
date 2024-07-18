@@ -37,7 +37,11 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
 
     [UnitTest]
     public async Task WriteKeyFile()
-    {    
+    {
+        throw new InvalidOperationException(
+            "Review this test for validity.  Why should a key file be written to the expected path" +
+            "This should probably be replaced by the concept of an IObjectIndexer");
+        
         string root = Path.Combine(Environment.CurrentDirectory, nameof(WriteKeyFile));
         ServiceRegistry testContainer = ConfigureDependencies(root);
         
@@ -53,10 +57,13 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         IObjectIdentifier mockObjectIdentifier = Substitute.For<IObjectIdentifier>();
         mockObjectIdentifier.Id.Returns(testKey);
         mockDataFactory.GetObjectIdentifier(Arg.Any<IObjectData>()).Returns(mockObjectIdentifier);
-        
-        testContainer.For<IObjectDataFactory>().Use(mockDataFactory);
-        testContainer.For<IObjectStorageManager>().Use<FsObjectStorageManager>();
-        testContainer.For<IPropertyWriter>().Use<PropertyWriter>();
+
+        testContainer
+            .For<IObjectDataReader>().Use<ObjectDataReader>()
+            .For<IObjectDecoder>().Use<JsonObjectEncoder>()
+            .For<IObjectDataFactory>().Use(mockDataFactory)
+            .For<IObjectStorageManager>().Use<FsObjectStorageManager>()
+            .For<IPropertyWriter>().Use<PropertyWriter>();
         
         ObjectDataWriter objectDataWriter = testContainer.Get<ObjectDataWriter>();
 

@@ -4,7 +4,7 @@ using Bam.Data.Objects;
 using Bam;
 using Bam.Storage;
 using Microsoft.CodeAnalysis;
-using NotImplementedException = System.NotImplementedException;
+//using NotImplementedException = System.NotImplementedException;
 
 namespace Bam.Data.Dynamic.Objects;
 
@@ -20,7 +20,8 @@ public class Property : IProperty
         this.ObjectEncoding = this.ObjectEncoder.Encode(propertyValue);
         this.AssemblyQualifiedTypeName = parent.Type.Type.AssemblyQualifiedName;
         this.PropertyName = propertyName;
-        this.Type = propertyValue.GetType();
+        PropertyInfo propertyInfo = parent.Type.Type.GetProperty(PropertyName)!;
+        this.Type = propertyInfo?.PropertyType ?? typeof(object);
         this.Value = Encoding.UTF8.GetString(ObjectEncoding.Value) ?? "null";
     }
     
@@ -111,6 +112,12 @@ public class Property : IProperty
         return new Property(parent, property.Name, property.GetValue(data));
     }
 
+    public static Property FromRawData(IObjectData parent, IObjectDecoder objectDecoder, IPropertyDescriptor propertyDescriptor, IRawData rawData)
+    {
+        return new Property(parent, propertyDescriptor.PropertyName,
+            objectDecoder.Decode(rawData.Value, propertyDescriptor.PropertyType));
+    }
+    
     public IPropertyDescriptor ToDescriptor()
     {
         return new PropertyDescriptor(this);

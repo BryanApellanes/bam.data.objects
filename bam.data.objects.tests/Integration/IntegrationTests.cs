@@ -15,7 +15,7 @@ public static class IntegrationTests
             .For<IObjectIdentifierFactory>().Use<ObjectIdentifierFactory>()
             .For<IObjectDataFactory>().Use<ObjectDataFactory>()
             .For<IRootStorageHolder>().Use( new RootStorageHolder(rootPath))
-            .For<IObjectLoader>().Use<ObjectLoader>()
+            .For<IObjectDataReader>().Use<ObjectDataReader>()
             .For<IStorageIdentifier>().Use(new FsStorageHolder(rootPath));
     }
 }

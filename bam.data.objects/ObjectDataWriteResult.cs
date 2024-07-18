@@ -16,7 +16,8 @@ public class ObjectDataWriteResult : IObjectDataWriteResult
     public string Message { get; set; }
     
     public IObjectData ObjectData { get; }
-    public IObjectKey ObjectKey { get; set; }
+
+    public IObjectKey ObjectKey => this.ObjectData.GetObjectKey();
     public IStorageSlot KeySlot { get; set; }
     public IDictionary<string, IPropertyWriteResult> PropertyWriteResults { get; init; }
 

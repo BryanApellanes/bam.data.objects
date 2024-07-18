@@ -60,6 +60,6 @@ public class PropertyStorageHolder : DirectoryStorageHolder, IPropertyStorageHol
 
     public IEnumerable<IPropertyStorageVersionSlot> GetVersions(IObjectStorageManager storageManager, IProperty property)
     {
-        return storageManager.GetVersions(property.ToDescriptor());
+        return storageManager.GetPropertyStorageVersionSlots(property.ToDescriptor());
     }
 }

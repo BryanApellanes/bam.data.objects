@@ -11,7 +11,9 @@ public class PropertyDescriptor : IPropertyDescriptor
         Args.ThrowIfNull(property.Parent);
         this.ObjectKey = property.Parent.GetObjectKey();
         this.PropertyName = property.PropertyName;
+        this.PropertyType = property.Type;
     }
     public IObjectKey ObjectKey { get; set; }
     public string PropertyName { get; set; }
+    public Type PropertyType { get; set; }
 }

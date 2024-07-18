@@ -34,11 +34,12 @@ public interface IObjectStorageManager
     int GetNextVersionNumber(IProperty property);
     bool IsEqualToLatestVersion(IProperty property);
     bool VersionExists(IPropertyDescriptor property, int version = 1);
-    IEnumerable<IPropertyStorageVersionSlot> GetVersions(IPropertyDescriptor property);
-    IPropertyWriteResult WriteProperty(IProperty property);
-    
-    IPropertyWriteResult WriteProperty(IPropertyStorageVersionSlot versionSlot, IProperty property);
-    IProperty ReadProperty(IPropertyDescriptor propertyDescriptor);
-    IProperty ReadProperty(IPropertyDescriptor propertyDescriptor, IStorageSlot storageSlot);
-    IProperty ReadObject(IObjectKey objectKey);
+    IEnumerable<IPropertyVersion> ReadVersions(IObjectData parent, IPropertyDescriptor propertyDescriptor); 
+    IEnumerable<IPropertyStorageVersionSlot> GetPropertyStorageVersionSlots(IPropertyDescriptor property);
+    IPropertyWriteResult WriteProperty(IProperty propertyDescriptor);
+
+    IProperty? ReadProperty(IObjectData parent, IPropertyDescriptor propertyDescriptor);
+
+    IObjectDataWriteResult WriteObject(IObjectData data);
+    IObjectData ReadObject(IObjectKey objectKey);
 }

@@ -4,4 +4,5 @@ public interface IPropertyDescriptor
 {
     IObjectKey ObjectKey { get; set; }
     string PropertyName { get; set; }
+    Type PropertyType { get; set; }
 }

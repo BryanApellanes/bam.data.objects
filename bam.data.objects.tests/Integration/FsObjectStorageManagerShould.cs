@@ -18,6 +18,7 @@ public class FsObjectStorageManagerShould(ServiceRegistry serviceRegistry) : Uni
         string root = Path.Combine(Environment.CurrentDirectory, nameof(WriteAndReadProperty));
         ServiceRegistry serviceRegistry = IntegrationTests.ConfigureDependencies(root);
         serviceRegistry
+            .For<IObjectDecoder>().Use<JsonObjectEncoder>()
             .For<IPropertyWriter>().Use<PropertyWriter>()
             .For<IObjectStorageManager>().Use<FsObjectStorageManager>();
 
@@ -34,7 +35,7 @@ public class FsObjectStorageManagerShould(ServiceRegistry serviceRegistry) : Uni
         
         Message.PrintLine(propertyWriteResult.PointerStorageSlot.FullName);
         
-        IProperty readProperty = fsObjectStorageManager.ReadProperty(propertyWriteResult.GetDescriptor());
+        IProperty readProperty = fsObjectStorageManager.ReadProperty(new ObjectData(propertyWriteResult.ObjectKey.Type), propertyWriteResult.GetDescriptor());
         readProperty.Value.ShouldBeEqualTo(stringPropertyValue!);
         return Task.CompletedTask;
     }

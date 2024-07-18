@@ -11,13 +11,6 @@ namespace Bam.Data.Objects;
 
 public class ObjectData : IObjectData
 {
-    internal ObjectData(Type type) // for reading
-    {
-        this.Type = new TypeDescriptor(type);
-        this.ObjectEncoder = JsonObjectEncoder.Default;
-        this.DataTypeTranslator = Bam.Data.DataTypeTranslator.Default;
-    }
-    
     public ObjectData(object data) : base()
     {
         this.Data = data;
@@ -53,6 +46,8 @@ public class ObjectData : IObjectData
         get;
         set;
     }
+    
+    public IObjectIdentifierFactory ObjectIdentifierFactory { get; set; }
 
     public TypeDescriptor Type
     {
@@ -75,6 +70,12 @@ public class ObjectData : IObjectData
         return _propertyDictionary.GetValueOrDefault(propertyName);
     }
 
+    /// <summary>
+    /// Sets the value of the specified property to the specified value.
+    /// </summary>
+    /// <param name="propertyName"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public IObjectData? Property(string propertyName, object value)
     {
         IProperty? property = Property(propertyName);
@@ -116,8 +117,6 @@ public class ObjectData : IObjectData
     {
         return ObjectEncoder.Encode(this.Data);
     }
-
-    public IObjectIdentifierFactory ObjectIdentifierFactory { get; set; }
     
     public IObjectKey GetObjectKey()
     {

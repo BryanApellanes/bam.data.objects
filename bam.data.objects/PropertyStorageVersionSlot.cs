@@ -17,13 +17,27 @@ public class PropertyStorageVersionSlot : PropertyStorageSlot, IPropertyStorageV
     public string? FullName => Path.Combine(PropertyStorageVersionHolder.FullName, Name);
     public override string Name => "dat";
 
-    public IProperty Load(IObjectStorageManager storageManager)
+    public string MetaData
     {
-        throw new NotImplementedException();
+        get
+        {
+            if (File.Exists(this.MetaDataFile))
+            {
+                return File.ReadAllText(this.MetaDataFile);
+            }
+
+            return string.Empty;
+        }
+        set
+        {
+            File.WriteAllText(this.MetaDataFile, value);
+        }
     }
     
     public override IPropertyWriteResult Save(IObjectStorageManager storageManager, IProperty property)
     {
         return storageManager.WriteProperty(property);
     }
+
+    private string MetaDataFile => Path.Combine(PropertyStorageVersionHolder.FullName, "meta");
 }
