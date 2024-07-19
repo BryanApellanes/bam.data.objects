@@ -9,22 +9,16 @@ namespace Bam.Data.Objects;
 
 public class ObjectDataWriter : IObjectDataWriter
 {
-    private const string KeyFileName = "key";
-    private const string DataFileName = "dat";
-    
-    public ObjectDataWriter(IObjectDataFactory objectDataFactory, IObjectIdentifierFactory objectIdentifierFactory, IObjectStorageManager objectStorageManager, IPropertyWriter propertyWriter)
+    public ObjectDataWriter(IObjectDataFactory objectDataFactory, IObjectIdentifierFactory objectIdentifierFactory, IObjectStorageManager objectStorageManager)
     {
         this.ObjectDataFactory = objectDataFactory;
         this.ObjectIdentifierFactory = objectIdentifierFactory;
         this.ObjectStorageManager = objectStorageManager;
-        //this.PropertyWriter = propertyWriter;
     }
     
     public IObjectDataFactory ObjectDataFactory { get; init; }
     public IObjectIdentifierFactory ObjectIdentifierFactory { get; init; }
     public IObjectStorageManager ObjectStorageManager { get; init; }
-    
-   // public IPropertyWriter PropertyWriter { get; init; }
     
     public Task<IObjectDataWriteResult> WriteAsync(object data)
     {

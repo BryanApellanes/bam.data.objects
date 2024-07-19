@@ -2,6 +2,7 @@ using System.Reflection;
 using bam.data.objects;
 using Bam.Data.Objects;
 using Bam;
+using Bam.Data.Repositories;
 using Bam.ExceptionHandling;
 using Bam.Storage;
 using Bamn.Data.Objects;
@@ -11,18 +12,17 @@ namespace Bam.Data.Dynamic.Objects;
 
 public class FsObjectStorageManager : IObjectStorageManager
 {
-    public FsObjectStorageManager(IRootStorageHolder rootStorage, IObjectIdentityCalculator objectIdentityCalculator, IObjectDecoder objectDecoder, IObjectDataReader objectDataReader)
+    public FsObjectStorageManager(IRootStorageHolder rootStorage, IObjectIdentityCalculator objectIdentityCalculator, IObjectEncoderDecoder objectEncoderDecoder, IObjectDataFactory objectDataFactory)
     {
         this.RootStorage = rootStorage;
         this.ObjectIdentityCalculator = objectIdentityCalculator;
-        this.ObjectDecoder = objectDecoder;
-        this.ObjectDataReader = objectDataReader;
+        this.ObjectEncoderDecoder = objectEncoderDecoder;
     }
     
     public IRootStorageHolder RootStorage { get; private set; }
     public IObjectIdentityCalculator ObjectIdentityCalculator { get; private set; }
-    public IObjectDecoder ObjectDecoder { get; private set; }
-    public IObjectDataReader ObjectDataReader { get; private set; }
+    public IObjectEncoderDecoder ObjectEncoderDecoder { get; private set; }
+    public IObjectDataFactory ObjectDataFactory { get; private set; }
 
     public event EventHandler<ObjectStorageEventArgs>? PropertyWriteStarted;
     public event EventHandler<ObjectStorageEventArgs>? PropertyWriteComplete;
@@ -216,19 +216,16 @@ public class FsObjectStorageManager : IObjectStorageManager
     public IObjectData ReadObject(IObjectKey objectKey)
     {
         Args.ThrowIfNull(objectKey, nameof(objectKey));
-        throw new NotImplementedException();
-        /*try
+        // instantiate type
+        // populate type properties
+        object data = objectKey.Type.Type.Construct();
+        IObjectData objectData = this.ObjectDataFactory.Wrap(data);
+        foreach (IProperty property in objectData.Properties)
         {
-            IStorage pointerStorage = this.GetStorage(propertyStorageVersionSlot);
-            IRawData rawPointerData = pointerStorage.Load();
-
-            IStorage rawStorage = this.GetRawStorage();
-            rawStorage.Load();
+            objectData.Property(property.PropertyName, ReadProperty(objectData, property.ToDescriptor()));
         }
-        catch (Exception ex)
-        {
 
-        }*/
+        return objectData;
     }
 
     public virtual IStorage GetStorage()
@@ -268,7 +265,7 @@ public class FsObjectStorageManager : IObjectStorageManager
             PropertyReadComplete?.Invoke(this,
                 new ObjectStorageEventArgs() { PropertyDescriptor = propertyDescriptor, ReadingFrom = storageSlot });
 
-            return Property.FromRawData(parent, this.ObjectDecoder, propertyDescriptor, rawData);
+            return Property.FromRawData(parent, this.ObjectEncoderDecoder, propertyDescriptor, rawData);
         }
         catch (Exception ex)
         {

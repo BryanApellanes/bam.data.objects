@@ -40,7 +40,7 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
     {
         throw new InvalidOperationException(
             "Review this test for validity.  Why should a key file be written to the expected path" +
-            "This should probably be replaced by the concept of an IObjectIndexer");
+            "This should probably be replaced by the concept of an IObjectDataIndexer");
         
         string root = Path.Combine(Environment.CurrentDirectory, nameof(WriteKeyFile));
         ServiceRegistry testContainer = ConfigureDependencies(root);

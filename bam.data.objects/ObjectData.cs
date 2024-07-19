@@ -19,7 +19,7 @@ public class ObjectData : IObjectData
         this.DataTypeTranslator = Bam.Data.DataTypeTranslator.Default;
     }
 
-    internal ObjectData(object data, ObjectEncoder encoder)
+    internal ObjectData(object data, IObjectEncoderDecoder encoder)
     {
         this.Data = data;
         this.Type = new TypeDescriptor(data?.GetType());
@@ -35,7 +35,7 @@ public class ObjectData : IObjectData
         set;
     }
     
-    protected ObjectEncoder ObjectEncoder
+    protected IObjectEncoderDecoder ObjectEncoder
     {
         get;
         set;

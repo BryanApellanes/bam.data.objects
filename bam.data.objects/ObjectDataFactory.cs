@@ -2,18 +2,14 @@ namespace Bam.Data.Objects;
 
 public class ObjectDataFactory : IObjectDataFactory
 {
-    public ObjectDataFactory(IObjectIdentifierFactory objectIdentifierFactory) : this(objectIdentifierFactory, JsonObjectEncoder.Default)
-    {
-    }
-
-    public ObjectDataFactory(IObjectIdentifierFactory objectIdentifierFactory, ObjectEncoder encoder)
+    public ObjectDataFactory(IObjectIdentifierFactory objectIdentifierFactory, IObjectEncoderDecoder encoderDecoder)
     {
         this.ObjectIdentifierFactory = objectIdentifierFactory;
-        this.ObjectEncoder = encoder;
+        this.ObjectEncoderDecoder = encoderDecoder;
     }
     
     public IObjectIdentifierFactory ObjectIdentifierFactory { get; init; }
-    public  ObjectEncoder ObjectEncoder { get; init; }
+    public  IObjectEncoderDecoder ObjectEncoderDecoder { get; init; }
 
     public IObjectData Wrap(object data)
     {
@@ -29,7 +25,7 @@ public class ObjectDataFactory : IObjectDataFactory
             return iObjectData;
         }
 
-        return new ObjectData(data, ObjectEncoder){ObjectIdentifierFactory = this.ObjectIdentifierFactory};
+        return new ObjectData(data, ObjectEncoderDecoder){ObjectIdentifierFactory = this.ObjectIdentifierFactory};
     }
 
     public IObjectKey GetObjectKey(IObjectData data)
