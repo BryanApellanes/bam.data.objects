@@ -1,5 +1,4 @@
 using System.Reflection;
-using bam.data.objects;
 using Bam.Data.Objects;
 using Bam;
 using Bam.Data.Repositories;
@@ -49,7 +48,7 @@ public class FsObjectStorageManager : IObjectStorageManager
     public IPropertyStorageHolder GetPropertyStorageHolder(IPropertyDescriptor propertyDescriptor)
     {
         List<string> parts = new List<string>();
-        ITypeStorageHolder typeStorageHolder = GetObjectStorageHolder(propertyDescriptor.ObjectKey.Type);
+        ITypeStorageHolder typeStorageHolder = GetObjectStorageHolder(propertyDescriptor.ObjectKey.TypeDescriptor);
         parts.Add(typeStorageHolder.FullName);
         parts.AddRange(propertyDescriptor.ObjectKey.Key.Split(2));
         parts.Add(propertyDescriptor.PropertyName);
@@ -113,6 +112,11 @@ public class FsObjectStorageManager : IObjectStorageManager
         return IsSlotWritten(GetPropertyStorageVersionSlot(property, version));
     }
 
+    private void SetVersions(IProperty property)
+    {
+        property.Versions = ReadVersions(property.Parent, property.ToDescriptor());
+    }
+    
     public IEnumerable<IPropertyVersion> ReadVersions(IObjectData parent, IPropertyDescriptor propertyDescriptor)
     {
         foreach (IPropertyStorageVersionSlot propertyStorageSlot in GetPropertyStorageVersionSlots(propertyDescriptor))
@@ -189,7 +193,9 @@ public class FsObjectStorageManager : IObjectStorageManager
 
     public IProperty ReadProperty(IObjectData parent, IPropertyDescriptor propertyDescriptor)
     {
-        return ReadProperty(parent, propertyDescriptor, GetLatestPropertyStorageVersionSlot(propertyDescriptor));
+        IProperty property = ReadProperty(parent, propertyDescriptor, GetLatestPropertyStorageVersionSlot(propertyDescriptor));
+        SetVersions(property);
+        return property;
     }
 
     public IObjectDataWriteResult WriteObject(IObjectData data)
@@ -218,7 +224,7 @@ public class FsObjectStorageManager : IObjectStorageManager
         Args.ThrowIfNull(objectKey, nameof(objectKey));
         // instantiate type
         // populate type properties
-        object data = objectKey.Type.Type.Construct();
+        object data = objectKey.TypeDescriptor.Type.Construct();
         IObjectData objectData = this.ObjectDataFactory.Wrap(data);
         foreach (IProperty property in objectData.Properties)
         {
@@ -251,7 +257,7 @@ public class FsObjectStorageManager : IObjectStorageManager
         {
             Args.ThrowIfNull(propertyDescriptor, nameof(propertyDescriptor));
             Args.ThrowIfNull(propertyDescriptor.ObjectKey, $"{nameof(propertyDescriptor)}.ObjectKey");
-            Args.ThrowIfNull(propertyDescriptor.ObjectKey.Type, $"{nameof(propertyDescriptor)}.ObjectKey.Type");
+            Args.ThrowIfNull(propertyDescriptor.ObjectKey.TypeDescriptor, $"{nameof(propertyDescriptor)}.ObjectKey.Type");
             Args.ThrowIfNull(storageSlot, nameof(storageSlot));
 
             PropertyReadStarted?.Invoke(this,

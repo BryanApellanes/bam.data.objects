@@ -53,6 +53,8 @@ public class Property : IProperty
         }
     }
 
+    public IEnumerable<IPropertyVersion> Versions { get; set; }
+
     public object Decode()
     {
         return ObjectEncoder.Decode(ObjectEncoding);

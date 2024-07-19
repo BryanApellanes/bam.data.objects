@@ -1,4 +1,3 @@
-using bam.data.objects;
 using Bam.Data;
 using Bam.Data.Repositories;
 

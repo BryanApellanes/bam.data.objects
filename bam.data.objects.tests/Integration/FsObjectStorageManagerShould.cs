@@ -35,7 +35,7 @@ public class FsObjectStorageManagerShould(ServiceRegistry serviceRegistry) : Uni
         
         Message.PrintLine(propertyWriteResult.PointerStorageSlot.FullName);
         
-        IProperty readProperty = fsObjectStorageManager.ReadProperty(new ObjectData(propertyWriteResult.ObjectKey.Type), propertyWriteResult.GetDescriptor());
+        IProperty readProperty = fsObjectStorageManager.ReadProperty(new ObjectData(propertyWriteResult.ObjectKey.TypeDescriptor), propertyWriteResult.GetDescriptor());
         readProperty.Value.ShouldBeEqualTo(stringPropertyValue!);
         return Task.CompletedTask;
     }

@@ -2,7 +2,6 @@ using Bam.Console;
 using Bam.Data.Objects;
 using Bam.Data.Dynamic.Objects;
 using Bam.Data.Dynamic.TestClasses;
-using bam.data.objects;
 using Bam.Data.Objects;
 using Bam.CoreServices;
 using Bam.Data.Repositories;

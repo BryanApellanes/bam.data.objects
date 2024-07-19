@@ -4,7 +4,7 @@ namespace Bam.Data.Objects;
 
 public interface IObjectIdentifier
 {
-    TypeDescriptor Type { get; }
+    TypeDescriptor TypeDescriptor { get; }
     IStorageIdentifier StorageIdentifier { get; }
     string Id { get; }
 }

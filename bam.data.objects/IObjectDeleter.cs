@@ -1,6 +1,6 @@
 using Bam.Data.Objects;
 
-namespace bam.data.objects;
+namespace Bam.Data.Objects;
 
 public interface IObjectDeleter
 {

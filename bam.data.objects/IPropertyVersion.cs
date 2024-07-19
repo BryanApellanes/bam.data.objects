@@ -6,7 +6,7 @@ public interface IPropertyVersion
 {
     ITypeDescriptor? TypeDescriptor { get; }
     IObjectData? Parent { get; }
-    IProperty? Property { get; }
+    IProperty Property { get; }
     int Number { get; }
     string MetaData { get; }
 }

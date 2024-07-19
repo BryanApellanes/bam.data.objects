@@ -48,7 +48,7 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         IObjectKey mockKey = Substitute.For<IObjectKey>();
         string testKey = 32.RandomLetters().HashHexString(HashAlgorithms.SHA256);
         mockKey.Key.Returns(testKey);
-        mockKey.Type.Returns(new TypeDescriptor(typeof(TestData)));
+        mockKey.TypeDescriptor.Returns(new TypeDescriptor(typeof(TestData)));
         mockKey.Id.Returns(testKey);
         
         IObjectDataFactory mockDataFactory = Substitute.For<IObjectDataFactory>();

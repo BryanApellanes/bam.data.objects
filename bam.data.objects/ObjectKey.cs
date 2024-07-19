@@ -5,7 +5,7 @@ namespace Bam.Data.Objects;
 
 public class ObjectKey : IObjectKey
 {
-    public TypeDescriptor Type { get; set; }
+    public TypeDescriptor TypeDescriptor { get; set; }
     public IStorageIdentifier StorageIdentifier { get; internal set; }
     
     public string Id { get; internal set; }
