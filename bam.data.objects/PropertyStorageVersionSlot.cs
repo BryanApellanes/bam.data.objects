@@ -34,9 +34,9 @@ public class PropertyStorageVersionSlot : PropertyStorageSlot, IPropertyStorageV
         }
     }
     
-    public override IPropertyWriteResult Save(IObjectStorageManager storageManager, IProperty property)
+    public override IPropertyWriteResult Save(IObjectDataStorageManager dataStorageManager, IProperty property)
     {
-        return storageManager.WriteProperty(property);
+        return dataStorageManager.WriteProperty(property);
     }
 
     private string MetaDataFile => Path.Combine(PropertyStorageVersionHolder.FullName, "meta");

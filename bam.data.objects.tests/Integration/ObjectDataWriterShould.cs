@@ -22,11 +22,11 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         ServiceRegistry testContainer = ConfigureDependencies(root);
         testContainer
             .For<IPropertyWriter>().Use<PropertyWriter>()
-            .For<IObjectStorageManager>().Use<FsObjectStorageManager>()
+            .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
-            .For<IObjectIdentityCalculator>().Use<ObjectIdentityCalculator>()
-            .For<IObjectIdentifierFactory>().Use<ObjectIdentifierFactory>()
+            .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
+            .For<IObjectDataIdentifierFactory>().Use<ObjectDataIdentifierFactory>()
             .For<IObjectDataFactory>().Use<ObjectDataFactory>();
         
         ObjectDataWriter objectDataWriter = testContainer.Get<ObjectDataWriter>();
@@ -38,7 +38,7 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         result.Success.ShouldBeTrue(result.Message);
         result.ObjectData.ShouldNotBeNull("result.Data was null");
         result.ObjectData.Data.ShouldBe(testData);
-        result.ObjectKey.ShouldNotBeNull("result.ObjectKey was null");
+        result.ObjectDataKey.ShouldNotBeNull("result.ObjectKey was null");
         result.KeySlot.ShouldNotBeNull("result.KeySlot was null");
         
         result.PropertyWriteResults.Count.ShouldEqual(4, "result.PropertyWriteResults.Count was not equal to 4");
@@ -60,15 +60,15 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         ServiceRegistry testContainer = ConfigureDependencies(root);
         testContainer
             .For<IPropertyWriter>().Use<PropertyWriter>()
-            .For<IObjectStorageManager>().Use<FsObjectStorageManager>()
+            .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
-            .For<IObjectIdentityCalculator>().Use<ObjectIdentityCalculator>()
-            .For<IObjectIdentifierFactory>().Use<ObjectIdentifierFactory>()
+            .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
+            .For<IObjectDataIdentifierFactory>().Use<ObjectDataIdentifierFactory>()
             .For<IObjectDataFactory>().Use<ObjectDataFactory>();
         
         ObjectDataWriter objectDataWriter = testContainer.Get<ObjectDataWriter>();
-        IObjectStorageManager storageManager = testContainer.Get<IObjectStorageManager>();
+        IObjectDataStorageManager dataStorageManager = testContainer.Get<IObjectDataStorageManager>();
         TestData testData = new TestData(true);
 
         IObjectDataWriteResult result = await objectDataWriter.WriteAsync(testData);

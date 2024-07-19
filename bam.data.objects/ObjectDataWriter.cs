@@ -9,16 +9,16 @@ namespace Bam.Data.Objects;
 
 public class ObjectDataWriter : IObjectDataWriter
 {
-    public ObjectDataWriter(IObjectDataFactory objectDataFactory, IObjectIdentifierFactory objectIdentifierFactory, IObjectStorageManager objectStorageManager)
+    public ObjectDataWriter(IObjectDataFactory objectDataFactory, IObjectDataIdentifierFactory objectDataIdentifierFactory, IObjectDataStorageManager objectDataStorageManager)
     {
         this.ObjectDataFactory = objectDataFactory;
-        this.ObjectIdentifierFactory = objectIdentifierFactory;
-        this.ObjectStorageManager = objectStorageManager;
+        this.ObjectDataIdentifierFactory = objectDataIdentifierFactory;
+        this.ObjectDataStorageManager = objectDataStorageManager;
     }
     
     public IObjectDataFactory ObjectDataFactory { get; init; }
-    public IObjectIdentifierFactory ObjectIdentifierFactory { get; init; }
-    public IObjectStorageManager ObjectStorageManager { get; init; }
+    public IObjectDataIdentifierFactory ObjectDataIdentifierFactory { get; init; }
+    public IObjectDataStorageManager ObjectDataStorageManager { get; init; }
     
     public Task<IObjectDataWriteResult> WriteAsync(object data)
     {
@@ -34,8 +34,8 @@ public class ObjectDataWriter : IObjectDataWriter
         ObjectDataWriteResult objectDataWriteResult = new ObjectDataWriteResult(data);
         try
         {
-            data.ObjectIdentifierFactory ??= ObjectIdentifierFactory;
-            return ObjectStorageManager.WriteObject(data);
+            data.ObjectDataIdentifierFactory ??= ObjectDataIdentifierFactory;
+            return ObjectDataStorageManager.WriteObject(data);
         }
         catch (Exception ex)
         {

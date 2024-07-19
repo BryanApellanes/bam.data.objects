@@ -7,7 +7,7 @@ namespace Bam.Data.Objects;
 
 public class PropertyWriteResult : IPropertyWriteResult
 {
-    public IObjectKey ObjectKey { get; set; }
+    public IObjectDataKey ObjectDataKey { get; set; }
     public IStorageSlot PointerStorageSlot { get; set; }
     public IStorageSlot ValueStorageSlot { get; set; }
     public IProperty Property { get; set; }
@@ -19,7 +19,7 @@ public class PropertyWriteResult : IPropertyWriteResult
     {
         return new PropertyDescriptor()
         {
-            ObjectKey = this.ObjectKey,
+            ObjectDataKey = this.ObjectDataKey,
             PropertyName = Property.PropertyName
         };
     }

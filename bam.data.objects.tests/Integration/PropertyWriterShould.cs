@@ -23,15 +23,15 @@ public class PropertyWriterShould: UnitTestMenuContainer
         ServiceRegistry testContainer = IntegrationTests.ConfigureDependencies(root);
         testContainer
             .For<IPropertyWriter>().Use<PropertyWriter>()
-            .For<IObjectStorageManager>().Use<FsObjectStorageManager>();
+            .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
         
         IObjectDataFactory dataFactory = testContainer.Get<ObjectDataFactory>();
         IObjectData testData = dataFactory.Wrap(new TestData(true));
-        IObjectKey objectKey = testData.GetObjectKey();
-        objectKey.GetPath().StartsWith(root).ShouldBeTrue("objectKey path was not in correct root");
+        IObjectDataKey objectDataKey = testData.GetObjectKey();
+        objectDataKey.GetPath().StartsWith(root).ShouldBeTrue("objectKey path was not in correct root");
         
         List<string> expectedParts = new List<string>();
-        expectedParts.Add(objectKey.GetPath());
+        expectedParts.Add(objectDataKey.GetPath());
         expectedParts.Add(propertyName);
         expectedParts.Add("1");
         expectedParts.Add("dat");

@@ -2,6 +2,6 @@ namespace Bam.Data.Objects;
 
 public interface IPropertyVersionPointer
 {
-    IObjectKey ObjectKey { get; }
+    IObjectDataKey ObjectDataKey { get; }
     IProperty Property { get; }
 }

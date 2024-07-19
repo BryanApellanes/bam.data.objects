@@ -8,20 +8,20 @@ namespace Bam.Data.Objects;
 
 public class PropertyWriter : IPropertyWriter
 {
-    public PropertyWriter(IObjectStorageManager objectStorageManager)
+    public PropertyWriter(IObjectDataStorageManager objectDataStorageManager)
     {
-        this.ObjectStorageManager = objectStorageManager;
+        this.ObjectDataStorageManager = objectDataStorageManager;
     }
     
-    public IObjectStorageManager ObjectStorageManager { get; init; }
+    public IObjectDataStorageManager ObjectDataStorageManager { get; init; }
     
     public async Task<IPropertyWriteResult> WritePropertyAsync(IProperty property)
     {
         try
         {
-            IPropertyStorageHolder propertyStorageHolder = ObjectStorageManager.GetPropertyStorageHolder(property.ToDescriptor());
+            IPropertyStorageHolder propertyStorageHolder = ObjectDataStorageManager.GetPropertyStorageHolder(property.ToDescriptor());
 
-            return propertyStorageHolder.Save(ObjectStorageManager, property);
+            return propertyStorageHolder.Save(ObjectDataStorageManager, property);
         }
         catch (Exception ex)
         {

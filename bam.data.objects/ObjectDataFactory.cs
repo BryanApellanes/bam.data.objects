@@ -2,39 +2,39 @@ namespace Bam.Data.Objects;
 
 public class ObjectDataFactory : IObjectDataFactory
 {
-    public ObjectDataFactory(IObjectIdentifierFactory objectIdentifierFactory, IObjectEncoderDecoder encoderDecoder)
+    public ObjectDataFactory(IObjectDataIdentifierFactory objectDataIdentifierFactory, IObjectEncoderDecoder encoderDecoder)
     {
-        this.ObjectIdentifierFactory = objectIdentifierFactory;
+        this.ObjectDataIdentifierFactory = objectDataIdentifierFactory;
         this.ObjectEncoderDecoder = encoderDecoder;
     }
     
-    public IObjectIdentifierFactory ObjectIdentifierFactory { get; init; }
+    public IObjectDataIdentifierFactory ObjectDataIdentifierFactory { get; init; }
     public  IObjectEncoderDecoder ObjectEncoderDecoder { get; init; }
 
     public IObjectData Wrap(object data)
     {
         if (data is ObjectData objectData)
         {
-            objectData.ObjectIdentifierFactory ??= this.ObjectIdentifierFactory;
+            objectData.ObjectDataIdentifierFactory ??= this.ObjectDataIdentifierFactory;
             return objectData;
         }
 
         if (data is IObjectData iObjectData)
         {
-            iObjectData.ObjectIdentifierFactory ??= this.ObjectIdentifierFactory;
+            iObjectData.ObjectDataIdentifierFactory ??= this.ObjectDataIdentifierFactory;
             return iObjectData;
         }
 
-        return new ObjectData(data, ObjectEncoderDecoder){ObjectIdentifierFactory = this.ObjectIdentifierFactory};
+        return new ObjectData(data, ObjectEncoderDecoder){ObjectDataIdentifierFactory = this.ObjectDataIdentifierFactory};
     }
 
-    public IObjectKey GetObjectKey(IObjectData data)
+    public IObjectDataKey GetObjectKey(IObjectData data)
     {
-        return ObjectIdentifierFactory.GetObjectKey(data);
+        return ObjectDataIdentifierFactory.GetObjectKey(data);
     }
 
-    public IObjectIdentifier GetObjectIdentifier(IObjectData data)
+    public IObjectDataIdentifier GetObjectIdentifier(IObjectData data)
     {
-        return ObjectIdentifierFactory.GetObjectIdentifier(data);
+        return ObjectDataIdentifierFactory.GetObjectIdentifier(data);
     }
 }

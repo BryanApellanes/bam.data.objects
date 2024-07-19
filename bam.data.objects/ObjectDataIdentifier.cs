@@ -2,7 +2,7 @@ using Bam.Storage;
 
 namespace Bam.Data.Objects;
 
-public class ObjectIdentifier : IObjectIdentifier
+public class ObjectDataIdentifier : IObjectDataIdentifier
 {
     public TypeDescriptor TypeDescriptor { get; set; }
     public IStorageIdentifier StorageIdentifier { get; set; }

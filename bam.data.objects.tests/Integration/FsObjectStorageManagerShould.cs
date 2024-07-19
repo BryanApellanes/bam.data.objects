@@ -20,9 +20,9 @@ public class FsObjectStorageManagerShould(ServiceRegistry serviceRegistry) : Uni
         serviceRegistry
             .For<IObjectDecoder>().Use<JsonObjectEncoder>()
             .For<IPropertyWriter>().Use<PropertyWriter>()
-            .For<IObjectStorageManager>().Use<FsObjectStorageManager>();
+            .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
 
-        FsObjectStorageManager fsObjectStorageManager = serviceRegistry.Get<FsObjectStorageManager>();
+        FsObjectDataStorageManager fsObjectDataStorageManager = serviceRegistry.Get<FsObjectDataStorageManager>();
 
         IObjectDataFactory objectDataFactory = serviceRegistry.Get<IObjectDataFactory>();
         IObjectData testObjectData = objectDataFactory.Wrap(new TestData(true));
@@ -31,11 +31,11 @@ public class FsObjectStorageManagerShould(ServiceRegistry serviceRegistry) : Uni
         stringProperty?.ShouldNotBeNull();
         string? stringPropertyValue = stringProperty?.Value;
         
-        IPropertyWriteResult propertyWriteResult = fsObjectStorageManager.WriteProperty(stringProperty!);
+        IPropertyWriteResult propertyWriteResult = fsObjectDataStorageManager.WriteProperty(stringProperty!);
         
         Message.PrintLine(propertyWriteResult.PointerStorageSlot.FullName);
         
-        IProperty readProperty = fsObjectStorageManager.ReadProperty(new ObjectData(propertyWriteResult.ObjectKey.TypeDescriptor), propertyWriteResult.GetDescriptor());
+        IProperty readProperty = fsObjectDataStorageManager.ReadProperty(new ObjectData(propertyWriteResult.ObjectDataKey.TypeDescriptor), propertyWriteResult.GetDescriptor());
         readProperty.Value.ShouldBeEqualTo(stringPropertyValue!);
         return Task.CompletedTask;
     }

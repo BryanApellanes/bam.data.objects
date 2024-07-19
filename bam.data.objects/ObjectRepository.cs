@@ -5,22 +5,22 @@ namespace Bam.Data.Objects;
 
 public class ObjectRepository : Repository
 {
-    public ObjectRepository(IObjectDataWriter writer, IObjectIndexer indexer, IObjectDeleter deleter, IObjectArchiver archiver, IObjectDataReader dataReader, IObjectSearcher searcher)
+    public ObjectRepository(IObjectDataWriter writer, IObjectDataIndexer dataIndexer, IObjectDataDeleter dataDeleter, IObjectDataArchiver dataArchiver, IObjectDataReader dataReader, IObjectDataSearcher dataSearcher)
     {
         this.Writer = writer;
-        this.Indexer = indexer;
-        this.Deleter = deleter;
-        this.Archiver = archiver;
+        this.DataIndexer = dataIndexer;
+        this.DataDeleter = dataDeleter;
+        this.DataArchiver = dataArchiver;
         this.DataReader = dataReader;
-        this.Searcher = searcher;
+        this.DataSearcher = dataSearcher;
     }
     
     protected IObjectDataWriter Writer { get; }
-    protected IObjectIndexer Indexer { get; }
-    protected IObjectDeleter Deleter { get; }
-    protected IObjectArchiver Archiver { get; }
+    protected IObjectDataIndexer DataIndexer { get; }
+    protected IObjectDataDeleter DataDeleter { get; }
+    protected IObjectDataArchiver DataArchiver { get; }
     protected IObjectDataReader DataReader { get; }
-    protected IObjectSearcher Searcher { get; }
+    protected IObjectDataSearcher DataSearcher { get; }
     
     public override T Create<T>(T toCreate)
     {

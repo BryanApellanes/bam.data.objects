@@ -2,20 +2,20 @@ namespace Bam.Data.Objects;
 
 public class ObjectDataReader : IObjectDataReader
 {
-    public ObjectDataReader(IObjectStorageManager objectStorageManager)
+    public ObjectDataReader(IObjectDataStorageManager objectDataStorageManager)
     {
-        this.ObjectStorageManager = objectStorageManager;
+        this.ObjectDataStorageManager = objectDataStorageManager;
     }
     
-    public IObjectStorageManager ObjectStorageManager { get; set; }
+    public IObjectDataStorageManager ObjectDataStorageManager { get; set; }
     
-    public async Task<IObjectDataReadResult> ReadObjectDataAsync(IObjectKey key)
+    public async Task<IObjectDataReadResult> ReadObjectDataAsync(IObjectDataKey dataKey)
     {
         try
         {
             return new ObjectDataReadResult()
             {
-                ObjectData = ObjectStorageManager.ReadObject(key)
+                ObjectData = ObjectDataStorageManager.ReadObject(dataKey)
             };
         }
         catch (Exception ex)

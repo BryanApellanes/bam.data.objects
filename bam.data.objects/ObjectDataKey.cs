@@ -3,7 +3,7 @@ using Bam.Storage;
 
 namespace Bam.Data.Objects;
 
-public class ObjectKey : IObjectKey
+public class ObjectDataKey : IObjectDataKey
 {
     public TypeDescriptor TypeDescriptor { get; set; }
     public IStorageIdentifier StorageIdentifier { get; internal set; }
@@ -37,7 +37,7 @@ public class ObjectKey : IObjectKey
     {
         return new PropertyDescriptor()
         {
-            ObjectKey = this,
+            ObjectDataKey = this,
             PropertyName = propertyName
         };
     }

@@ -5,7 +5,7 @@ using Bamn.Data.Objects;
 
 namespace Bam.Data.Objects;
 
-public interface IObjectStorageManager
+public interface IObjectDataStorageManager
 {
     event EventHandler<ObjectStorageEventArgs> PropertyWriteStarted;
     event EventHandler<ObjectStorageEventArgs> PropertyWriteComplete;
@@ -40,5 +40,5 @@ public interface IObjectStorageManager
     IProperty? ReadProperty(IObjectData parent, IPropertyDescriptor propertyDescriptor);
 
     IObjectDataWriteResult WriteObject(IObjectData data);
-    IObjectData ReadObject(IObjectKey objectKey);
+    IObjectData ReadObject(IObjectDataKey objectDataKey);
 }

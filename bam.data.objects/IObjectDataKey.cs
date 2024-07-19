@@ -1,6 +1,6 @@
 namespace Bam.Data.Objects;
 
-public interface IObjectKey: IObjectIdentifier
+public interface IObjectDataKey: IObjectDataIdentifier
 {
     string Key { get; }
     string GetPath();

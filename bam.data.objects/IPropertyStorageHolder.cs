@@ -7,8 +7,8 @@ public interface IPropertyStorageHolder : IStorageHolder
 {
     string PropertyName { get; }
     ITypeStorageHolder TypeStorageHolder { get; }
-    IPropertyStorageVersionSlot GetPropertyVersionSlot(IObjectStorageManager objectStorageManager, IProperty property, int version);
-    IPropertyWriteResult Save(IObjectStorageManager storageManager, IProperty property);
+    IPropertyStorageVersionSlot GetPropertyVersionSlot(IObjectDataStorageManager objectDataStorageManager, IProperty property, int version);
+    IPropertyWriteResult Save(IObjectDataStorageManager dataStorageManager, IProperty property);
 
-    IEnumerable<IPropertyStorageVersionSlot> GetVersions(IObjectStorageManager storageManager, IProperty property);
+    IEnumerable<IPropertyStorageVersionSlot> GetVersions(IObjectDataStorageManager dataStorageManager, IProperty property);
 }

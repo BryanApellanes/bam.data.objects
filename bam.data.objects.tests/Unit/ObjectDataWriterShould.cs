@@ -20,19 +20,19 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
     [UnitTest]
     public async Task CallObjectIdentifierGetObjectKey()
     {
-        IObjectIdentifierFactory mockObjectIdentifierFactory = Substitute.For<IObjectIdentifierFactory>();
-        IObjectStorageManager mockStorageManager = Substitute.For<IObjectStorageManager>();
+        IObjectDataIdentifierFactory mockObjectDataIdentifierFactory = Substitute.For<IObjectDataIdentifierFactory>();
+        IObjectDataStorageManager mockDataStorageManager = Substitute.For<IObjectDataStorageManager>();
         
         ServiceRegistry testContainer = new ServiceRegistry()
-            .For<IObjectStorageManager>().Use(mockStorageManager)
-            .For<IObjectIdentifierFactory>().Use(mockObjectIdentifierFactory);
+            .For<IObjectDataStorageManager>().Use(mockDataStorageManager)
+            .For<IObjectDataIdentifierFactory>().Use(mockObjectDataIdentifierFactory);
 
         ObjectDataWriter objectDataWriter = testContainer.Get<ObjectDataWriter>();
 
         TestData testData = new TestData();
         ObjectData objectData = new ObjectData(testData);
         await objectDataWriter.WriteAsync(objectData);
-        mockObjectIdentifierFactory.Received().GetObjectKey(objectData);
+        mockObjectDataIdentifierFactory.Received().GetObjectKey(objectData);
     }
 
     [UnitTest]
@@ -45,24 +45,24 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         string root = Path.Combine(Environment.CurrentDirectory, nameof(WriteKeyFile));
         ServiceRegistry testContainer = ConfigureDependencies(root);
         
-        IObjectKey mockKey = Substitute.For<IObjectKey>();
+        IObjectDataKey mockDataKey = Substitute.For<IObjectDataKey>();
         string testKey = 32.RandomLetters().HashHexString(HashAlgorithms.SHA256);
-        mockKey.Key.Returns(testKey);
-        mockKey.TypeDescriptor.Returns(new TypeDescriptor(typeof(TestData)));
-        mockKey.Id.Returns(testKey);
+        mockDataKey.Key.Returns(testKey);
+        mockDataKey.TypeDescriptor.Returns(new TypeDescriptor(typeof(TestData)));
+        mockDataKey.Id.Returns(testKey);
         
         IObjectDataFactory mockDataFactory = Substitute.For<IObjectDataFactory>();
-        mockDataFactory.GetObjectKey(Arg.Any<IObjectData>()).Returns(mockKey);
+        mockDataFactory.GetObjectKey(Arg.Any<IObjectData>()).Returns(mockDataKey);
         
-        IObjectIdentifier mockObjectIdentifier = Substitute.For<IObjectIdentifier>();
-        mockObjectIdentifier.Id.Returns(testKey);
-        mockDataFactory.GetObjectIdentifier(Arg.Any<IObjectData>()).Returns(mockObjectIdentifier);
+        IObjectDataIdentifier mockObjectDataIdentifier = Substitute.For<IObjectDataIdentifier>();
+        mockObjectDataIdentifier.Id.Returns(testKey);
+        mockDataFactory.GetObjectIdentifier(Arg.Any<IObjectData>()).Returns(mockObjectDataIdentifier);
 
         testContainer
             .For<IObjectDataReader>().Use<ObjectDataReader>()
             .For<IObjectDecoder>().Use<JsonObjectEncoder>()
             .For<IObjectDataFactory>().Use(mockDataFactory)
-            .For<IObjectStorageManager>().Use<FsObjectStorageManager>()
+            .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>()
             .For<IPropertyWriter>().Use<PropertyWriter>();
         
         ObjectDataWriter objectDataWriter = testContainer.Get<ObjectDataWriter>();
@@ -91,17 +91,17 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
     [UnitTest]
     public async Task CallObjectStorageManagerGetRootStorage()
     {
-        IObjectStorageManager mockStorageManager = Substitute.For<IObjectStorageManager>();
+        IObjectDataStorageManager mockDataStorageManager = Substitute.For<IObjectDataStorageManager>();
         ServiceRegistry testRegistry = new ServiceRegistry()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
-            .For<IObjectIdentityCalculator>().Use<ObjectIdentityCalculator>()
-            .For<IObjectIdentifierFactory>().Use<ObjectIdentifierFactory>()
-            .For<IObjectStorageManager>().Use(mockStorageManager);
+            .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
+            .For<IObjectDataIdentifierFactory>().Use<ObjectDataIdentifierFactory>()
+            .For<IObjectDataStorageManager>().Use(mockDataStorageManager);
 
         ObjectDataWriter objectDataWriter = testRegistry.Get<ObjectDataWriter>();
         await objectDataWriter.WriteAsync(new ObjectData(new TestData()));
-        mockStorageManager.Received().GetRootStorageHolder();
+        mockDataStorageManager.Received().GetRootStorageHolder();
     }
     
     private ServiceRegistry ConfigureDependencies(string rootPath)
@@ -109,8 +109,8 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         ServiceRegistry testRegistry = new ServiceRegistry()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
-            .For<IObjectIdentityCalculator>().Use<ObjectIdentityCalculator>()
-            .For<IObjectIdentifierFactory>().Use<ObjectIdentifierFactory>()
+            .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
+            .For<IObjectDataIdentifierFactory>().Use<ObjectDataIdentifierFactory>()
             .For<IRootStorageHolder>().Use( new RootStorageHolder(rootPath))
             .For<IStorageIdentifier>().Use(new FsStorageHolder(rootPath));
 

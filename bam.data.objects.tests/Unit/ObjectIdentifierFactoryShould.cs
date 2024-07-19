@@ -16,23 +16,23 @@ public class ObjectIdentifierFactoryShould : UnitTestMenuContainer
 
     public override ServiceRegistry Configure(ServiceRegistry serviceRegistry)
     {
-        IObjectStorageManager mockObjectStorageManager = Substitute.For<IObjectStorageManager>();
+        IObjectDataStorageManager mockObjectDataStorageManager = Substitute.For<IObjectDataStorageManager>();
 
         return base.Configure(serviceRegistry)
-            .For<IObjectStorageManager>().Use(mockObjectStorageManager)
+            .For<IObjectDataStorageManager>().Use(mockObjectDataStorageManager)
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
-            .For<IHashCalculator>().Use<JsonHashCalculator>()          .For<IObjectIdentityCalculator>().Use<ObjectIdentityCalculator>();
+            .For<IHashCalculator>().Use<JsonHashCalculator>()          .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>();
     }
     
     [UnitTest]
     public void GetObjectKey()
     {
-        ObjectIdentifierFactory factory = Get<ObjectIdentifierFactory>();
-        ObjectIdentityCalculator objectIdentityHasher = Get<ObjectIdentityCalculator>();
+        ObjectDataIdentifierFactory factory = Get<ObjectDataIdentifierFactory>();
+        ObjectDataIdentityCalculator objectDataIdentityHasher = Get<ObjectDataIdentityCalculator>();
         ObjectData data = new ObjectData(new TestData());
         
-        ulong keyHash = objectIdentityHasher.CalculateULongKey(data);
-        IObjectKey key = factory.GetObjectKey(data);
-        key.Key.ShouldEqual(keyHash);
+        ulong keyHash = objectDataIdentityHasher.CalculateULongKey(data);
+        IObjectDataKey dataKey = factory.GetObjectKey(data);
+        dataKey.Key.ShouldEqual(keyHash);
     }
 }

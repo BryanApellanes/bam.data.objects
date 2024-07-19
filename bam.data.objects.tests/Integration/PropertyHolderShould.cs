@@ -19,10 +19,10 @@ public class PropertyHolderShould: UnitTestMenuContainer
     {
         string rootPath = Path.Combine(Environment.CurrentDirectory, nameof(SaveObjectProperty));
         ServiceRegistry testRegistry = IntegrationTests.ConfigureDependencies(rootPath)
-            .For<IObjectStorageManager>().Use<FsObjectStorageManager>();
+            .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
         
         ObjectDataFactory dataFactory = testRegistry.Get<ObjectDataFactory>();
-        IObjectStorageManager storageManager = testRegistry.Get<IObjectStorageManager>();
+        IObjectDataStorageManager dataStorageManager = testRegistry.Get<IObjectDataStorageManager>();
         
         PropertyStorageHolder storageHolder = testRegistry.Get<PropertyStorageHolder>(new string[] {rootPath});
         
@@ -31,11 +31,11 @@ public class PropertyHolderShould: UnitTestMenuContainer
             StringProperty = $"StringProperty-SaveObjectPropertyTest"
         });
 
-        IObjectKey key = objectData.GetObjectKey();
+        IObjectDataKey dataKey = objectData.GetObjectKey();
         
         List<string> pathSegments = new List<string> { rootPath, "objects" };
         pathSegments.AddRange(typeof(TestData).Namespace.Split('.'));
-        pathSegments.AddRange(key.Key.Split(2));
+        pathSegments.AddRange(dataKey.Key.Split(2));
         pathSegments.Add("StringProperty");
         pathSegments.Add("1");
         pathSegments.Add("dat");
@@ -45,7 +45,7 @@ public class PropertyHolderShould: UnitTestMenuContainer
         {
             File.Delete(expected);
         }
-        IPropertyWriteResult writeResult = storageHolder.Save(storageManager, objectData.Property("StringProperty"));
+        IPropertyWriteResult writeResult = storageHolder.Save(dataStorageManager, objectData.Property("StringProperty"));
         writeResult.PointerStorageSlot.FullName.ShouldEqual(expected);
         File.Exists(writeResult.PointerStorageSlot.FullName).ShouldBeTrue("file didn't exist");
     }
@@ -55,16 +55,16 @@ public class PropertyHolderShould: UnitTestMenuContainer
     {
         ServiceRegistry testRegistry =
             IntegrationTests.ConfigureDependencies(Path.Combine(Environment.CurrentDirectory, nameof(SaveObjectProperty)));
-        FsObjectStorageManager storageManager = testRegistry.Get<FsObjectStorageManager>();
+        FsObjectDataStorageManager dataStorageManager = testRegistry.Get<FsObjectDataStorageManager>();
         IObjectData objectData = new ObjectData(new TestData
         {
             StringProperty = $"StringProperty-SaveObjectPropertyTest"
         });
         IProperty property = objectData.Property("StringProperty");
         IPropertyStorageHolder propertyStorageHolder =
-            storageManager.GetPropertyStorageHolder(property.ToDescriptor());
+            dataStorageManager.GetPropertyStorageHolder(property.ToDescriptor());
         
-        IPropertyWriteResult writeResult = propertyStorageHolder.Save(storageManager, property);
+        IPropertyWriteResult writeResult = propertyStorageHolder.Save(dataStorageManager, property);
         Message.PrintLine(writeResult.PointerStorageSlot.FullName);
         File.Exists(writeResult.PointerStorageSlot.FullName).ShouldBeTrue($"{writeResult.PointerStorageSlot.FullName} doesn't exist");
     }

@@ -1,6 +1,6 @@
 namespace Bam.Data.Objects;
 
-public interface IObjectSearch
+public interface IObjectDataSearch
 {
     
 }

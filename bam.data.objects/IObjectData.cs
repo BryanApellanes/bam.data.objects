@@ -12,13 +12,13 @@ public interface IObjectData : IJsonable
     [YamlIgnore]
     object Data { get; set; }
     TypeDescriptor Type { get; }
-    IObjectIdentifierFactory ObjectIdentifierFactory { get; set; }
+    IObjectDataIdentifierFactory ObjectDataIdentifierFactory { get; set; }
     IProperty? Property(string propertyName);
     IObjectData? Property(string propertyName, object value);
     IEnumerable<IProperty> Properties { get; }
     
     IObjectEncoding Encode();
 
-    IObjectKey GetObjectKey();
-    IObjectIdentifier GetObjectIdentifier();
+    IObjectDataKey GetObjectKey();
+    IObjectDataIdentifier GetObjectIdentifier();
 }

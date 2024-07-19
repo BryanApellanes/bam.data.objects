@@ -5,7 +5,7 @@ namespace Bam.Data.Dynamic.Objects;
 
 public interface IPropertyWriteResult
 {
-    IObjectKey ObjectKey { get; set; }
+    IObjectDataKey ObjectDataKey { get; set; }
     IStorageSlot PointerStorageSlot { get; set; }
     IStorageSlot ValueStorageSlot { get; set; }
     IProperty Property { get; set; }

@@ -47,7 +47,7 @@ public class ObjectData : IObjectData
         set;
     }
     
-    public IObjectIdentifierFactory ObjectIdentifierFactory { get; set; }
+    public IObjectDataIdentifierFactory ObjectDataIdentifierFactory { get; set; }
 
     public TypeDescriptor Type
     {
@@ -118,16 +118,16 @@ public class ObjectData : IObjectData
         return ObjectEncoder.Encode(this.Data);
     }
     
-    public IObjectKey GetObjectKey()
+    public IObjectDataKey GetObjectKey()
     {
-        Args.ThrowIfNull(this.ObjectIdentifierFactory, nameof(ObjectIdentifierFactory));
-        return this.ObjectIdentifierFactory.GetObjectKey(this);
+        Args.ThrowIfNull(this.ObjectDataIdentifierFactory, nameof(ObjectDataIdentifierFactory));
+        return this.ObjectDataIdentifierFactory.GetObjectKey(this);
     }
 
-    public IObjectIdentifier GetObjectIdentifier()
+    public IObjectDataIdentifier GetObjectIdentifier()
     {
-        Args.ThrowIfNull(this.ObjectIdentifierFactory, nameof(ObjectIdentifierFactory));
-        return this.ObjectIdentifierFactory.GetObjectIdentifier(this);
+        Args.ThrowIfNull(this.ObjectDataIdentifierFactory, nameof(ObjectDataIdentifierFactory));
+        return this.ObjectDataIdentifierFactory.GetObjectIdentifier(this);
     }
 
     private IEnumerable<IProperty> GetObjectProperties()

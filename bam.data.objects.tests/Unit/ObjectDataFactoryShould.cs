@@ -20,15 +20,15 @@ public class ObjectDataFactoryShould : UnitTestMenuContainer
     {
         string rootPath = Path.Combine(Environment.CurrentDirectory, nameof(SetObjectIdentifierFactoryOnObjectData));
         ServiceRegistry testRegistry = IntegrationTests.ConfigureDependencies(rootPath)
-            .For<IObjectStorageManager>().Use<FsObjectStorageManager>();
+            .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
         
         ObjectDataFactory dataFactory = testRegistry.Get<ObjectDataFactory>();
         
         IObjectData objectData = dataFactory.Wrap(new TestData(true));
         
-        objectData.ObjectIdentifierFactory.ShouldNotBeNull($"{nameof(objectData.ObjectIdentifierFactory)} was null");
-        IObjectKey objectKey = objectData.GetObjectKey();
-        objectKey.ShouldNotBeNull("objectKey was null");
-        Message.PrintLine(objectKey.ToString());
+        objectData.ObjectDataIdentifierFactory.ShouldNotBeNull($"{nameof(objectData.ObjectDataIdentifierFactory)} was null");
+        IObjectDataKey objectDataKey = objectData.GetObjectKey();
+        objectDataKey.ShouldNotBeNull("objectKey was null");
+        Message.PrintLine(objectDataKey.ToString());
     }
 }

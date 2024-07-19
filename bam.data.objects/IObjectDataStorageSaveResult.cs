@@ -2,7 +2,7 @@ using Bam.Data.Objects;
 
 namespace Bam.Storage;
 
-public interface IObjectStorageSaveResult 
+public interface IObjectDataStorageSaveResult 
 {
     IObjectDataReader ObjectDataReader { get; set; }
 }

@@ -9,17 +9,17 @@ using Type = System.Type;
 
 namespace Bam.Data.Dynamic.Objects;
 
-public class FsObjectStorageManager : IObjectStorageManager
+public class FsObjectDataStorageManager : IObjectDataStorageManager
 {
-    public FsObjectStorageManager(IRootStorageHolder rootStorage, IObjectIdentityCalculator objectIdentityCalculator, IObjectEncoderDecoder objectEncoderDecoder, IObjectDataFactory objectDataFactory)
+    public FsObjectDataStorageManager(IRootStorageHolder rootStorage, IObjectDataIdentityCalculator objectDataIdentityCalculator, IObjectEncoderDecoder objectEncoderDecoder, IObjectDataFactory objectDataFactory)
     {
         this.RootStorage = rootStorage;
-        this.ObjectIdentityCalculator = objectIdentityCalculator;
+        this.ObjectDataIdentityCalculator = objectDataIdentityCalculator;
         this.ObjectEncoderDecoder = objectEncoderDecoder;
     }
     
     public IRootStorageHolder RootStorage { get; private set; }
-    public IObjectIdentityCalculator ObjectIdentityCalculator { get; private set; }
+    public IObjectDataIdentityCalculator ObjectDataIdentityCalculator { get; private set; }
     public IObjectEncoderDecoder ObjectEncoderDecoder { get; private set; }
     public IObjectDataFactory ObjectDataFactory { get; private set; }
 
@@ -48,9 +48,9 @@ public class FsObjectStorageManager : IObjectStorageManager
     public IPropertyStorageHolder GetPropertyStorageHolder(IPropertyDescriptor propertyDescriptor)
     {
         List<string> parts = new List<string>();
-        ITypeStorageHolder typeStorageHolder = GetObjectStorageHolder(propertyDescriptor.ObjectKey.TypeDescriptor);
+        ITypeStorageHolder typeStorageHolder = GetObjectStorageHolder(propertyDescriptor.ObjectDataKey.TypeDescriptor);
         parts.Add(typeStorageHolder.FullName);
-        parts.AddRange(propertyDescriptor.ObjectKey.Key.Split(2));
+        parts.AddRange(propertyDescriptor.ObjectDataKey.Key.Split(2));
         parts.Add(propertyDescriptor.PropertyName);
         return new PropertyStorageHolder(Path.Combine(parts.ToArray()))
         {
@@ -150,10 +150,10 @@ public class FsObjectStorageManager : IObjectStorageManager
         Args.ThrowIfNull(property, nameof(property));
         Args.ThrowIfNull(property.Parent, $"{nameof(property)}.Parent");
         
-        IObjectKey objectKey = property.Parent.GetObjectKey();
+        IObjectDataKey objectDataKey = property.Parent.GetObjectKey();
         PropertyWriteResult result = new PropertyWriteResult
         {
-            ObjectKey = objectKey,
+            ObjectDataKey = objectDataKey,
             Property = property,
         };
         try
@@ -219,12 +219,12 @@ public class FsObjectStorageManager : IObjectStorageManager
         return result;
     }
     
-    public IObjectData ReadObject(IObjectKey objectKey)
+    public IObjectData ReadObject(IObjectDataKey objectDataKey)
     {
-        Args.ThrowIfNull(objectKey, nameof(objectKey));
+        Args.ThrowIfNull(objectDataKey, nameof(objectDataKey));
         // instantiate type
         // populate type properties
-        object data = objectKey.TypeDescriptor.Type.Construct();
+        object data = objectDataKey.TypeDescriptor.Type.Construct();
         IObjectData objectData = this.ObjectDataFactory.Wrap(data);
         foreach (IProperty property in objectData.Properties)
         {
@@ -256,8 +256,8 @@ public class FsObjectStorageManager : IObjectStorageManager
         try
         {
             Args.ThrowIfNull(propertyDescriptor, nameof(propertyDescriptor));
-            Args.ThrowIfNull(propertyDescriptor.ObjectKey, $"{nameof(propertyDescriptor)}.ObjectKey");
-            Args.ThrowIfNull(propertyDescriptor.ObjectKey.TypeDescriptor, $"{nameof(propertyDescriptor)}.ObjectKey.Type");
+            Args.ThrowIfNull(propertyDescriptor.ObjectDataKey, $"{nameof(propertyDescriptor)}.ObjectKey");
+            Args.ThrowIfNull(propertyDescriptor.ObjectDataKey.TypeDescriptor, $"{nameof(propertyDescriptor)}.ObjectKey.Type");
             Args.ThrowIfNull(storageSlot, nameof(storageSlot));
 
             PropertyReadStarted?.Invoke(this,
