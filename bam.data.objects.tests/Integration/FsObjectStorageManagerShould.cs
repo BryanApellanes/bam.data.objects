@@ -18,7 +18,7 @@ public class FsObjectStorageManagerShould(ServiceRegistry serviceRegistry) : Uni
         string root = Path.Combine(Environment.CurrentDirectory, nameof(WriteAndReadProperty));
         ServiceRegistry serviceRegistry = IntegrationTests.ConfigureDependencies(root);
         serviceRegistry
-            .For<IObjectDecoder>().Use<JsonObjectEncoder>()
+            .For<IObjectDecoder>().Use<JsonObjectDataEncoder>()
             .For<IPropertyWriter>().Use<PropertyWriter>()
             .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
 

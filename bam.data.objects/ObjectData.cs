@@ -15,7 +15,7 @@ public class ObjectData : IObjectData
     {
         this.Data = data;
         this.Type = new TypeDescriptor(data?.GetType());
-        this.ObjectEncoder = JsonObjectEncoder.Default;
+        this.ObjectEncoder = JsonObjectDataEncoder.Default;
         this.DataTypeTranslator = Bam.Data.DataTypeTranslator.Default;
     }
 

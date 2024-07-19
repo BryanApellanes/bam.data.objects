@@ -3,15 +3,15 @@ using Bam;
 
 namespace Bam.Data.Objects;
 
-public abstract class ObjectEncoder: IObjectEncoderDecoder, IObjectConverter, IObjectEncoder, IObjectDecoder
+public abstract class ObjectDataEncoder: IObjectEncoderDecoder, IObjectConverter, IObjectEncoder, IObjectDecoder
 {
     private static readonly object _defaultLock = new();
-    private static JsonObjectEncoder _default;
-    public static JsonObjectEncoder Default
+    private static JsonObjectDataEncoder _default;
+    public static JsonObjectDataEncoder Default
     {
         get
         {
-            return _defaultLock.DoubleCheckLock(ref _default, () => new JsonObjectEncoder());
+            return _defaultLock.DoubleCheckLock(ref _default, () => new JsonObjectDataEncoder());
         }
     }
     

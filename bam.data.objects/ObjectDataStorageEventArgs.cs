@@ -4,7 +4,7 @@ using Bam.Storage;
 
 namespace Bamn.Data.Objects;
 
-public class ObjectStorageEventArgs : EventArgs
+public class ObjectDataStorageEventArgs : EventArgs
 {
     public IPropertyWriteResult PropertyWriteResult { get; set; }
     public Exception Exception { get; set; }

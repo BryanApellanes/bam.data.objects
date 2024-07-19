@@ -1,9 +1,8 @@
 using System.Reflection;
-using Bam.Data.Objects;
 using Bam;
 using Bam.Storage;
 
-namespace Bam.Data.Dynamic.Objects;
+namespace Bam.Data.Objects;
 
 public static class ObjectExtensions
 {

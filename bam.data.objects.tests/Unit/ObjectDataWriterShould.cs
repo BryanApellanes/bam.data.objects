@@ -60,7 +60,7 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
 
         testContainer
             .For<IObjectDataReader>().Use<ObjectDataReader>()
-            .For<IObjectDecoder>().Use<JsonObjectEncoder>()
+            .For<IObjectDecoder>().Use<JsonObjectDataEncoder>()
             .For<IObjectDataFactory>().Use(mockDataFactory)
             .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>()
             .For<IPropertyWriter>().Use<PropertyWriter>();

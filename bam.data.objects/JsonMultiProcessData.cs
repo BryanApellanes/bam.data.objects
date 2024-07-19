@@ -20,16 +20,16 @@ namespace Bam.Data.Dynamic.Objects
 {
     public class JsonMultiProcessData : RawData
     {
-        public JsonMultiProcessData(object data, Encoding encoding = null) : base(JsonObjectEncoder.Default.Encode(data).Value, encoding)
+        public JsonMultiProcessData(object data, Encoding encoding = null) : base(JsonObjectDataEncoder.Default.Encode(data).Value, encoding)
         {         
             Args.ThrowIfNull(data, nameof(data));
             LockTimeout = 150;
             AcquireLockRetryInterval = 50;
-            ObjectEncoder = JsonObjectEncoder.Default;
+            ObjectDataEncoder = JsonObjectDataEncoder.Default;
             DataType = data.GetType();
         }
 
-        private JsonObjectEncoder ObjectEncoder
+        private JsonObjectDataEncoder ObjectDataEncoder
         {
             get;
             set;
@@ -47,7 +47,7 @@ namespace Bam.Data.Dynamic.Objects
                     writeTo = WriteFile;
                 }
 
-                IObjectEncoding encoding = ObjectEncoder.Encode(data);
+                IObjectEncoding encoding = ObjectDataEncoder.Encode(data);
                 
                 File.WriteAllBytes(writeTo, encoding.Value);
 
@@ -182,7 +182,7 @@ namespace Bam.Data.Dynamic.Objects
                             {
                                 logged = true;
                                 JsonMultiProcessDataLockInfo currentLockInfo =
-                                    ObjectEncoder.Decode<JsonMultiProcessDataLockInfo>(File.ReadAllBytes(LockFile));
+                                    ObjectDataEncoder.Decode<JsonMultiProcessDataLockInfo>(File.ReadAllBytes(LockFile));
                                 CurrentLockerId = currentLockInfo?.ProcessId.ToString();
                                 CurrentLockerMachineName = currentLockInfo?.MachineName;
                                 OnWaitingForLock();
@@ -193,7 +193,7 @@ namespace Bam.Data.Dynamic.Objects
                         return LockFile;
                     }, (lockFile) =>
                     {
-                        IObjectEncoding encoding = ObjectEncoder.Encode(lockInfo);
+                        IObjectEncoding encoding = ObjectDataEncoder.Encode(lockInfo);
                         
                         File.WriteAllBytes(lockFile, encoding.Value);
                         

@@ -23,12 +23,12 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
     public IObjectEncoderDecoder ObjectEncoderDecoder { get; private set; }
     public IObjectDataFactory ObjectDataFactory { get; private set; }
 
-    public event EventHandler<ObjectStorageEventArgs>? PropertyWriteStarted;
-    public event EventHandler<ObjectStorageEventArgs>? PropertyWriteComplete;
-    public event EventHandler<ObjectStorageEventArgs>? PropertyWriteException;
-    public event EventHandler<ObjectStorageEventArgs>? PropertyReadStarted;
-    public event EventHandler<ObjectStorageEventArgs>? PropertyReadComplete;
-    public event EventHandler<ObjectStorageEventArgs>? PropertyReadException;
+    public event EventHandler<ObjectDataStorageEventArgs>? PropertyWriteStarted;
+    public event EventHandler<ObjectDataStorageEventArgs>? PropertyWriteComplete;
+    public event EventHandler<ObjectDataStorageEventArgs>? PropertyWriteException;
+    public event EventHandler<ObjectDataStorageEventArgs>? PropertyReadStarted;
+    public event EventHandler<ObjectDataStorageEventArgs>? PropertyReadComplete;
+    public event EventHandler<ObjectDataStorageEventArgs>? PropertyReadException;
 
     public IRootStorageHolder GetRootStorageHolder()
     {
@@ -158,7 +158,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
         };
         try
         {
-            PropertyWriteStarted?.Invoke(this, new ObjectStorageEventArgs()
+            PropertyWriteStarted?.Invoke(this, new ObjectDataStorageEventArgs()
             {
                 PropertyWriteResult = result
             });
@@ -170,7 +170,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
             result.ValueStorageSlot = rawStorage.Save(property.ToRawData());
             result.Status = PropertyWriteResults.Success;
             
-            PropertyWriteComplete?.Invoke(this, new ObjectStorageEventArgs()
+            PropertyWriteComplete?.Invoke(this, new ObjectDataStorageEventArgs()
             {
                 PropertyWriteResult = result
             });
@@ -181,7 +181,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
                 ? ex.GetBaseException().Message
                 : ex.GetMessageAndStackTrace();
             result.Status = PropertyWriteResults.Failed;
-            PropertyWriteException?.Invoke(this, new ObjectStorageEventArgs()
+            PropertyWriteException?.Invoke(this, new ObjectDataStorageEventArgs()
             {
                 PropertyWriteResult = result,
                 Exception = ex
@@ -261,7 +261,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
             Args.ThrowIfNull(storageSlot, nameof(storageSlot));
 
             PropertyReadStarted?.Invoke(this,
-                new ObjectStorageEventArgs() { PropertyDescriptor = propertyDescriptor, ReadingFrom = storageSlot });
+                new ObjectDataStorageEventArgs() { PropertyDescriptor = propertyDescriptor, ReadingFrom = storageSlot });
 
             IStorage pointerStorage = this.GetStorage(storageSlot);
             IRawData pointerData = pointerStorage.LoadSlot(storageSlot);
@@ -269,13 +269,13 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
             IRawData rawData = rawStorage.LoadHashHexString(pointerData.ToString());
 
             PropertyReadComplete?.Invoke(this,
-                new ObjectStorageEventArgs() { PropertyDescriptor = propertyDescriptor, ReadingFrom = storageSlot });
+                new ObjectDataStorageEventArgs() { PropertyDescriptor = propertyDescriptor, ReadingFrom = storageSlot });
 
             return Property.FromRawData(parent, this.ObjectEncoderDecoder, propertyDescriptor, rawData);
         }
         catch (Exception ex)
         {
-            this.PropertyReadException?.Invoke(this, new ObjectStorageEventArgs() { Exception = ex });
+            this.PropertyReadException?.Invoke(this, new ObjectDataStorageEventArgs() { Exception = ex });
         }
 
         return null;

@@ -16,8 +16,8 @@ public class Property : IProperty
         Args.ThrowIfNull(parent.Type, nameof(parent.Type));
         Args.ThrowIfNull(parent.Type.Type, nameof(parent.Type.Type));
         this.Parent = parent;
-        this.ObjectEncoder = JsonObjectEncoder.Default;
-        this.ObjectEncoding = this.ObjectEncoder.Encode(propertyValue);
+        this.ObjectDataEncoder = JsonObjectDataEncoder.Default;
+        this.ObjectEncoding = this.ObjectDataEncoder.Encode(propertyValue);
         this.AssemblyQualifiedTypeName = parent.Type.Type.AssemblyQualifiedName;
         this.PropertyName = propertyName;
         PropertyInfo propertyInfo = parent.Type.Type.GetProperty(PropertyName)!;
@@ -25,7 +25,7 @@ public class Property : IProperty
         this.Value = Encoding.UTF8.GetString(ObjectEncoding.Value) ?? "null";
     }
     
-    protected ObjectEncoder ObjectEncoder
+    protected ObjectDataEncoder ObjectDataEncoder
     {
         get;
         set;
@@ -57,7 +57,7 @@ public class Property : IProperty
 
     public object Decode()
     {
-        return ObjectEncoder.Decode(ObjectEncoding);
+        return ObjectDataEncoder.Decode(ObjectEncoding);
     }
     
     public IObjectData Parent { get; set; }
@@ -89,14 +89,14 @@ public class Property : IProperty
 
     public object SetValue(object target, object value)
     {
-        this.ObjectEncoding = this.ObjectEncoder.Encode(value);
+        this.ObjectEncoding = this.ObjectDataEncoder.Encode(value);
         this.Value = Encoding.UTF8.GetString(ObjectEncoding.Value) ?? "null";
         return SetValue(target);
     }
     
     public IRawData ToRawData(Encoding encoding = null)
     {
-        return new RawData(this.ObjectEncoder.Encode(this).Value, encoding);
+        return new RawData(this.ObjectDataEncoder.Encode(this).Value, encoding);
     }
 
     public IRawData ToRawDataPointer(Encoding encoding = null)

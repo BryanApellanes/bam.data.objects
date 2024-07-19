@@ -7,12 +7,12 @@ namespace Bam.Data.Objects;
 
 public interface IObjectDataStorageManager
 {
-    event EventHandler<ObjectStorageEventArgs> PropertyWriteStarted;
-    event EventHandler<ObjectStorageEventArgs> PropertyWriteComplete;
-    event EventHandler<ObjectStorageEventArgs> PropertyWriteException;
-    event EventHandler<ObjectStorageEventArgs> PropertyReadStarted;
-    event EventHandler<ObjectStorageEventArgs> PropertyReadComplete;
-    event EventHandler<ObjectStorageEventArgs> PropertyReadException;
+    event EventHandler<ObjectDataStorageEventArgs> PropertyWriteStarted;
+    event EventHandler<ObjectDataStorageEventArgs> PropertyWriteComplete;
+    event EventHandler<ObjectDataStorageEventArgs> PropertyWriteException;
+    event EventHandler<ObjectDataStorageEventArgs> PropertyReadStarted;
+    event EventHandler<ObjectDataStorageEventArgs> PropertyReadComplete;
+    event EventHandler<ObjectDataStorageEventArgs> PropertyReadException;
     
     IRootStorageHolder GetRootStorageHolder();
     ITypeStorageHolder GetObjectStorageHolder(Type type);

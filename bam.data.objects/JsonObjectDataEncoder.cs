@@ -5,13 +5,13 @@ using MongoDB.Bson;
 
 namespace Bam.Data.Objects;
 
-public class JsonObjectEncoder : ObjectEncoder
+public class JsonObjectDataEncoder : ObjectDataEncoder
 {
-    public JsonObjectEncoder(): this(Encoding.UTF8)
+    public JsonObjectDataEncoder(): this(Encoding.UTF8)
     {
     }
     
-    public JsonObjectEncoder(Encoding encoding)
+    public JsonObjectDataEncoder(Encoding encoding)
     {
         this.Encoding = encoding ?? Encoding.UTF8;
     }

@@ -3,9 +3,9 @@ using Bam.Data.Repositories;
 
 namespace Bam.Data.Objects;
 
-public class ObjectRepository : Repository
+public class ObjectDataRepository : Repository
 {
-    public ObjectRepository(IObjectDataWriter writer, IObjectDataIndexer dataIndexer, IObjectDataDeleter dataDeleter, IObjectDataArchiver dataArchiver, IObjectDataReader dataReader, IObjectDataSearcher dataSearcher)
+    public ObjectDataRepository(IObjectDataWriter writer, IObjectDataIndexer dataIndexer, IObjectDataDeleter dataDeleter, IObjectDataArchiver dataArchiver, IObjectDataReader dataReader, IObjectDataSearcher dataSearcher)
     {
         this.Writer = writer;
         this.DataIndexer = dataIndexer;
