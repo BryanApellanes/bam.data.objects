@@ -7,7 +7,7 @@ using Bam.Testing;
 
 namespace Bam.Data.Objects.Tests.Integration;
 
-[UnitTestMenu("ObjectPropertyStorageContainerShould")]
+[UnitTestMenu("PropertyHolderShould")]
 public class PropertyHolderShould: UnitTestMenuContainer
 {
     public PropertyHolderShould(ServiceRegistry serviceRegistry) : base(serviceRegistry)
@@ -20,7 +20,7 @@ public class PropertyHolderShould: UnitTestMenuContainer
         string rootPath = Path.Combine(Environment.CurrentDirectory, nameof(SaveObjectProperty));
         ServiceRegistry testRegistry = IntegrationTests.ConfigureDependencies(rootPath)
             .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
-        
+        //testRegistry.Diagnostic = true;
         ObjectDataFactory dataFactory = testRegistry.Get<ObjectDataFactory>();
         IObjectDataStorageManager dataStorageManager = testRegistry.Get<IObjectDataStorageManager>();
         

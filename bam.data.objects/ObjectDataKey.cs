@@ -6,8 +6,12 @@ namespace Bam.Data.Objects;
 public class ObjectDataKey : IObjectDataKey
 {
     public TypeDescriptor TypeDescriptor { get; set; }
-    public IStorageIdentifier StorageIdentifier { get; internal set; }
     
+
+    public IStorageIdentifier GetStorageIdentifier(IObjectDataStorageManager objectDataStorageManager)
+    {
+        return objectDataStorageManager.GetObjectStorageHolder(TypeDescriptor);
+    }
     public string Id { get; internal set; }
     
     public string Key { get; internal set; }
@@ -17,10 +21,13 @@ public class ObjectDataKey : IObjectDataKey
         return GetPath();
     }
 
-    public string GetPath()
+    public string GetPath(IObjectDataStorageManager? objectDataStorageManager = null)
     {
         List<string> parts = new List<string>();
-        parts.Add(this.StorageIdentifier.FullName);
+        if (objectDataStorageManager != null)
+        {
+            parts.Add(this.GetStorageIdentifier(objectDataStorageManager).FullName);
+        }
         if (!string.IsNullOrEmpty(this.Key))
         {
             parts.AddRange(this.Key.Split(2));

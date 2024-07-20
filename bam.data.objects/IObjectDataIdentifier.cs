@@ -5,6 +5,6 @@ namespace Bam.Data.Objects;
 public interface IObjectDataIdentifier
 {
     TypeDescriptor TypeDescriptor { get; }
-    IStorageIdentifier StorageIdentifier { get; }
+    IStorageIdentifier GetStorageIdentifier(IObjectDataStorageManager objectDataStorageManager);
     string Id { get; }
 }

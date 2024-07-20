@@ -11,17 +11,17 @@ namespace Bam.Data.Dynamic.Objects;
 
 public class FsObjectDataStorageManager : IObjectDataStorageManager
 {
-    public FsObjectDataStorageManager(IRootStorageHolder rootStorage, IObjectDataIdentityCalculator objectDataIdentityCalculator, IObjectEncoderDecoder objectEncoderDecoder, IObjectDataFactory objectDataFactory)
+    public FsObjectDataStorageManager(IRootStorageHolder rootStorage, IObjectDataFactory objectDataFactory)
     {
         this.RootStorage = rootStorage;
-        this.ObjectDataIdentityCalculator = objectDataIdentityCalculator;
-        this.ObjectEncoderDecoder = objectEncoderDecoder;
+        this.ObjectDataFactory = objectDataFactory;
     }
-    
-    public IRootStorageHolder RootStorage { get; private set; }
-    public IObjectDataIdentityCalculator ObjectDataIdentityCalculator { get; private set; }
-    public IObjectEncoderDecoder ObjectEncoderDecoder { get; private set; }
-    public IObjectDataFactory ObjectDataFactory { get; private set; }
+
+    private IRootStorageHolder RootStorage { get; }
+    private IObjectDataFactory ObjectDataFactory { get; }
+    private IObjectEncoderDecoder ObjectEncoderDecoder => ObjectDataFactory.ObjectEncoderDecoder;
+
+    private IObjectDataIdentifierFactory ObjectDataIdentifierFactory => ObjectDataFactory.ObjectDataIdentifierFactory;
 
     public event EventHandler<ObjectDataStorageEventArgs>? PropertyWriteStarted;
     public event EventHandler<ObjectDataStorageEventArgs>? PropertyWriteComplete;
@@ -271,6 +271,10 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
             PropertyReadComplete?.Invoke(this,
                 new ObjectDataStorageEventArgs() { PropertyDescriptor = propertyDescriptor, ReadingFrom = storageSlot });
 
+            if (parent.ObjectDataIdentifierFactory == null)
+            {
+                parent.ObjectDataIdentifierFactory = this.ObjectDataIdentifierFactory;
+            }
             return Property.FromRawData(parent, this.ObjectEncoderDecoder, propertyDescriptor, rawData);
         }
         catch (Exception ex)

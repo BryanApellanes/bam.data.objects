@@ -28,10 +28,12 @@ public class PropertyWriterShould: UnitTestMenuContainer
         IObjectDataFactory dataFactory = testContainer.Get<ObjectDataFactory>();
         IObjectData testData = dataFactory.Wrap(new TestData(true));
         IObjectDataKey objectDataKey = testData.GetObjectKey();
-        objectDataKey.GetPath().StartsWith(root).ShouldBeTrue("objectKey path was not in correct root");
+        IObjectDataStorageManager objectDataStorageManager = testContainer.Get<FsObjectDataStorageManager>();
+        
+        objectDataKey.GetPath(objectDataStorageManager).StartsWith(root).ShouldBeTrue("objectKey path was not in correct root");
         
         List<string> expectedParts = new List<string>();
-        expectedParts.Add(objectDataKey.GetPath());
+        expectedParts.Add(objectDataKey.GetPath(objectDataStorageManager));
         expectedParts.Add(propertyName);
         expectedParts.Add("1");
         expectedParts.Add("dat");
