@@ -1,3 +1,6 @@
+using Bam.Data.Dynamic.Objects;
+using Bam.Storage;
+
 namespace Bam.Data.Objects;
 
 public class ObjectDataFactory : IObjectDataFactory
@@ -36,5 +39,11 @@ public class ObjectDataFactory : IObjectDataFactory
     public IObjectDataIdentifier GetObjectIdentifier(IObjectData data)
     {
         return ObjectDataIdentifierFactory.GetObjectIdentifier(data);
+    }
+
+    public IProperty PropertyFromRawData(IObjectData parent, IPropertyDescriptor propertyDescriptor, IRawData rawData)
+    {
+        parent.ObjectDataIdentifierFactory = parent.ObjectDataIdentifierFactory ?? ObjectDataIdentifierFactory;
+        return Property.FromRawData(parent, this.ObjectEncoderDecoder, propertyDescriptor, rawData);
     }
 }

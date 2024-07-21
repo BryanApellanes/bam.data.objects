@@ -271,11 +271,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
             PropertyReadComplete?.Invoke(this,
                 new ObjectDataStorageEventArgs() { PropertyDescriptor = propertyDescriptor, ReadingFrom = storageSlot });
 
-            if (parent.ObjectDataIdentifierFactory == null)
-            {
-                parent.ObjectDataIdentifierFactory = this.ObjectDataIdentifierFactory;
-            }
-            return Property.FromRawData(parent, this.ObjectEncoderDecoder, propertyDescriptor, rawData);
+            return this.ObjectDataFactory.PropertyFromRawData(parent, propertyDescriptor, rawData);
         }
         catch (Exception ex)
         {
