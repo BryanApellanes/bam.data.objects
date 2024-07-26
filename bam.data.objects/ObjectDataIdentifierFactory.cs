@@ -15,7 +15,7 @@ public class ObjectDataIdentifierFactory : IObjectDataIdentifierFactory
     {
         return new ObjectDataKey()
         {
-            TypeDescriptor = data.Type,
+            TypeDescriptor = data.TypeDescriptor,
             //StorageIdentifier = objectDataStorageManager.GetObjectStorageHolder(data.Type),
             Key = ObjectDataIdentityCalculator.CalculateHashHexKey(data),
             Id = ObjectDataIdentityCalculator.CalculateHashHex(data)
@@ -26,7 +26,7 @@ public class ObjectDataIdentifierFactory : IObjectDataIdentifierFactory
     {
         return new ObjectDataIdentifier()
         {
-            TypeDescriptor = data.Type,
+            TypeDescriptor = data.TypeDescriptor,
             //StorageIdentifier = objectDataStorageManager.GetObjectStorageHolder(data.Type),
             Id = ObjectDataIdentityCalculator.CalculateHashHex(data)
         };

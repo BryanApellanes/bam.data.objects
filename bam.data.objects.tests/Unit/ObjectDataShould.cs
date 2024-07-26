@@ -28,10 +28,10 @@ public class ObjectDataShould : UnitTestMenuContainer
 
         ObjectData data = new ObjectData(testData);
         
-        data.Type.ShouldNotBeNull("Type was null");
-        data.Type.Type.ShouldNotBeNull("TypeIdentifier.Type was null");
-        data.Type.Type.ShouldBe(typeof(TestData));
-        data.Type.AssemblyQualifiedTypeName.ShouldNotBeNull("TypeIdentifier.AssemblyQualifiedTypeName was null");
+        data.TypeDescriptor.ShouldNotBeNull("Type was null");
+        data.TypeDescriptor.Type.ShouldNotBeNull("TypeIdentifier.Type was null");
+        data.TypeDescriptor.Type.ShouldBe(typeof(TestData));
+        data.TypeDescriptor.AssemblyQualifiedTypeName.ShouldNotBeNull("TypeIdentifier.AssemblyQualifiedTypeName was null");
     }
 
     [UnitTest]

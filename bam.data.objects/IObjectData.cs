@@ -11,7 +11,7 @@ public interface IObjectData : IJsonable
     [JsonIgnore]
     [YamlIgnore]
     object Data { get; set; }
-    TypeDescriptor Type { get; }
+    TypeDescriptor TypeDescriptor { get; }
     IObjectDataIdentifierFactory ObjectDataIdentifierFactory { get; set; }
     IProperty? Property(string propertyName);
     IObjectData? Property(string propertyName, object value);

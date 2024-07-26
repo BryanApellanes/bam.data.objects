@@ -14,7 +14,7 @@ public class ObjectData : IObjectData
     public ObjectData(object data) : base()
     {
         this.Data = data;
-        this.Type = new TypeDescriptor(data?.GetType());
+        this.TypeDescriptor = new TypeDescriptor(data?.GetType());
         this.ObjectEncoder = JsonObjectDataEncoder.Default;
         this.DataTypeTranslator = Bam.Data.DataTypeTranslator.Default;
     }
@@ -22,7 +22,7 @@ public class ObjectData : IObjectData
     internal ObjectData(object data, IObjectEncoderDecoder encoder)
     {
         this.Data = data;
-        this.Type = new TypeDescriptor(data?.GetType());
+        this.TypeDescriptor = new TypeDescriptor(data?.GetType());
         this.ObjectEncoder = encoder;
         this.DataTypeTranslator = Bam.Data.DataTypeTranslator.Default;
     }
@@ -49,7 +49,7 @@ public class ObjectData : IObjectData
     
     public IObjectDataIdentifierFactory ObjectDataIdentifierFactory { get; set; }
 
-    public TypeDescriptor Type
+    public TypeDescriptor TypeDescriptor
     {
         get;
         set;
@@ -99,7 +99,7 @@ public class ObjectData : IObjectData
                     yield return prop;
                 }
             }
-            if (Type != null && Type.Type != null)
+            else if (TypeDescriptor != null && TypeDescriptor.Type != null)
             {
                 _properties = GetObjectProperties();
                 foreach (var objectProperty in _properties) yield return objectProperty;
@@ -132,7 +132,7 @@ public class ObjectData : IObjectData
 
     private IEnumerable<IProperty> GetObjectProperties()
     {
-        foreach (PropertyInfo propertyInfo in Type.Type.GetProperties())
+        foreach (PropertyInfo propertyInfo in TypeDescriptor.Type.GetProperties())
         {
             DataTypes enumType = DataTypeTranslator.EnumFromType(propertyInfo.PropertyType);
             if (enumType != DataTypes.Default)

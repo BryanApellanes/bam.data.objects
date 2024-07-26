@@ -11,7 +11,7 @@ public class PropertyVersion : IPropertyVersion
         this.MetaData = metaData;
     }
 
-    public ITypeDescriptor TypeDescriptor => this.Property?.Parent?.Type;
+    public ITypeDescriptor TypeDescriptor => this.Property?.Parent?.TypeDescriptor;
     public IObjectData Parent => this.Property?.Parent;
     public IProperty Property { get; }
     public int Number { get; }

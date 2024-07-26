@@ -13,14 +13,14 @@ public class Property : IProperty
     public Property(IObjectData parent, string propertyName, object propertyValue)
     {
         Args.ThrowIfNull(parent, nameof(parent));
-        Args.ThrowIfNull(parent.Type, nameof(parent.Type));
-        Args.ThrowIfNull(parent.Type.Type, nameof(parent.Type.Type));
+        Args.ThrowIfNull(parent.TypeDescriptor, nameof(parent.TypeDescriptor));
+        Args.ThrowIfNull(parent.TypeDescriptor.Type, nameof(parent.TypeDescriptor.Type));
         this.Parent = parent;
         this.ObjectDataEncoder = JsonObjectDataEncoder.Default;
         this.ObjectEncoding = this.ObjectDataEncoder.Encode(propertyValue);
-        this.AssemblyQualifiedTypeName = parent.Type.Type.AssemblyQualifiedName;
+        this.AssemblyQualifiedTypeName = parent.TypeDescriptor.Type.AssemblyQualifiedName;
         this.PropertyName = propertyName;
-        PropertyInfo propertyInfo = parent.Type.Type.GetProperty(PropertyName)!;
+        PropertyInfo propertyInfo = parent.TypeDescriptor.Type.GetProperty(PropertyName)!;
         this.Type = propertyInfo?.PropertyType ?? typeof(object);
         this.Value = Encoding.UTF8.GetString(ObjectEncoding.Value) ?? "null";
     }
@@ -45,8 +45,8 @@ public class Property : IProperty
         get
         {
             List<string> pathSegments = new List<string>();
-            pathSegments.AddRange(Parent.Type.Type.Namespace.Split('.'));
-            pathSegments.Add(Parent.Type.Type.Name);
+            pathSegments.AddRange(Parent.TypeDescriptor.Type.Namespace.Split('.'));
+            pathSegments.Add(Parent.TypeDescriptor.Type.Name);
             pathSegments.AddRange(Parent.GetObjectKey().Key.Split(2));
             pathSegments.Add(PropertyName);
             return Path.Combine(pathSegments.ToArray());
