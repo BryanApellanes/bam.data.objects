@@ -7,7 +7,7 @@ using Bam.CoreServices;
 using Bam.Data.Repositories;
 using Bam.Incubation;
 using Bam.Storage;
-using Bam.Testing;
+using Bam.Test;
 using NSubstitute;
 
 namespace Bam.Application.Unit;

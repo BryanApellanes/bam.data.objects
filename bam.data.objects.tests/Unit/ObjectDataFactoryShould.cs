@@ -4,7 +4,7 @@ using Bam.Data.Dynamic.TestClasses;
 using Bam.Data.Objects;
 using Bam.Data.Objects.Tests.Integration;
 using Bam.CoreServices;
-using Bam.Testing;
+using Bam.Test;
 
 namespace Bam.Application.Unit;
 

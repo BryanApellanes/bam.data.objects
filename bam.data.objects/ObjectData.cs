@@ -19,6 +19,14 @@ public class ObjectData : IObjectData
         this.DataTypeTranslator = Bam.Data.DataTypeTranslator.Default;
     }
 
+    public ObjectData(TypeDescriptor typeDescriptor) : base()
+    {
+        this.Data = typeDescriptor.Type.Construct();
+        this.TypeDescriptor = typeDescriptor;
+        this.ObjectEncoder = JsonObjectDataEncoder.Default;
+        this.DataTypeTranslator = Bam.Data.DataTypeTranslator.Default;
+    }
+
     internal ObjectData(object data, IObjectEncoderDecoder encoder)
     {
         this.Data = data;

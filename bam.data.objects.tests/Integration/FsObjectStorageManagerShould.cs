@@ -4,8 +4,8 @@ using Bam.Data.Dynamic.Objects;
 using Bam.Data.Dynamic.TestClasses;
 using Bam.Data.Repositories;
 using Bam.Shell;
-using Bam.Testing;
-using Bam.Testing.Integration;
+using Bam.Test;
+using Bam.Test.Integration;
 
 namespace Bam.Data.Objects.Tests.Integration;
 

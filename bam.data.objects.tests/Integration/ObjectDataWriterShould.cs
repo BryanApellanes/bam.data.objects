@@ -4,7 +4,7 @@ using Bam;
 using Bam.CoreServices;
 using Bam.Data.Repositories;
 using Bam.Storage;
-using Bam.Testing;
+using Bam.Test;
 
 namespace Bam.Data.Objects.Tests.Integration;
 

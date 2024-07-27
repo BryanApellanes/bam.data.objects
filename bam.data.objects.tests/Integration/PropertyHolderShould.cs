@@ -3,7 +3,7 @@ using Bam.Data.Dynamic.Objects;
 using Bam.Data.Dynamic.TestClasses;
 using Bam;
 using Bam.CoreServices;
-using Bam.Testing;
+using Bam.Test;
 
 namespace Bam.Data.Objects.Tests.Integration;
 

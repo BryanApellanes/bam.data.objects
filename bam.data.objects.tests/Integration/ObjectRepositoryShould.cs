@@ -1,5 +1,5 @@
 using Bam.CoreServices;
-using Bam.Testing;
+using Bam.Test;
 
 namespace Bam.Data.Objects.Tests.Integration;
 

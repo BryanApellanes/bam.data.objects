@@ -5,7 +5,7 @@ using Bam.Data.Dynamic.TestClasses;
 using Bam.Data.Objects;
 using Bam.CoreServices;
 using Bam.Storage;
-using Bam.Testing;
+using Bam.Test;
 
 namespace Bam.Application.Unit;
 
