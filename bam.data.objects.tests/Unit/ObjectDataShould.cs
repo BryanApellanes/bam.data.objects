@@ -3,6 +3,7 @@ using Bam.Data.Dynamic.Objects;
 using Bam.Data.Dynamic.TestClasses;
 using Bam.Data.Objects;
 using Bam.CoreServices;
+using Bam.Shell;
 using Bam.Storage;
 using Bam.Test;
 
@@ -15,6 +16,12 @@ public class ObjectDataShould : UnitTestMenuContainer
     {
     }
 
+    [UnitTest]
+    public async Task RecieveArgument(IMenuManager menuManager)
+    {
+        Message.PrintLine("There are {0} menus",menuManager.Menus.Count.ToString());
+    }
+    
     [UnitTest]
     public void HaveType()
     {

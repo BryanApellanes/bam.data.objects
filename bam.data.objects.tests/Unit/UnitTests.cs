@@ -13,6 +13,7 @@ public static class UnitTests
             .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
+            .For<IObjectDataFactory>().Use<ObjectDataFactory>()
             .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
             .For<IObjectDataIdentifierFactory>().Use<ObjectDataIdentifierFactory>()
             .For<IRootStorageHolder>().Use(new RootStorageHolder(rootPath));

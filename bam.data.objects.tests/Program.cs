@@ -1,4 +1,7 @@
-﻿using Bam.Console;
+﻿using Bam.Commandline.Menu;
+using Bam.Console;
+using Bam.CoreServices;
+using Bam.Shell;
 
 namespace Bam.Application
 {
@@ -7,7 +10,16 @@ namespace Bam.Application
     {
         static void Main(string[] args)
         {
-            BamConsoleContext.Main(args);
+            ServiceRegistry serviceRegistry = BamConsoleContext.GetDefaultServiceRegistry();
+            serviceRegistry.For<IMenuItemRunner>().UseSingleton(new ConsoleMenuItemRunner(serviceRegistry, new MenuInputMethodArgumentProvider(new ServiceRegistryTypedArgumentProvider(serviceRegistry))));
+            IMenuOptions options = serviceRegistry.Get<MenuOptions>();
+            options.MenuProvider = serviceRegistry.Get<IMenuProvider>();
+
+            BamConsoleContext.Current = new BamConsoleContext(serviceRegistry)
+            {
+                MenuManager = MenuManager.FromOptions(options)
+            };
+            BamConsoleContext.Current.Main(args);
         }
     }
 }

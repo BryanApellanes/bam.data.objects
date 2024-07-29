@@ -9,15 +9,17 @@ namespace Bam.Data.Objects;
 
 public class ObjectDataWriter : IObjectDataWriter
 {
-    public ObjectDataWriter(IObjectDataFactory objectDataFactory, IObjectDataIdentifierFactory objectDataIdentifierFactory, IObjectDataStorageManager objectDataStorageManager)
+    public ObjectDataWriter(IObjectDataFactory objectDataFactory, IObjectDataStorageManager objectDataStorageManager)
     {
+        Args.ThrowIfNull(objectDataFactory, nameof(objectDataFactory));
+        Args.ThrowIfNull(objectDataStorageManager, nameof(objectDataStorageManager));
         this.ObjectDataFactory = objectDataFactory;
-        this.ObjectDataIdentifierFactory = objectDataIdentifierFactory;
         this.ObjectDataStorageManager = objectDataStorageManager;
     }
     
     public IObjectDataFactory ObjectDataFactory { get; init; }
-    public IObjectDataIdentifierFactory ObjectDataIdentifierFactory { get; init; }
+
+    public IObjectDataIdentifierFactory ObjectDataIdentifierFactory => ObjectDataFactory.ObjectDataIdentifierFactory;
     public IObjectDataStorageManager ObjectDataStorageManager { get; init; }
     
     public Task<IObjectDataWriteResult> WriteAsync(object data)
