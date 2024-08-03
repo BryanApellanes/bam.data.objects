@@ -1,5 +1,4 @@
-﻿using Bam.Commandline.Menu;
-using Bam.Console;
+﻿using Bam.Console;
 using Bam.CoreServices;
 using Bam.Shell;
 
