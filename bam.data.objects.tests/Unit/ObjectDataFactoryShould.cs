@@ -24,9 +24,9 @@ public class ObjectDataFactoryShould : UnitTestMenuContainer
         
         ObjectDataFactory dataFactory = testRegistry.Get<ObjectDataFactory>();
         
-        IObjectData objectData = dataFactory.Wrap(new TestData(true));
+        IObjectData objectData = dataFactory.Wrap(new PlainTestClass(true));
         
-        objectData.ObjectDataIdentifierFactory.ShouldNotBeNull($"{nameof(objectData.ObjectDataIdentifierFactory)} was null");
+        objectData.ObjectDataLocatorFactory.ShouldNotBeNull($"{nameof(objectData.ObjectDataLocatorFactory)} was null");
         IObjectDataKey objectDataKey = objectData.GetObjectKey();
         objectDataKey.ShouldNotBeNull("objectKey was null");
         Message.PrintLine(objectDataKey.ToString());

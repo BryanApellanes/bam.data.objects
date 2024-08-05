@@ -25,9 +25,9 @@ public class FsObjectStorageManagerShould(ServiceRegistry serviceRegistry) : Uni
         FsObjectDataStorageManager fsObjectDataStorageManager = serviceRegistry.Get<FsObjectDataStorageManager>();
 
         IObjectDataFactory objectDataFactory = serviceRegistry.Get<IObjectDataFactory>();
-        IObjectData testObjectData = objectDataFactory.Wrap(new TestData(true));
+        IObjectData testObjectData = objectDataFactory.Wrap(new PlainTestClass(true));
         
-        IProperty? stringProperty = testObjectData.Property(nameof(TestData.StringProperty));
+        IProperty? stringProperty = testObjectData.Property(nameof(PlainTestClass.StringProperty));
         stringProperty?.ShouldNotBeNull();
         string? stringPropertyValue = stringProperty?.Value;
         

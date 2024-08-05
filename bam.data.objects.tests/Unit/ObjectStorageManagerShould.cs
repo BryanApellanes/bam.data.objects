@@ -51,7 +51,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         string root = Path.Combine(Environment.CurrentDirectory, nameof(GetTypeDirectoryForDynamicType));
         DependencyProvider dependencyProvider = ConfigureDependencies(root);
         FsObjectDataStorageManager fsObjectDataStorageManager = dependencyProvider.Get<FsObjectDataStorageManager>();
-        TestData ob = new TestData();
+        PlainTestClass ob = new PlainTestClass();
         
         ITypeStorageHolder typeStorageHolder = fsObjectDataStorageManager.GetObjectStorageHolder(ob.GetType());
         typeStorageHolder.ShouldNotBeNull();
@@ -71,14 +71,14 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         ObjectDataFactory dataFactory = serviceRegistry.Get<ObjectDataFactory>();
         string propertyName = "StringProperty";
         
-        TestData testData = new TestData
+        PlainTestClass plainTestClass = new PlainTestClass
         {
             IntProperty = RandomNumber.Between(1, 100),
             StringProperty = 64.RandomLetters(),
             LongProperty = RandomNumber.Between(100, 1000),
             DateTimeProperty = DateTime.Now
         };
-        IObjectData objectData = dataFactory.Wrap(new ObjectData(testData));
+        IObjectData objectData = dataFactory.Wrap(new ObjectData(plainTestClass));
         IObjectDataKey dataKey = objectData.GetObjectKey();
         List<string> parts = new List<string>();
         parts.Add(dataKey.ToString());
@@ -105,14 +105,14 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         ObjectDataFactory dataFactory = serviceRegistry.Get<ObjectDataFactory>();
         string propertyName = "StringProperty";
         
-        TestData testData = new TestData
+        PlainTestClass plainTestClass = new PlainTestClass
         {
             IntProperty = RandomNumber.Between(1, 100),
             StringProperty = 64.RandomLetters(),
             LongProperty = RandomNumber.Between(100, 1000),
             DateTimeProperty = DateTime.Now
         };
-        IObjectData objectData = dataFactory.Wrap(new ObjectData(testData));
+        IObjectData objectData = dataFactory.Wrap(new ObjectData(plainTestClass));
 
         IPropertyStorageVersionSlot propertyStorageVersionSlot = fsObjectDataStorageManager.GetNextPropertyStorageVersionSlot(objectData.Property(propertyName));
         
@@ -131,14 +131,14 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         ObjectDataFactory dataFactory = serviceRegistry.Get<ObjectDataFactory>();
         string propertyName = "StringProperty";
 
-        TestData testData = new TestData
+        PlainTestClass plainTestClass = new PlainTestClass
         {
             IntProperty = RandomNumber.Between(1, 100),
             StringProperty = 64.RandomLetters(),
             LongProperty = RandomNumber.Between(100, 1000),
             DateTimeProperty = DateTime.Now
         };
-        IObjectData objectData = dataFactory.Wrap(new ObjectData(testData));
+        IObjectData objectData = dataFactory.Wrap(new ObjectData(plainTestClass));
         IProperty property = objectData.Property(propertyName);
 
         IPropertyStorageVersionSlot propertyStorageVersionSlot =
@@ -164,14 +164,14 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         ObjectDataFactory dataFactory = serviceRegistry.Get<ObjectDataFactory>();
         string propertyName = "StringProperty";
 
-        TestData testData = new TestData
+        PlainTestClass plainTestClass = new PlainTestClass
         {
             IntProperty = RandomNumber.Between(1, 100),
             StringProperty = 64.RandomLetters(),
             LongProperty = RandomNumber.Between(100, 1000),
             DateTimeProperty = DateTime.Now
         };
-        IObjectData objectData = dataFactory.Wrap(new ObjectData(testData));
+        IObjectData objectData = dataFactory.Wrap(new ObjectData(plainTestClass));
         IProperty property = objectData.Property(propertyName);
 
         IPropertyStorageVersionSlot propertyStorageVersionSlot =

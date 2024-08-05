@@ -3,13 +3,13 @@ using Bam;
 
 namespace Bam.Data.Dynamic.TestClasses;
 
-public class TestData
+public class PlainTestClass
 {
-    public TestData()
+    public PlainTestClass()
     {
     }
 
-    public TestData(bool init)
+    public PlainTestClass(bool init)
     {
         if (init)
         {

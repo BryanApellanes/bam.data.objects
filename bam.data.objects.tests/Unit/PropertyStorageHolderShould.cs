@@ -27,14 +27,14 @@ public class PropertyStorageHolderShould: UnitTestMenuContainer
         ObjectDataFactory dataFactory = serviceRegistry.Get<ObjectDataFactory>();
         string propertyName = "StringProperty";
         
-        TestData testData = new TestData
+        PlainTestClass plainTestClass = new PlainTestClass
         {
             IntProperty = RandomNumber.Between(1, 100),
             StringProperty = 64.RandomLetters(),
             LongProperty = RandomNumber.Between(100, 1000),
             DateTimeProperty = DateTime.Now
         };
-        IObjectData objectData = dataFactory.Wrap(new ObjectData(testData));
+        IObjectData objectData = dataFactory.Wrap(new ObjectData(plainTestClass));
         PropertyStorageHolder propertyStorageHolder =
             new PropertyStorageHolder(testDataPath);
 
@@ -49,20 +49,20 @@ public class PropertyStorageHolderShould: UnitTestMenuContainer
         string root = Path.Combine(Environment.CurrentDirectory, nameof(GetVersionHolders));
         ServiceRegistry serviceRegistry = Configure(ConfigureDependencies(root))
             .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>()
-            .For<IObjectDataIdentifierFactory>().Use<ObjectDataIdentifierFactory>();
+            .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>();
 
         FsObjectDataStorageManager fsObjectDataStorageManager = serviceRegistry.Get<FsObjectDataStorageManager>();
         ObjectDataFactory dataFactory = serviceRegistry.Get<ObjectDataFactory>();
         string propertyName = "StringProperty";
         
-        TestData testData = new TestData
+        PlainTestClass plainTestClass = new PlainTestClass
         {
             IntProperty = RandomNumber.Between(1, 100),
             StringProperty = 64.RandomLetters(),
             LongProperty = RandomNumber.Between(100, 1000),
             DateTimeProperty = DateTime.Now
         };
-        IObjectData objectData = dataFactory.Wrap(new ObjectData(testData));
+        IObjectData objectData = dataFactory.Wrap(new ObjectData(plainTestClass));
 
         IPropertyStorageHolder propertyStorageHolder = fsObjectDataStorageManager.GetPropertyStorageHolder(objectData.Property(propertyName).ToDescriptor());
         

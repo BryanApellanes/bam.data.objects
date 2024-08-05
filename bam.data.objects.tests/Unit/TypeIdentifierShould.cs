@@ -15,7 +15,7 @@ public class TypeIdentifierShould : UnitTestMenuContainer
     [UnitTest]
     public void GetType()
     {
-        Type type = typeof(TestData);
+        Type type = typeof(PlainTestClass);
         string typeName = type.AssemblyQualifiedName;
         TypeDescriptor descriptor = new TypeDescriptor(typeName);
         descriptor.Type.ShouldNotBeNull("Type was null");
@@ -26,7 +26,7 @@ public class TypeIdentifierShould : UnitTestMenuContainer
     [UnitTest]
     public void HaveTypeName()
     {
-        TypeDescriptor descriptor = new TypeDescriptor(typeof(TestData));
+        TypeDescriptor descriptor = new TypeDescriptor(typeof(PlainTestClass));
         descriptor.AssemblyQualifiedTypeName.ShouldNotBeNull("AssemblyQualifiedTypeName was null");
     }
 }

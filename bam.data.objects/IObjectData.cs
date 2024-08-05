@@ -12,7 +12,7 @@ public interface IObjectData : IJsonable
     [YamlIgnore]
     object Data { get; set; }
     TypeDescriptor TypeDescriptor { get; }
-    IObjectDataIdentifierFactory ObjectDataIdentifierFactory { get; set; }
+    IObjectDataLocatorFactory ObjectDataLocatorFactory { get; set; }
     IProperty? Property(string propertyName);
     IObjectData? Property(string propertyName, object value);
     IEnumerable<IProperty> Properties { get; }

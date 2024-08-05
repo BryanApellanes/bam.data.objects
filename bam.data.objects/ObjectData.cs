@@ -37,25 +37,25 @@ public class ObjectData : IObjectData
     
     [JsonIgnore]
     [YamlIgnore]
-    public virtual object Data
-    {
-        get;
-        set;
-    }
-    
-    protected IObjectEncoderDecoder ObjectEncoder
+    public object Data
     {
         get;
         set;
     }
 
-    protected IDataTypeTranslator DataTypeTranslator
+    private IObjectEncoderDecoder ObjectEncoder
+    {
+        get;
+        set;
+    }
+
+    private IDataTypeTranslator DataTypeTranslator
     {
         get;
         set;
     }
     
-    public IObjectDataIdentifierFactory ObjectDataIdentifierFactory { get; set; }
+    public IObjectDataLocatorFactory ObjectDataLocatorFactory { get; set; }
 
     public TypeDescriptor TypeDescriptor
     {
@@ -128,14 +128,14 @@ public class ObjectData : IObjectData
     
     public IObjectDataKey GetObjectKey()
     {
-        Args.ThrowIfNull(this.ObjectDataIdentifierFactory, nameof(ObjectDataIdentifierFactory));
-        return this.ObjectDataIdentifierFactory.GetObjectKey(this);
+        Args.ThrowIfNull(this.ObjectDataLocatorFactory, nameof(ObjectDataLocatorFactory));
+        return this.ObjectDataLocatorFactory.GetObjectKey(this);
     }
 
     public IObjectDataIdentifier GetObjectIdentifier()
     {
-        Args.ThrowIfNull(this.ObjectDataIdentifierFactory, nameof(ObjectDataIdentifierFactory));
-        return this.ObjectDataIdentifierFactory.GetObjectIdentifier(this);
+        Args.ThrowIfNull(this.ObjectDataLocatorFactory, nameof(ObjectDataLocatorFactory));
+        return this.ObjectDataLocatorFactory.GetObjectIdentifier(this);
     }
 
     private IEnumerable<IProperty> GetObjectProperties()

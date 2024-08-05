@@ -21,7 +21,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
     private IObjectDataFactory ObjectDataFactory { get; }
     private IObjectEncoderDecoder ObjectEncoderDecoder => ObjectDataFactory.ObjectEncoderDecoder;
 
-    private IObjectDataIdentifierFactory ObjectDataIdentifierFactory => ObjectDataFactory.ObjectDataIdentifierFactory;
+    private IObjectDataLocatorFactory ObjectDataLocatorFactory => ObjectDataFactory.ObjectDataLocatorFactory;
 
     public event EventHandler<ObjectDataStorageEventArgs>? PropertyWriteStarted;
     public event EventHandler<ObjectDataStorageEventArgs>? PropertyWriteComplete;

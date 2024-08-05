@@ -13,7 +13,7 @@ public class PropertyShould
     [UnitTest]
     public void ConvertDataToObjectPropertyList()
     {
-        TestData data = new TestData
+        PlainTestClass @class = new PlainTestClass
         {
             IntProperty = RandomNumber.Between(1, 100),
             StringProperty = 10.RandomLetters(),
@@ -21,7 +21,7 @@ public class PropertyShould
             DateTimeProperty = DateTime.Now
         };
 
-        IEnumerable<IProperty> properties = data.ToObjectProperties();
+        IEnumerable<IProperty> properties = @class.ToObjectProperties();
         properties.Count().ShouldEqual(4);
         Message.PrintLine(properties.ToJson(true));
     }
@@ -29,7 +29,7 @@ public class PropertyShould
     [UnitTest]
     public void ConvertObjectPropertyListToData()
     {
-        TestData data = new TestData
+        PlainTestClass @class = new PlainTestClass
         {
             IntProperty = RandomNumber.Between(1, 100),
             StringProperty = 10.RandomLetters(),
@@ -37,10 +37,10 @@ public class PropertyShould
             DateTimeProperty = DateTime.Now
         };
 
-        IEnumerable<IProperty> properties = data.ToObjectProperties();
-        TestData recovered = properties.FromObjectProperties<TestData>();
+        IEnumerable<IProperty> properties = @class.ToObjectProperties();
+        PlainTestClass recovered = properties.FromObjectProperties<PlainTestClass>();
 
-        string originalJson = data.ToJson();
+        string originalJson = @class.ToJson();
         string recoveredJson = recovered.ToJson();
         recoveredJson.ShouldEqual(originalJson);
     }
@@ -48,9 +48,9 @@ public class PropertyShould
     [UnitTest]
     public void Decode()
     {
-        PropertyInfo prop = typeof(TestData).GetProperty("StringProperty");
+        PropertyInfo prop = typeof(PlainTestClass).GetProperty("StringProperty");
         string expected = 16.RandomLetters();
-        ObjectData data = new ObjectData(new TestData { StringProperty = expected });
+        ObjectData data = new ObjectData(new PlainTestClass { StringProperty = expected });
         Property property = new Property(data, prop.Name, expected);
         object actual = property.Decode();
         actual.ShouldEqual(expected);
@@ -60,19 +60,19 @@ public class PropertyShould
     public void SetProperty()
     {
         string expected = 32.RandomLetters();
-        ObjectData data = new ObjectData(new TestData { StringProperty = expected });
+        ObjectData data = new ObjectData(new PlainTestClass { StringProperty = expected });
         Property prop = new Property(data, "StringProperty", expected);
 
-        TestData testData = new TestData();
-        testData.StringProperty.ShouldBeNull();
-        prop.SetValue(testData);
-        testData.StringProperty.ShouldEqual(expected);
+        PlainTestClass plainTestClass = new PlainTestClass();
+        plainTestClass.StringProperty.ShouldBeNull();
+        prop.SetValue(plainTestClass);
+        plainTestClass.StringProperty.ShouldEqual(expected);
     }
 
     [UnitTest]
     public void HaveParent()
     {
-        ObjectData data = new ObjectData(new TestData { StringProperty = 16.RandomLetters() });
+        ObjectData data = new ObjectData(new PlainTestClass { StringProperty = 16.RandomLetters() });
         IProperty property = data.Property("StringProperty");
         property.ShouldNotBeNull();
         property.Parent.ShouldNotBeNull();

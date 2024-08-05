@@ -11,5 +11,5 @@ public class ObjectDataIdentifier : IObjectDataIdentifier
         return objectDataStorageManager.GetObjectStorageHolder(this.TypeDescriptor);
     }
 
-    public string Id { get; set; }
+    public string? Id { get; set; }
 }

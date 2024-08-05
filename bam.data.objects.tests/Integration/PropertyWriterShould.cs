@@ -26,7 +26,7 @@ public class PropertyWriterShould: UnitTestMenuContainer
             .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
         
         IObjectDataFactory dataFactory = testContainer.Get<ObjectDataFactory>();
-        IObjectData testData = dataFactory.Wrap(new TestData(true));
+        IObjectData testData = dataFactory.Wrap(new PlainTestClass(true));
         IObjectDataKey objectDataKey = testData.GetObjectKey();
         IObjectDataStorageManager objectDataStorageManager = testContainer.Get<FsObjectDataStorageManager>();
         

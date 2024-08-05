@@ -1,3 +1,4 @@
+using Amazon.SecurityToken.Model.Internal.MarshallTransformations;
 using Bam;
 using Bam.Storage;
 
@@ -12,9 +13,8 @@ public class ObjectDataKey : IObjectDataKey
     {
         return objectDataStorageManager.GetObjectStorageHolder(TypeDescriptor);
     }
-    public string Id { get; internal set; }
     
-    public string Key { get; internal set; }
+    public string? Key { get; init; }
 
     public override string ToString()
     {
@@ -32,10 +32,6 @@ public class ObjectDataKey : IObjectDataKey
         {
             parts.AddRange(this.Key.Split(2));
         }
-        else if (!string.IsNullOrEmpty(this.Id))
-        {
-            parts.AddRange(this.Id.Split(2));
-        }
 
         return Path.Combine(parts.ToArray());
     }
@@ -47,5 +43,29 @@ public class ObjectDataKey : IObjectDataKey
             ObjectDataKey = this,
             PropertyName = propertyName
         };
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is ObjectDataKey key)
+        {
+            return Object.Equals(Key, key.Key);
+        }
+
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        unchecked // Overflow is fine, just wrap
+        {
+            int hash = 17;
+
+            if (!string.IsNullOrEmpty(Key))
+            {
+                hash = hash * 23 + Key.GetHashCode();
+            }
+            return hash;
+        }
     }
 }

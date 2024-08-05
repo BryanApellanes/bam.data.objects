@@ -1,8 +1,9 @@
 namespace Bam.Data.Objects;
 
-public interface IObjectDataKey: IObjectDataIdentifier
+public interface IObjectDataKey
 {
-    string Key { get; }
+    TypeDescriptor TypeDescriptor { get; }
+    string? Key { get; }
     string GetPath(IObjectDataStorageManager? objectDataStorageManager);
 
     IPropertyDescriptor Property(string propertyName);

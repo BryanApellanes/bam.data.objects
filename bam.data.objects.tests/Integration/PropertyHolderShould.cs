@@ -26,7 +26,7 @@ public class PropertyHolderShould: UnitTestMenuContainer
         
         PropertyStorageHolder storageHolder = testRegistry.Get<PropertyStorageHolder>(new string[] {rootPath});
         
-        IObjectData objectData = dataFactory.Wrap(new TestData
+        IObjectData objectData = dataFactory.Wrap(new PlainTestClass
         {
             StringProperty = $"StringProperty-SaveObjectPropertyTest"
         });
@@ -34,7 +34,7 @@ public class PropertyHolderShould: UnitTestMenuContainer
         IObjectDataKey dataKey = objectData.GetObjectKey();
         
         List<string> pathSegments = new List<string> { rootPath, "objects" };
-        pathSegments.AddRange(typeof(TestData).Namespace.Split('.'));
+        pathSegments.AddRange(typeof(PlainTestClass).Namespace.Split('.'));
         pathSegments.AddRange(dataKey.Key.Split(2));
         pathSegments.Add("StringProperty");
         pathSegments.Add("1");
@@ -56,7 +56,7 @@ public class PropertyHolderShould: UnitTestMenuContainer
         ServiceRegistry testRegistry =
             IntegrationTests.ConfigureDependencies(Path.Combine(Environment.CurrentDirectory, nameof(SaveObjectProperty)));
         FsObjectDataStorageManager dataStorageManager = testRegistry.Get<FsObjectDataStorageManager>();
-        IObjectData objectData = new ObjectData(new TestData
+        IObjectData objectData = new ObjectData(new PlainTestClass
         {
             StringProperty = $"StringProperty-SaveObjectPropertyTest"
         });

@@ -15,7 +15,7 @@ public static class UnitTests
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
             .For<IObjectDataFactory>().Use<ObjectDataFactory>()
             .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
-            .For<IObjectDataIdentifierFactory>().Use<ObjectDataIdentifierFactory>()
+            .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()
             .For<IRootStorageHolder>().Use(new RootStorageHolder(rootPath));
         
     }

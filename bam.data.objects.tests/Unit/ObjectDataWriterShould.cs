@@ -20,19 +20,19 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
     [UnitTest]
     public async Task CallObjectIdentifierGetObjectKey()
     {
-        IObjectDataIdentifierFactory mockObjectDataIdentifierFactory = Substitute.For<IObjectDataIdentifierFactory>();
+        IObjectDataLocatorFactory mockObjectDataLocatorFactory = Substitute.For<IObjectDataLocatorFactory>();
         IObjectDataStorageManager mockDataStorageManager = Substitute.For<IObjectDataStorageManager>();
         
         ServiceRegistry testContainer = new ServiceRegistry()
             .For<IObjectDataStorageManager>().Use(mockDataStorageManager)
-            .For<IObjectDataIdentifierFactory>().Use(mockObjectDataIdentifierFactory);
+            .For<IObjectDataLocatorFactory>().Use(mockObjectDataLocatorFactory);
 
         ObjectDataWriter objectDataWriter = testContainer.Get<ObjectDataWriter>();
 
-        TestData testData = new TestData();
-        ObjectData objectData = new ObjectData(testData);
+        PlainTestClass plainTestClass = new PlainTestClass();
+        ObjectData objectData = new ObjectData(plainTestClass);
         await objectDataWriter.WriteAsync(objectData);
-        mockObjectDataIdentifierFactory.Received().GetObjectKey(objectData);
+        mockObjectDataLocatorFactory.Received().GetObjectKey(objectData);
     }
 
     [UnitTest]
@@ -48,8 +48,8 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         IObjectDataKey mockDataKey = Substitute.For<IObjectDataKey>();
         string testKey = 32.RandomLetters().HashHexString(HashAlgorithms.SHA256);
         mockDataKey.Key.Returns(testKey);
-        mockDataKey.TypeDescriptor.Returns(new TypeDescriptor(typeof(TestData)));
-        mockDataKey.Id.Returns(testKey);
+        mockDataKey.TypeDescriptor.Returns(new TypeDescriptor(typeof(PlainTestClass)));
+        //mockDataKey.Id.Returns(testKey);
         
         IObjectDataFactory mockDataFactory = Substitute.For<IObjectDataFactory>();
         mockDataFactory.GetObjectKey(Arg.Any<IObjectData>()).Returns(mockDataKey);
@@ -67,16 +67,16 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         
         ObjectDataWriter objectDataWriter = testContainer.Get<ObjectDataWriter>();
 
-        TestData testData = new TestData();
-        ObjectData objectData = new ObjectData(testData);
+        PlainTestClass plainTestClass = new PlainTestClass();
+        ObjectData objectData = new ObjectData(plainTestClass);
         IObjectDataWriteResult result = await objectDataWriter.WriteAsync(objectData);
         result.ObjectData.ShouldNotBeNull("result.Data was null");
         result.ObjectData.ShouldBe(objectData);
         
         List<string> parts = new List<string> { root };
         parts.Add("objects");
-        parts.AddRange(typeof(TestData).Namespace.Split('.'));
-        parts.Add(nameof(TestData));
+        parts.AddRange(typeof(PlainTestClass).Namespace.Split('.'));
+        parts.Add(nameof(PlainTestClass));
         parts.AddRange(testKey.ToString().Split(2));
         parts.Add("key");
         
@@ -96,11 +96,11 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
             .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
-            .For<IObjectDataIdentifierFactory>().Use<ObjectDataIdentifierFactory>()
+            .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()
             .For<IObjectDataStorageManager>().Use(mockDataStorageManager);
 
         ObjectDataWriter objectDataWriter = testRegistry.Get<ObjectDataWriter>();
-        await objectDataWriter.WriteAsync(new ObjectData(new TestData()));
+        await objectDataWriter.WriteAsync(new ObjectData(new PlainTestClass()));
         mockDataStorageManager.Received().GetRootStorageHolder();
     }
     
@@ -110,7 +110,7 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
             .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
-            .For<IObjectDataIdentifierFactory>().Use<ObjectDataIdentifierFactory>()
+            .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()
             .For<IRootStorageHolder>().Use( new RootStorageHolder(rootPath))
             .For<IStorageIdentifier>().Use(new FsStorageHolder(rootPath));
 

@@ -26,18 +26,18 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
             .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
-            .For<IObjectDataIdentifierFactory>().Use<ObjectDataIdentifierFactory>()
+            .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()
             .For<IObjectDataFactory>().Use<ObjectDataFactory>();
         
         ObjectDataWriter objectDataWriter = testContainer.Get<ObjectDataWriter>();
         
-        TestData testData = new TestData(true);
+        PlainTestClass plainTestClass = new PlainTestClass(true);
 
-        IObjectDataWriteResult result = await objectDataWriter.WriteAsync(testData);
+        IObjectDataWriteResult result = await objectDataWriter.WriteAsync(plainTestClass);
         result.ShouldNotBeNull();
         result.Success.ShouldBeTrue(result.Message);
         result.ObjectData.ShouldNotBeNull("result.Data was null");
-        result.ObjectData.Data.ShouldBe(testData);
+        result.ObjectData.Data.ShouldBe(plainTestClass);
         result.ObjectDataKey.ShouldNotBeNull("result.ObjectKey was null");
         result.KeySlot.ShouldNotBeNull("result.KeySlot was null");
         
@@ -64,14 +64,14 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
             .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
-            .For<IObjectDataIdentifierFactory>().Use<ObjectDataIdentifierFactory>()
+            .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()
             .For<IObjectDataFactory>().Use<ObjectDataFactory>();
         
         ObjectDataWriter objectDataWriter = testContainer.Get<ObjectDataWriter>();
         IObjectDataStorageManager dataStorageManager = testContainer.Get<IObjectDataStorageManager>();
-        TestData testData = new TestData(true);
+        PlainTestClass plainTestClass = new PlainTestClass(true);
 
-        IObjectDataWriteResult result = await objectDataWriter.WriteAsync(testData);
+        IObjectDataWriteResult result = await objectDataWriter.WriteAsync(plainTestClass);
         // validate against newly documented implementation
         result.PropertyWriteResults.Count.ShouldEqual(4);
         foreach (string key in result.PropertyWriteResults.Keys)

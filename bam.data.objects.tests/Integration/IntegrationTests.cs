@@ -13,7 +13,7 @@ public static class IntegrationTests
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
             .For<IObjectEncoderDecoder>().Use<JsonObjectDataEncoder>()
             .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
-            .For<IObjectDataIdentifierFactory>().Use<ObjectDataIdentifierFactory>()
+            .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()
             .For<IObjectDataFactory>().Use<ObjectDataFactory>()
             .For<IRootStorageHolder>().Use( new RootStorageHolder(rootPath))
             .For<IObjectDataReader>().Use<ObjectDataReader>()

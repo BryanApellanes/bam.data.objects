@@ -4,7 +4,7 @@ namespace Bam.Data.Objects;
 
 public interface IObjectDataFactory
 {
-    IObjectDataIdentifierFactory ObjectDataIdentifierFactory { get; }
+    IObjectDataLocatorFactory ObjectDataLocatorFactory { get; }
     IObjectEncoderDecoder ObjectEncoderDecoder { get; }
     
     IObjectData Wrap(object data);

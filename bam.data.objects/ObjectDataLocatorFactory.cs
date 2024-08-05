@@ -3,22 +3,30 @@ using Bam.Storage;
 
 namespace Bam.Data.Dynamic.Objects;
 
-public class ObjectDataIdentifierFactory : IObjectDataIdentifierFactory
+public class ObjectDataLocatorFactory : IObjectDataLocatorFactory
 {
-    public ObjectDataIdentifierFactory(IObjectDataIdentityCalculator objectDataIdentityCalculator)
+    public ObjectDataLocatorFactory(IObjectDataIdentityCalculator objectDataIdentityCalculator)
     {
         this.ObjectDataIdentityCalculator = objectDataIdentityCalculator;
     }
     private IObjectDataIdentityCalculator ObjectDataIdentityCalculator { get; init; }
+
+    public IObjectDataLocator GetObjectDataLocator(IObjectDataStorageManager storageManager, IObjectData data)
+    {
+        return new ObjectDataLocator()
+        {
+            StorageIdentifier = storageManager.GetObjectStorageHolder(data.TypeDescriptor),
+            ObjectDataKey = GetObjectKey(data),
+            ObjectDataIdentifier = GetObjectIdentifier(data)
+        };
+    }
 
     public IObjectDataKey GetObjectKey(IObjectData data)
     {
         return new ObjectDataKey()
         {
             TypeDescriptor = data.TypeDescriptor,
-            //StorageIdentifier = objectDataStorageManager.GetObjectStorageHolder(data.Type),
             Key = ObjectDataIdentityCalculator.CalculateHashHexKey(data),
-            Id = ObjectDataIdentityCalculator.CalculateHashHex(data)
         };
     }
 
@@ -27,7 +35,6 @@ public class ObjectDataIdentifierFactory : IObjectDataIdentifierFactory
         return new ObjectDataIdentifier()
         {
             TypeDescriptor = data.TypeDescriptor,
-            //StorageIdentifier = objectDataStorageManager.GetObjectStorageHolder(data.Type),
             Id = ObjectDataIdentityCalculator.CalculateHashHex(data)
         };
     }

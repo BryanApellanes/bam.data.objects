@@ -6,5 +6,5 @@ public interface IObjectDataIdentifier
 {
     TypeDescriptor TypeDescriptor { get; }
     IStorageIdentifier GetStorageIdentifier(IObjectDataStorageManager objectDataStorageManager);
-    string Id { get; }
+    string? Id { get; }
 }

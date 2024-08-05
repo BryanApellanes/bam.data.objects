@@ -5,45 +5,45 @@ namespace Bam.Data.Objects;
 
 public class ObjectDataFactory : IObjectDataFactory
 {
-    public ObjectDataFactory(IObjectDataIdentifierFactory objectDataIdentifierFactory, IObjectEncoderDecoder encoderDecoder)
+    public ObjectDataFactory(IObjectDataLocatorFactory objectDataLocatorFactory, IObjectEncoderDecoder encoderDecoder)
     {
-        this.ObjectDataIdentifierFactory = objectDataIdentifierFactory;
+        this.ObjectDataLocatorFactory = objectDataLocatorFactory;
         this.ObjectEncoderDecoder = encoderDecoder;
     }
     
-    public IObjectDataIdentifierFactory ObjectDataIdentifierFactory { get; init; }
+    public IObjectDataLocatorFactory ObjectDataLocatorFactory { get; init; }
     public  IObjectEncoderDecoder ObjectEncoderDecoder { get; init; }
 
     public IObjectData Wrap(object data)
     {
         if (data is ObjectData objectData)
         {
-            objectData.ObjectDataIdentifierFactory ??= this.ObjectDataIdentifierFactory;
+            objectData.ObjectDataLocatorFactory ??= this.ObjectDataLocatorFactory;
             return objectData;
         }
 
         if (data is IObjectData iObjectData)
         {
-            iObjectData.ObjectDataIdentifierFactory ??= this.ObjectDataIdentifierFactory;
+            iObjectData.ObjectDataLocatorFactory ??= this.ObjectDataLocatorFactory;
             return iObjectData;
         }
 
-        return new ObjectData(data, ObjectEncoderDecoder){ObjectDataIdentifierFactory = this.ObjectDataIdentifierFactory};
+        return new ObjectData(data, ObjectEncoderDecoder){ObjectDataLocatorFactory = this.ObjectDataLocatorFactory};
     }
 
     public IObjectDataKey GetObjectKey(IObjectData data)
     {
-        return ObjectDataIdentifierFactory.GetObjectKey(data);
+        return ObjectDataLocatorFactory.GetObjectKey(data);
     }
 
     public IObjectDataIdentifier GetObjectIdentifier(IObjectData data)
     {
-        return ObjectDataIdentifierFactory.GetObjectIdentifier(data);
+        return ObjectDataLocatorFactory.GetObjectIdentifier(data);
     }
 
     public IProperty PropertyFromRawData(IObjectData parent, IPropertyDescriptor propertyDescriptor, IRawData rawData)
     {
-        parent.ObjectDataIdentifierFactory = parent.ObjectDataIdentifierFactory ?? ObjectDataIdentifierFactory;
+        parent.ObjectDataLocatorFactory = parent.ObjectDataLocatorFactory ?? ObjectDataLocatorFactory;
         return Property.FromRawData(parent, this.ObjectEncoderDecoder, propertyDescriptor, rawData);
     }
 }

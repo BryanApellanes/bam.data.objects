@@ -25,7 +25,7 @@ public class ObjectDataShould : UnitTestMenuContainer
     [UnitTest]
     public void HaveType()
     {
-        TestData testData = new TestData
+        PlainTestClass plainTestClass = new PlainTestClass
         {
             IntProperty = RandomNumber.Between(1, 100),
             StringProperty = 16.RandomLetters(),
@@ -33,11 +33,11 @@ public class ObjectDataShould : UnitTestMenuContainer
             DateTimeProperty = DateTime.Now
         };
 
-        ObjectData data = new ObjectData(testData);
+        ObjectData data = new ObjectData(plainTestClass);
         
         data.TypeDescriptor.ShouldNotBeNull("Type was null");
         data.TypeDescriptor.Type.ShouldNotBeNull("TypeIdentifier.Type was null");
-        data.TypeDescriptor.Type.ShouldBe(typeof(TestData));
+        data.TypeDescriptor.Type.ShouldBe(typeof(PlainTestClass));
         data.TypeDescriptor.AssemblyQualifiedTypeName.ShouldNotBeNull("TypeIdentifier.AssemblyQualifiedTypeName was null");
     }
 
@@ -50,7 +50,7 @@ public class ObjectDataShould : UnitTestMenuContainer
     [UnitTest]
     public void HaveProperties()
     {
-        TestData testData = new TestData
+        PlainTestClass plainTestClass = new PlainTestClass
         {
             IntProperty = RandomNumber.Between(1, 100),
             StringProperty = 16.RandomLetters(),
@@ -58,7 +58,7 @@ public class ObjectDataShould : UnitTestMenuContainer
             DateTimeProperty = DateTime.Now
         };
 
-        ObjectData data = new ObjectData(testData);
+        ObjectData data = new ObjectData(plainTestClass);
         
         data.Properties.ShouldNotBeNull("data.Properties was null");
         int propCount = data.Properties.Count();
@@ -68,7 +68,7 @@ public class ObjectDataShould : UnitTestMenuContainer
     [UnitTest]
     public void OutputSameJson()
     {
-        TestData testData = new TestData
+        PlainTestClass plainTestClass = new PlainTestClass
         {
             IntProperty = RandomNumber.Between(1, 100),
             StringProperty = 16.RandomLetters(),
@@ -76,9 +76,9 @@ public class ObjectDataShould : UnitTestMenuContainer
             DateTimeProperty = DateTime.Now
         };
 
-        ObjectData testObjectData = new ObjectData(testData);
+        ObjectData testObjectData = new ObjectData(plainTestClass);
 
-        string expected = testData.ToJson();
+        string expected = plainTestClass.ToJson();
         string actual = testObjectData.ToJson();
         
         expected.ShouldEqual(actual);
@@ -89,7 +89,7 @@ public class ObjectDataShould : UnitTestMenuContainer
     public void GetIntPropertyValue()
     {
         int expected = RandomNumber.Between(100, 1000);
-        TestData testData = new TestData
+        PlainTestClass plainTestClass = new PlainTestClass
         {
             IntProperty = expected,
             StringProperty = 8.RandomLetters(),
@@ -97,7 +97,7 @@ public class ObjectDataShould : UnitTestMenuContainer
             DateTimeProperty = DateTime.Now
         };
 
-        ObjectData testObjectData = new ObjectData(testData);
+        ObjectData testObjectData = new ObjectData(plainTestClass);
         IProperty property = testObjectData.Property("IntProperty");
         object decoded = property.Decode();
         // convert to long because the decoded value of a number 
@@ -109,7 +109,7 @@ public class ObjectDataShould : UnitTestMenuContainer
     public void GetStringPropertyValue()
     {
         string expected = 32.RandomLetters();
-        TestData testData = new TestData
+        PlainTestClass plainTestClass = new PlainTestClass
         {
             IntProperty = RandomNumber.Between(1, 100),
             StringProperty = expected,
@@ -117,7 +117,7 @@ public class ObjectDataShould : UnitTestMenuContainer
             DateTimeProperty = DateTime.Now
         };
 
-        ObjectData testObjectData = new ObjectData(testData);
+        ObjectData testObjectData = new ObjectData(plainTestClass);
         IProperty property = testObjectData.Property("StringProperty");
         property.Decode().ShouldEqual(expected);
     }
@@ -126,7 +126,7 @@ public class ObjectDataShould : UnitTestMenuContainer
     public void SetPropertyValue()
     {
         string expected = 32.RandomLetters();
-        TestData testData = new TestData
+        PlainTestClass plainTestClass = new PlainTestClass
         {
             IntProperty = RandomNumber.Between(1, 100),
             StringProperty = 6.RandomLetters(),
@@ -134,7 +134,7 @@ public class ObjectDataShould : UnitTestMenuContainer
             DateTimeProperty = DateTime.Now
         };
 
-        ObjectData testObjectData = new ObjectData(testData);
+        ObjectData testObjectData = new ObjectData(plainTestClass);
         IProperty getProperty = testObjectData.Property("StringProperty");
         getProperty.Decode().ShouldNotEqual(expected);
         IObjectData setData = testObjectData.Property("StringProperty", expected);

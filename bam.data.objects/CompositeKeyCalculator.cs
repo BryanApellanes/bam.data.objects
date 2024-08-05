@@ -22,7 +22,7 @@ public class CompositeKeyCalculator: IKeyCalculator
             return string.Empty.ToHashULong(this.HashAlgorithm, this.Encoding);
         }
 
-        Dictionary<string, string> jsonify = GetJsonDictionary(instance);
+        SortedDictionary<string, string> jsonify = GetJsonDictionary(instance);
 
         return jsonify.ToJson().ToHashULong(this.HashAlgorithm, this.Encoding);
     }
@@ -34,7 +34,7 @@ public class CompositeKeyCalculator: IKeyCalculator
             return string.Empty.ToHashULong(this.HashAlgorithm, this.Encoding);
         }
         
-        Dictionary<string, string> jsonify = GetJsonDictionary(objectData);
+        SortedDictionary<string, string> jsonify = GetJsonDictionary(objectData);
 
         return jsonify.ToJson().ToHashULong(this.HashAlgorithm, this.Encoding);
     }
@@ -46,7 +46,7 @@ public class CompositeKeyCalculator: IKeyCalculator
             return string.Empty.HashHexString(this.HashAlgorithm, this.Encoding);
         }
 
-        Dictionary<string, string> jsonify = GetJsonDictionary(instance);
+        SortedDictionary<string, string> jsonify = GetJsonDictionary(instance);
 
         return jsonify.ToJson().HashHexString(this.HashAlgorithm, this.Encoding);
     }
@@ -58,20 +58,25 @@ public class CompositeKeyCalculator: IKeyCalculator
             return string.Empty.HashHexString(this.HashAlgorithm, this.Encoding);
         }
         
-        Dictionary<string, string> jsonify = GetJsonDictionary(objectData);
+        SortedDictionary<string, string> jsonify = GetJsonDictionary(objectData);
 
+        return CalculatHashHexKey(jsonify);
+    }
+
+    private string CalculatHashHexKey(SortedDictionary<string, string> jsonify)
+    {
         return jsonify.ToJson().HashHexString(this.HashAlgorithm, this.Encoding);
     }
-    
-    private Dictionary<string, string> GetJsonDictionary(IObjectData objectData)
+
+    private SortedDictionary<string, string> GetJsonDictionary(IObjectData objectData)
     {
         return GetJsonDictionary(objectData.Data);
     }
     
-    private Dictionary<string, string> GetJsonDictionary(object instance)
+    private SortedDictionary<string, string> GetJsonDictionary(object instance)
     {
         Type type = instance.GetType();
-        Dictionary<string, string> jsonify = new Dictionary<string, string>
+        SortedDictionary<string, string> jsonify = new SortedDictionary<string, string>
         {
             { "type", type.AssemblyQualifiedName }
         };
@@ -79,12 +84,13 @@ public class CompositeKeyCalculator: IKeyCalculator
         return jsonify;
     }
     
-    private void AddCompositeKeysToDictionary(Type type, object instance, Dictionary<string, string> dictionary)
+    private void AddCompositeKeysToDictionary(Type type, object instance, SortedDictionary<string, string> dictionary)
     {
         foreach (PropertyInfo property in type.GetProperties()
                      .Where(propertyInfo => propertyInfo.HasCustomAttributeOfType<CompositeKeyAttribute>()))
         {
-            dictionary.Add(property.Name, property.GetValue(instance).ToJson());
+            object? value = property.GetValue(instance);
+            dictionary.Add(property.Name, value == null ? "null": value.ToJson());
         }
     }
 }

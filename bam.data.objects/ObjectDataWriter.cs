@@ -19,7 +19,7 @@ public class ObjectDataWriter : IObjectDataWriter
     
     public IObjectDataFactory ObjectDataFactory { get; init; }
 
-    public IObjectDataIdentifierFactory ObjectDataIdentifierFactory => ObjectDataFactory.ObjectDataIdentifierFactory;
+    public IObjectDataLocatorFactory ObjectDataLocatorFactory => ObjectDataFactory.ObjectDataLocatorFactory;
     public IObjectDataStorageManager ObjectDataStorageManager { get; init; }
     
     public Task<IObjectDataWriteResult> WriteAsync(object data)
@@ -36,7 +36,7 @@ public class ObjectDataWriter : IObjectDataWriter
         ObjectDataWriteResult objectDataWriteResult = new ObjectDataWriteResult(data);
         try
         {
-            data.ObjectDataIdentifierFactory ??= ObjectDataIdentifierFactory;
+            data.ObjectDataLocatorFactory ??= ObjectDataLocatorFactory;
             return ObjectDataStorageManager.WriteObject(data);
         }
         catch (Exception ex)
