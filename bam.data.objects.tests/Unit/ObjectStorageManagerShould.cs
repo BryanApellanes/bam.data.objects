@@ -78,7 +78,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
             LongProperty = RandomNumber.Between(100, 1000),
             DateTimeProperty = DateTime.Now
         };
-        IObjectData objectData = dataFactory.Wrap(new ObjectData(plainTestClass));
+        IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
         IObjectDataKey dataKey = objectData.GetObjectKey();
         List<string> parts = new List<string>();
         parts.Add(dataKey.ToString());
@@ -112,7 +112,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
             LongProperty = RandomNumber.Between(100, 1000),
             DateTimeProperty = DateTime.Now
         };
-        IObjectData objectData = dataFactory.Wrap(new ObjectData(plainTestClass));
+        IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
 
         IPropertyStorageVersionSlot propertyStorageVersionSlot = fsObjectDataStorageManager.GetNextPropertyStorageVersionSlot(objectData.Property(propertyName));
         
@@ -138,7 +138,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
             LongProperty = RandomNumber.Between(100, 1000),
             DateTimeProperty = DateTime.Now
         };
-        IObjectData objectData = dataFactory.Wrap(new ObjectData(plainTestClass));
+        IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
         IProperty property = objectData.Property(propertyName);
 
         IPropertyStorageVersionSlot propertyStorageVersionSlot =
@@ -171,7 +171,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
             LongProperty = RandomNumber.Between(100, 1000),
             DateTimeProperty = DateTime.Now
         };
-        IObjectData objectData = dataFactory.Wrap(new ObjectData(plainTestClass));
+        IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
         IProperty property = objectData.Property(propertyName);
 
         IPropertyStorageVersionSlot propertyStorageVersionSlot =

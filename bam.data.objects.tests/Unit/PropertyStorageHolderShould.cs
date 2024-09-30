@@ -34,7 +34,7 @@ public class PropertyStorageHolderShould: UnitTestMenuContainer
             LongProperty = RandomNumber.Between(100, 1000),
             DateTimeProperty = DateTime.Now
         };
-        IObjectData objectData = dataFactory.Wrap(new ObjectData(plainTestClass));
+        IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
         PropertyStorageHolder propertyStorageHolder =
             new PropertyStorageHolder(testDataPath);
 
@@ -62,7 +62,7 @@ public class PropertyStorageHolderShould: UnitTestMenuContainer
             LongProperty = RandomNumber.Between(100, 1000),
             DateTimeProperty = DateTime.Now
         };
-        IObjectData objectData = dataFactory.Wrap(new ObjectData(plainTestClass));
+        IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
 
         IPropertyStorageHolder propertyStorageHolder = fsObjectDataStorageManager.GetPropertyStorageHolder(objectData.Property(propertyName).ToDescriptor());
         

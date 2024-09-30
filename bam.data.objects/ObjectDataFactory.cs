@@ -14,7 +14,7 @@ public class ObjectDataFactory : IObjectDataFactory
     public IObjectDataLocatorFactory ObjectDataLocatorFactory { get; init; }
     public  IObjectEncoderDecoder ObjectEncoderDecoder { get; init; }
 
-    public IObjectData Wrap(object data)
+    public IObjectData GetObjectData(object data)
     {
         if (data is ObjectData objectData)
         {

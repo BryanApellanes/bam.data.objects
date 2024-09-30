@@ -45,8 +45,8 @@ public class ObjectIdentifierFactoryShould : UnitTestMenuContainer
         ObjectDataFactory dataFactory = Get<ObjectDataFactory>();
         ObjectDataLocatorFactory factory = Get<ObjectDataLocatorFactory>();
 
-        IObjectData wrapped1 = dataFactory.Wrap(data1);
-        IObjectData wrapped2 = dataFactory.Wrap(data2);
+        IObjectData wrapped1 = dataFactory.GetObjectData(data1);
+        IObjectData wrapped2 = dataFactory.GetObjectData(data2);
         IObjectDataKey key1 = factory.GetObjectKey(wrapped1);
         IObjectDataKey key2 = factory.GetObjectKey(wrapped2);
 

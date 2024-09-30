@@ -5,8 +5,9 @@ namespace Bam.Data.Objects;
 
 public class ObjectDataRepository : Repository
 {
-    public ObjectDataRepository(IObjectDataWriter writer, IObjectDataIndexer indexer, IObjectDataDeleter deleter, IObjectDataArchiver archiver, IObjectDataReader reader, IObjectDataSearcher searcher)
+    public ObjectDataRepository(IObjectDataFactory factory, IObjectDataWriter writer, IObjectDataIndexer indexer, IObjectDataDeleter deleter, IObjectDataArchiver archiver, IObjectDataReader reader, IObjectDataSearcher searcher)
     {
+        this.Factory = factory;
         this.Writer = writer;
         this.Indexer = indexer;
         this.Deleter = deleter;
@@ -15,6 +16,7 @@ public class ObjectDataRepository : Repository
         this.Searcher = searcher;
     }
     
+    protected IObjectDataFactory Factory { get; }
     protected IObjectDataWriter Writer { get; }
     protected IObjectDataIndexer Indexer { get; }
     protected IObjectDataDeleter Deleter { get; }
@@ -24,7 +26,8 @@ public class ObjectDataRepository : Repository
     
     public override T Create<T>(T toCreate)
     {
-        throw new NotImplementedException();
+        this.Writer.WriteAsync(Factory.GetObjectData(toCreate));
+        return toCreate;
     }
 
     public override bool Delete<T>(T toDelete)

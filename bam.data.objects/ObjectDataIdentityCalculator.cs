@@ -5,6 +5,10 @@ namespace Bam.Data.Objects;
 
 public class ObjectDataIdentityCalculator : IObjectDataIdentityCalculator
 {
+    public ObjectDataIdentityCalculator() : this(new JsonHashCalculator(), new CompositeKeyCalculator())
+    {
+    }
+
     public ObjectDataIdentityCalculator(IHashCalculator hashCalculator, IKeyCalculator keyCalculator)
     {
         Args.ThrowIfNull(hashCalculator, nameof(hashCalculator));

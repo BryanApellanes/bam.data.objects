@@ -225,7 +225,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
         // instantiate type
         // populate type properties
         object data = objectDataKey.TypeDescriptor.Type.Construct();
-        IObjectData objectData = this.ObjectDataFactory.Wrap(data);
+        IObjectData objectData = this.ObjectDataFactory.GetObjectData(data);
         foreach (IProperty property in objectData.Properties)
         {
             objectData.Property(property.PropertyName, ReadProperty(objectData, property.ToDescriptor()));

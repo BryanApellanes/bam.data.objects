@@ -28,7 +28,7 @@ public class ObjectDataWriter : IObjectDataWriter
         {
             return WriteAsync(objectData);
         }
-        return WriteAsync(ObjectDataFactory.Wrap(data));
+        return WriteAsync(ObjectDataFactory.GetObjectData(data));
     }
 
     public async Task<IObjectDataWriteResult> WriteAsync(IObjectData data)

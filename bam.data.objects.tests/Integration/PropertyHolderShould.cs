@@ -26,7 +26,7 @@ public class PropertyHolderShould: UnitTestMenuContainer
         
         PropertyStorageHolder storageHolder = testRegistry.Get<PropertyStorageHolder>(new string[] {rootPath});
         
-        IObjectData objectData = dataFactory.Wrap(new PlainTestClass
+        IObjectData objectData = dataFactory.GetObjectData(new PlainTestClass
         {
             StringProperty = $"StringProperty-SaveObjectPropertyTest"
         });
