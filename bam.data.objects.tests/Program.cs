@@ -19,6 +19,7 @@ namespace Bam.Application
                 MenuManager = MenuManager.FromOptions(options)
             };
             BamConsoleContext.Current.Main(args);
+            
         }
     }
 }
