@@ -12,7 +12,6 @@ namespace Bam.Application
             ServiceRegistry serviceRegistry = BamConsoleContext.GetDefaultServiceRegistry();
             serviceRegistry.For<IMenuItemRunner>().UseSingleton(new ConsoleMenuItemRunner(serviceRegistry, new MenuInputMethodArgumentProvider(new ServiceRegistryTypedArgumentProvider(serviceRegistry))));
             IMenuOptions options = serviceRegistry.Get<MenuOptions>();
-            options.MenuProvider = serviceRegistry.Get<IMenuProvider>();
 
             BamConsoleContext.Current = new BamConsoleContext(serviceRegistry)
             {
