@@ -13,6 +13,18 @@ public class ObjectIdentifierFactoryShould : UnitTestMenuContainer
 {
     public ObjectIdentifierFactoryShould(ServiceRegistry serviceRegistry) : base(serviceRegistry)
     {
+        Configure((svcRegistry) =>
+        {
+            IObjectDataStorageManager mockObjectDataStorageManager = Substitute.For<IObjectDataStorageManager>();
+
+            svcRegistry
+                .For<IObjectDataStorageManager>().Use(mockObjectDataStorageManager)
+                .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
+                .For<IObjectEncoderDecoder>().Use<JsonObjectDataEncoder>()
+                .For<IHashCalculator>().Use<JsonHashCalculator>()
+                .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()
+                .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>();
+        });
     }
     
     [UnitTest]
@@ -53,7 +65,7 @@ public class ObjectIdentifierFactoryShould : UnitTestMenuContainer
         key1.Equals(key2).ShouldBeTrue();
     }
 
-    public override ServiceRegistry Configure(ServiceRegistry serviceRegistry)
+    /*public ServiceRegistry Configure(ServiceRegistry serviceRegistry)
     {
         IObjectDataStorageManager mockObjectDataStorageManager = Substitute.For<IObjectDataStorageManager>();
 
@@ -64,5 +76,5 @@ public class ObjectIdentifierFactoryShould : UnitTestMenuContainer
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()
             .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>();
-    }
+    }*/
 }

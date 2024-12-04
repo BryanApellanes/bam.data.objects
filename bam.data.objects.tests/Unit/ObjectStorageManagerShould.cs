@@ -64,7 +64,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
     public void GetPropertyStorageContainer()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(GetPropertyStorageContainer));
-        ServiceRegistry serviceRegistry = Configure(ConfigureDependencies(root))
+        ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(root))
             .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
 
         FsObjectDataStorageManager fsObjectDataStorageManager = serviceRegistry.Get<FsObjectDataStorageManager>();
@@ -98,7 +98,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
     public async Task GetNextPropertyStorageVersionSlot()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(GetNextPropertyStorageVersionSlot));
-        ServiceRegistry serviceRegistry = Configure(ConfigureDependencies(root))
+        ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(root))
             .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
 
         FsObjectDataStorageManager fsObjectDataStorageManager = serviceRegistry.Get<FsObjectDataStorageManager>();
@@ -124,7 +124,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
     public async Task SavePropertyInStorageVersionSlot()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(SavePropertyInStorageVersionSlot));
-        ServiceRegistry serviceRegistry = Configure(ConfigureDependencies(root))
+        ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(root))
             .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
 
         FsObjectDataStorageManager fsObjectDataStorageManager = serviceRegistry.Get<FsObjectDataStorageManager>();
@@ -157,7 +157,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
     public async Task GetStorageForPropertyStorageVersionSlot()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(SavePropertyInStorageVersionSlot));
-        ServiceRegistry serviceRegistry = Configure(ConfigureDependencies(root))
+        ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(root))
             .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
 
         FsObjectDataStorageManager fsObjectDataStorageManager = serviceRegistry.Get<FsObjectDataStorageManager>();
@@ -184,9 +184,9 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         fsObjectDataStorageManager.IsSlotWritten(slot).ShouldBeTrue("slot was not written");
     }
 
-    public override ServiceRegistry Configure(ServiceRegistry serviceRegistry)
+    public ServiceRegistry ConfigureTestRegistry(ServiceRegistry serviceRegistry)
     {
-        return base.Configure(serviceRegistry)
+        return Configure(serviceRegistry)
             .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>();

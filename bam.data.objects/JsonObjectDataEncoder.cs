@@ -47,7 +47,7 @@ public class JsonObjectDataEncoder : ObjectDataEncoder
         {
             json = data.ToJson();
         }
-        return new JsonObjectEncoding(Encoding.GetBytes(json), Encoding);
+        return new JsonObjectEncoding(Encoding.GetBytes(json), Encoding){Type = data.GetType()};
     }
 
     public override object Decode(byte[] encoding, Type type)

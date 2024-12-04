@@ -14,12 +14,7 @@ public class ObjectDataShould : UnitTestMenuContainer
 {
     public ObjectDataShould(ServiceRegistry serviceRegistry) : base(serviceRegistry)
     {
-    }
 
-    [UnitTest]
-    public async Task RecieveArgument(IMenuManager menuManager)
-    {
-        Message.PrintLine("There are {0} menus",menuManager.Menus.Count.ToString());
     }
     
     [UnitTest]

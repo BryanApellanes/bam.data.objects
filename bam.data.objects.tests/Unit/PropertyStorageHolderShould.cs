@@ -20,7 +20,7 @@ public class PropertyStorageHolderShould: UnitTestMenuContainer
     public void GetSlot()
     {
         string testDataPath = Path.Combine(Environment.CurrentDirectory, nameof(GetSlot), "testData");
-        ServiceRegistry serviceRegistry = Configure(ConfigureDependencies(testDataPath))
+        ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(testDataPath))
             .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
 
         FsObjectDataStorageManager fsObjectDataStorageManager = serviceRegistry.Get<FsObjectDataStorageManager>();
@@ -47,7 +47,7 @@ public class PropertyStorageHolderShould: UnitTestMenuContainer
     public void GetVersionHolders()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(GetVersionHolders));
-        ServiceRegistry serviceRegistry = Configure(ConfigureDependencies(root))
+        ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(root))
             .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>()
             .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>();
 
@@ -69,9 +69,9 @@ public class PropertyStorageHolderShould: UnitTestMenuContainer
         propertyStorageHolder.ShouldNotBeNull($"{nameof(propertyStorageHolder)} was null");
     }
     
-    public override ServiceRegistry Configure(ServiceRegistry serviceRegistry)
+    public ServiceRegistry ConfigureTestRegistry(ServiceRegistry serviceRegistry)
     {
-        return base.Configure(serviceRegistry)
+        return Configure(serviceRegistry)
             .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<IKeyCalculator>().Use<CompositeKeyCalculator>();
@@ -82,7 +82,7 @@ public class PropertyStorageHolderShould: UnitTestMenuContainer
         ServiceRegistry testRegistry = new ServiceRegistry()
             .For<IRootStorageHolder>().Use(new RootStorageHolder(rootPath));
 
-        ServiceRegistry serviceRegistry = Configure(testRegistry);
+        ServiceRegistry serviceRegistry = ConfigureTestRegistry(testRegistry);
         return serviceRegistry;
     }
 }
