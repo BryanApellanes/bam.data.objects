@@ -1,8 +1,8 @@
 using Bam.Data.Dynamic.Objects;
 using Bam.Data.Dynamic.TestClasses;
-using Bam;
-using Bam.CoreServices;
 using Bam.Data.Repositories;
+using Bam.DependencyInjection;
+using Bam.Services;
 using Bam.Test;
 
 namespace Bam.Data.Objects.Tests.Integration;

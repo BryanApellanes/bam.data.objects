@@ -1,19 +1,10 @@
 /*
 	Copyright © Bryan Apellanes 2015  
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
+
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Diagnostics;
-using System.IO;
-using Bam.Logging;
-using Bam.Configuration;
-using System.Configuration;
 using Bam.Data.Objects;
-using Bam;
 using Bam.Storage;
 
 namespace Bam.Data.Dynamic.Objects

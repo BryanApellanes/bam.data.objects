@@ -1,5 +1,6 @@
 using Bam.Data.Dynamic.Objects;
-using Bam.CoreServices;
+using Bam.DependencyInjection;
+using Bam.Services;
 using Bam.Storage;
 
 namespace Bam.Data.Objects.Tests.Integration;

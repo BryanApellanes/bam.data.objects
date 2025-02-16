@@ -1,5 +1,3 @@
-using Bam.Data.Objects;
-
 namespace Bam.Data.Objects;
 
 public interface IObjectDataDeleter

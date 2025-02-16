@@ -1,5 +1,3 @@
-using Microsoft.VisualBasic.CompilerServices;
-
 namespace Bam.Data.Objects;
 
 public interface ITypeDescriptor

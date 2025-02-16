@@ -1,10 +1,3 @@
-using System.Reflection;
-using Bam.Data.Dynamic.Objects;
-
-using Bam;
-using Bam.Data.Repositories;
-using Bam.Storage;
-
 namespace Bam.Data.Objects;
 
 public class ObjectDataWriter : IObjectDataWriter

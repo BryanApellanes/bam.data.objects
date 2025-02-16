@@ -1,6 +1,4 @@
 ﻿using Bam.Console;
-using Bam.CoreServices;
-using Bam.Shell;
 
 namespace Bam.Application
 {

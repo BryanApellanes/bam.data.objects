@@ -1,6 +1,3 @@
-using System.Runtime.InteropServices.JavaScript;
-using Bam;
-
 namespace Bam.Data.Dynamic.TestClasses;
 
 public class PlainTestClass

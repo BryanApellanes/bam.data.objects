@@ -1,6 +1,5 @@
 using System.Text;
 using Bam.Data.Objects;
-using Bam;
 
 namespace Bam.Data.Dynamic.Objects;
 

@@ -1,5 +1,3 @@
-using Bam.Data.Dynamic.Objects;
-
 namespace Bam.Data.Objects;
 
 public interface IPropertyStorageVersionSlot : IPropertyStorageSlot

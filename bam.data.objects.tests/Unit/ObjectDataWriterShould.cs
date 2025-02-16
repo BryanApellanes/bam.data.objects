@@ -1,9 +1,9 @@
 using Bam.Data.Dynamic.Objects;
 using Bam.Data.Dynamic.TestClasses;
 using Bam.Data.Objects;
-using Bam.CoreServices;
 using Bam.Data.Repositories;
-using Bam.Incubation;
+using Bam.DependencyInjection;
+using Bam.Services;
 using Bam.Storage;
 using Bam.Test;
 using NSubstitute;

@@ -1,4 +1,3 @@
-using Bam.Data;
 using Bam.Data.Repositories;
 
 namespace Bam.Data.Objects;

@@ -1,10 +1,8 @@
 using Bam.Console;
-using Bam.Data.Dynamic.Objects;
 using Bam.Data.Dynamic.TestClasses;
 using Bam.Data.Objects;
-using Bam.CoreServices;
-using Bam.Shell;
-using Bam.Storage;
+using Bam.DependencyInjection;
+using Bam.Services;
 using Bam.Test;
 
 namespace Bam.Application.Unit;
