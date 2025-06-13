@@ -2,7 +2,7 @@ using Bam.Data.Dynamic.Objects;
 
 namespace Bam.Data.Objects;
 
-public abstract class ObjectDataEncoder: IObjectEncoderDecoder, IObjectConverter, IObjectEncoder, IObjectDecoder
+public abstract class ObjectDataEncoder: IObjectEncoderDecoder//, IObjectConverter, IObjectEncoder, IObjectDecoder
 {
     private static readonly object _defaultLock = new();
     private static JsonObjectDataEncoder _default;

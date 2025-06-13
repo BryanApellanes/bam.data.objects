@@ -1,5 +1,6 @@
 using System.Text;
 using Bam.Data.Dynamic.Objects;
+using Newtonsoft.Json.Converters;
 
 namespace Bam.Data.Objects;
 
@@ -22,7 +23,7 @@ public class JsonObjectDataEncoder : ObjectDataEncoder
         {
             return "null";
         }
-        return data.ToJson();
+        return data.ToJson(new StringEnumConverter());
     }
 
     public override object Objectify(string data)
