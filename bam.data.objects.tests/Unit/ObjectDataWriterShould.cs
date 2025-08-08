@@ -94,7 +94,7 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         IObjectDataStorageManager mockDataStorageManager = Substitute.For<IObjectDataStorageManager>();
         ServiceRegistry testRegistry = new ServiceRegistry()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
-            .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
+            .For<ICompositeKeyCalculator>().Use<CompositeKeyCalculator>()
             .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
             .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()
             .For<IObjectDataStorageManager>().Use(mockDataStorageManager);
@@ -108,7 +108,7 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
     {
         ServiceRegistry testRegistry = new ServiceRegistry()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
-            .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
+            .For<ICompositeKeyCalculator>().Use<CompositeKeyCalculator>()
             .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
             .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()
             .For<IRootStorageHolder>().Use( new RootStorageHolder(rootPath))

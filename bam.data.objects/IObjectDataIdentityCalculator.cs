@@ -2,8 +2,8 @@ using Bam.Data.Objects;
 
 namespace Bam.Data.Dynamic.Objects;
 
-public interface IObjectDataIdentityCalculator : IHashCalculator, IKeyCalculator
+public interface IObjectDataIdentityCalculator : IHashCalculator, ICompositeKeyCalculator
 {
     IHashCalculator HashCalculator { get; }
-    IKeyCalculator KeyCalculator { get; }
+    ICompositeKeyCalculator CompositeKeyCalculator { get; }
 }

@@ -14,7 +14,12 @@ public class ObjectDataWriteResult : IObjectDataWriteResult
     
     public bool Success { get; set; }
     public string Message { get; set; }
-    
+
+    public TypeDescriptor TypeDescriptor
+    {
+        get => ObjectData?.TypeDescriptor;
+    }
+
     public IObjectData ObjectData { get; }
 
     public IObjectDataKey ObjectDataKey => this.ObjectData.GetObjectKey();

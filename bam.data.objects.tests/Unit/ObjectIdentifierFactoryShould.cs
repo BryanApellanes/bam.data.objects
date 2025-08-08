@@ -19,7 +19,7 @@ public class ObjectIdentifierFactoryShould : UnitTestMenuContainer
 
             svcRegistry
                 .For<IObjectDataStorageManager>().Use(mockObjectDataStorageManager)
-                .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
+                .For<ICompositeKeyCalculator>().Use<CompositeKeyCalculator>()
                 .For<IObjectEncoderDecoder>().Use<JsonObjectDataEncoder>()
                 .For<IHashCalculator>().Use<JsonHashCalculator>()
                 .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()

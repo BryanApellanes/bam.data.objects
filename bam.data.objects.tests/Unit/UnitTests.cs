@@ -13,7 +13,7 @@ public static class UnitTests
         return new ServiceRegistry()
             .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
-            .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
+            .For<ICompositeKeyCalculator>().Use<CompositeKeyCalculator>()
             .For<IObjectDataFactory>().Use<ObjectDataFactory>()
             .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
             .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()

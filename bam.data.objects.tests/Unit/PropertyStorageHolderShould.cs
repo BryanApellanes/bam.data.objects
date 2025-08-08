@@ -73,7 +73,7 @@ public class PropertyStorageHolderShould: UnitTestMenuContainer
         return Configure(serviceRegistry)
             .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
-            .For<IKeyCalculator>().Use<CompositeKeyCalculator>();
+            .For<ICompositeKeyCalculator>().Use<CompositeKeyCalculator>();
     }
     
     private ServiceRegistry ConfigureDependencies(string rootPath)

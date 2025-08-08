@@ -2,7 +2,7 @@ using Bam.Data.Repositories;
 
 namespace Bam.Data.Objects;
 
-public class ObjectDataRepository : Repository
+public class ObjectDataRepository : AsyncRepository
 {
     public ObjectDataRepository(IObjectDataFactory factory, IObjectDataWriter writer, IObjectDataIndexer indexer, IObjectDataDeleter deleter, IObjectDataArchiver archiver, IObjectDataReader reader, IObjectDataSearcher searcher)
     {
@@ -25,7 +25,8 @@ public class ObjectDataRepository : Repository
     
     public override T Create<T>(T toCreate)
     {
-        this.Writer.WriteAsync(Factory.GetObjectData(toCreate));
+        Task<IObjectDataWriteResult> result = this.Writer.WriteAsync(Factory.GetObjectData(toCreate));
+        
         return toCreate;
     }
 

@@ -141,7 +141,11 @@ public class ObjectData : IObjectData
             DataTypes enumType = DataTypeTranslator.EnumFromType(propertyInfo.PropertyType);
             if (enumType != DataTypes.Default)
             {
-                yield return new Property(this, propertyInfo.Name, propertyInfo.GetValue(this.Data));
+                object propValue = propertyInfo.GetValue(this.Data);
+                if (propValue != null)
+                {
+                    yield return new Property(this, propertyInfo.Name, propValue);
+                }
             }
         }
     }

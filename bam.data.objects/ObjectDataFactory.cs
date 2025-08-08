@@ -10,7 +10,8 @@ public class ObjectDataFactory : IObjectDataFactory
         this.ObjectDataLocatorFactory = objectDataLocatorFactory;
         this.ObjectEncoderDecoder = encoderDecoder;
     }
-    
+
+    public bool SetSequentialIds { get; set; }
     public IObjectDataLocatorFactory ObjectDataLocatorFactory { get; init; }
     public  IObjectEncoderDecoder ObjectEncoderDecoder { get; init; }
 

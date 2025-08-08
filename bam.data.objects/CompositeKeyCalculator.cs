@@ -4,7 +4,7 @@ using Bam.Data.Repositories;
 
 namespace Bam.Data.Objects;
 
-public class CompositeKeyCalculator: IKeyCalculator
+public class CompositeKeyCalculator: ICompositeKeyCalculator
 {
     public CompositeKeyCalculator()
     {

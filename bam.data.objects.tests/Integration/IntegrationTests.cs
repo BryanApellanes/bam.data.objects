@@ -11,7 +11,7 @@ public static class IntegrationTests
     {
         return new ServiceRegistry()
             .For<IHashCalculator>().Use<JsonHashCalculator>()
-            .For<IKeyCalculator>().Use<CompositeKeyCalculator>()
+            .For<ICompositeKeyCalculator>().Use<CompositeKeyCalculator>()
             .For<IObjectEncoderDecoder>().Use<JsonObjectDataEncoder>()
             .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
             .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()

@@ -4,6 +4,8 @@ namespace Bam.Data.Objects;
 
 public interface IObjectDataFactory
 {
+    bool SetSequentialIds { get; set; }
+    
     IObjectDataLocatorFactory ObjectDataLocatorFactory { get; }
     IObjectEncoderDecoder ObjectEncoderDecoder { get; }
     

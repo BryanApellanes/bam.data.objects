@@ -1,4 +1,6 @@
-namespace Bam.Storage;
+using Bam.Storage;
+
+namespace Bam.Data.Objects;
 
 public interface IObjectDataStorage : IStorage
 {

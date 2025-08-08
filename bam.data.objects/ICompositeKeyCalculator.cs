@@ -1,6 +1,10 @@
 namespace Bam.Data.Objects;
 
-public interface IKeyCalculator
+/// <summary>
+/// Provides unique identifiers for objects with properties adorned with the
+/// <see cref="Bam.Data.Repositories.CompositeKeyAttribute" />
+/// </summary>
+public interface ICompositeKeyCalculator
 {
     ulong CalculateULongKey(object instance);
     ulong CalculateULongKey(IObjectData objectData);

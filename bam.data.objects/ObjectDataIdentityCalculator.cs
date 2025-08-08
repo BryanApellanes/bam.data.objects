@@ -8,17 +8,17 @@ public class ObjectDataIdentityCalculator : IObjectDataIdentityCalculator
     {
     }
 
-    public ObjectDataIdentityCalculator(IHashCalculator hashCalculator, IKeyCalculator keyCalculator)
+    public ObjectDataIdentityCalculator(IHashCalculator hashCalculator, ICompositeKeyCalculator compositeKeyCalculator)
     {
         Args.ThrowIfNull(hashCalculator, nameof(hashCalculator));
-        Args.ThrowIfNull(keyCalculator, nameof(keyCalculator));
+        Args.ThrowIfNull(compositeKeyCalculator, nameof(compositeKeyCalculator));
         
         this.HashCalculator = hashCalculator;
-        this.KeyCalculator = keyCalculator;
+        this.CompositeKeyCalculator = compositeKeyCalculator;
     }
-    
+
     public IHashCalculator HashCalculator { get; }
-    public IKeyCalculator KeyCalculator { get; }
+    public ICompositeKeyCalculator CompositeKeyCalculator { get; }
     
     public ulong CalculateULongHash(object instance)
     {
@@ -42,21 +42,21 @@ public class ObjectDataIdentityCalculator : IObjectDataIdentityCalculator
 
     public ulong CalculateULongKey(object instance)
     {
-        return this.KeyCalculator.CalculateULongKey(instance);
+        return this.CompositeKeyCalculator.CalculateULongKey(instance);
     }
 
     public ulong CalculateULongKey(IObjectData objectData)
     {
-        return this.KeyCalculator.CalculateULongKey(objectData);
+        return this.CompositeKeyCalculator.CalculateULongKey(objectData);
     }
 
     public string CalculateHashHexKey(object instance)
     {
-        return this.KeyCalculator.CalculateHashHexKey(instance);
+        return this.CompositeKeyCalculator.CalculateHashHexKey(instance);
     }
 
     public string CalculateHashHexKey(IObjectData objectData)
     {
-        return this.KeyCalculator.CalculateHashHexKey(objectData);
+        return this.CompositeKeyCalculator.CalculateHashHexKey(objectData);
     }
 }
