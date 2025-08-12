@@ -175,8 +175,8 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
             fsObjectDataStorageManager.GetNextPropertyStorageVersionSlot(property);
         Message.PrintLine(propertyStorageVersionSlot.FullName);
 
-        IStorage storage = fsObjectDataStorageManager.GetStorage(propertyStorageVersionSlot);
-        IStorageSlot slot = storage.Save(property.ToRawData());
+        IObjectStorage objectStorage = fsObjectDataStorageManager.GetStorage(propertyStorageVersionSlot);
+        IStorageSlot slot = objectStorage.Save(property.ToRawData());
         slot.FullName.ShouldBeEqualTo(propertyStorageVersionSlot.FullName);
         fsObjectDataStorageManager.IsSlotWritten(slot).ShouldBeTrue("slot was not written");
     }

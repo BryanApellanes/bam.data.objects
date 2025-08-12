@@ -159,8 +159,8 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
                 PropertyWriteResult = result
             });
             
-            IStorage pointerStorage = this.GetStorage(versionSlot);
-            result.PointerStorageSlot = pointerStorage.Save(property.ToRawDataPointer());
+            IObjectStorage pointerObjectStorage = this.GetStorage(versionSlot);
+            result.PointerStorageSlot = pointerObjectStorage.Save(property.ToRawDataPointer());
 
             IRawStorage rawStorage = this.GetRawStorage();
             result.ValueStorageSlot = rawStorage.Save(property.ToRawData());
@@ -230,21 +230,21 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
         return objectData;
     }
 
-    public virtual IStorage GetStorage()
+    public virtual IObjectStorage GetStorage()
     {
         return GetStorage(this.RootStorage);
     }
 
-    public IStorage GetStorage(IStorageSlot slot)
+    public IObjectStorage GetStorage(IStorageSlot slot)
     {
-        IStorage storage = GetStorage(slot.StorageHolder);
-        storage.CurrentSlot = slot;
-        return storage;
+        IObjectStorage objectStorage = GetStorage(slot.StorageHolder);
+        objectStorage.CurrentSlot = slot;
+        return objectStorage;
     }
 
-    public virtual IStorage GetStorage(IStorageHolder storageIdentifier)
+    public virtual IObjectStorage GetStorage(IStorageHolder storageIdentifier)
     {
-        return new FsStorage(storageIdentifier.FullName);
+        return new FsObjectStorage(storageIdentifier.FullName);
     }
     
     private IProperty? ReadProperty(IObjectData parent, IPropertyDescriptor propertyDescriptor, IStorageSlot storageSlot)
@@ -259,8 +259,8 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
             PropertyReadStarted?.Invoke(this,
                 new ObjectDataStorageEventArgs() { PropertyDescriptor = propertyDescriptor, ReadingFrom = storageSlot });
 
-            IStorage pointerStorage = this.GetStorage(storageSlot);
-            IRawData pointerData = pointerStorage.LoadSlot(storageSlot);
+            IObjectStorage pointerObjectStorage = this.GetStorage(storageSlot);
+            IRawData pointerData = pointerObjectStorage.LoadSlot(storageSlot);
             IRawStorage rawStorage = this.GetRawStorage();
             IRawData rawData = rawStorage.LoadHashHexString(pointerData.ToString());
 

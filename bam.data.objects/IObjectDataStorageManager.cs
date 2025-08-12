@@ -18,9 +18,9 @@ public interface IObjectDataStorageManager
 
     IPropertyStorageHolder GetPropertyStorageHolder(IPropertyDescriptor property);
 
-    IStorage GetStorage();
-    IStorage GetStorage(IStorageSlot slot);
-    IStorage GetStorage(IStorageHolder storageIdentifier);
+    IObjectStorage GetStorage();
+    IObjectStorage GetStorage(IStorageSlot slot);
+    IObjectStorage GetStorage(IStorageHolder storageIdentifier);
 
     IRawStorage GetRawStorage();
 

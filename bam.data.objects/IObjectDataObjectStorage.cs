@@ -2,7 +2,7 @@ using Bam.Storage;
 
 namespace Bam.Data.Objects;
 
-public interface IObjectDataStorage : IStorage
+public interface IObjectDataObjectStorage : IObjectStorage
 {
     IObjectDataStorageSaveResult SaveObject(object data);
     IObjectDataStorageSaveResult<T> SaveObject<T>(T data);
