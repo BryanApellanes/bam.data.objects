@@ -1,8 +1,8 @@
 namespace Bam.Data.Objects;
 
-public class PropertyVersion : IPropertyVersion
+public class PropertyRevision : IPropertyRevision
 {
-    public PropertyVersion(IProperty property, int number = 1, string metaData = null)
+    public PropertyRevision(IProperty property, int number = 1, string metaData = null)
     {
         this.Property = property;
         this.Number = number;

@@ -12,8 +12,8 @@ public abstract class PropertyStorageSlot : FsStorageSlot, IPropertyStorageSlot
     
     public IPropertyStorageHolder PropertyStorageHolder { get; }
     
-    public IPropertyVersion PropertyVersion { get; }
+    public IPropertyRevision PropertyRevision { get; }
     
-    public IList<IPropertyVersion> VersionHistory { get; }
+    public IList<IPropertyRevision> VersionHistory { get; }
     public abstract IPropertyWriteResult Save(IObjectDataStorageManager dataStorageManager, IProperty property);
 }

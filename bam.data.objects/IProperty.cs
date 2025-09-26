@@ -12,7 +12,7 @@ public interface IProperty : IJsonable
     string Value { get; set; }
     string StorageSlotRelativePath { get; }
 
-    IEnumerable<IPropertyVersion> Versions { get; set; }
+    IEnumerable<IPropertyRevision> Versions { get; set; }
     
     object Decode();
     object SetValue(object target);

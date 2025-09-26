@@ -1,6 +1,6 @@
 namespace Bam.Data.Objects;
 
-public interface IPropertyVersion
+public interface IPropertyRevision
 {
     ITypeDescriptor? TypeDescriptor { get; }
     IObjectData? Parent { get; }

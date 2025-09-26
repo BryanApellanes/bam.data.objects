@@ -33,7 +33,8 @@ public class JsonObjectDataEncoder : ObjectDataEncoder
 
     public override T Objectify<T>(string data)
     {
-        return data.FromJson<T>(); }
+        return data.FromJson<T>();
+    }
 
     public override IObjectEncoding Encode(object data)
     {

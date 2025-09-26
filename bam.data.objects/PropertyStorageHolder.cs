@@ -16,23 +16,23 @@ public class PropertyStorageHolder : DirectoryStorageHolder, IPropertyStorageHol
     public string PropertyName { get; internal set; }
     public ITypeStorageHolder TypeStorageHolder { get; internal set; }
     
-    public IPropertyStorageVersionSlot GetPropertyVersionSlot(IObjectDataStorageManager dataStorageManager, IProperty property, int version)
+    public IPropertyStorageRevisionSlot GetPropertyVersionSlot(IObjectDataStorageManager dataStorageManager, IProperty property, int version)
     {
-        return dataStorageManager.GetPropertyStorageVersionSlot(property.ToDescriptor(), version);
+        return dataStorageManager.GetPropertyStorageRevisionSlot(property.ToDescriptor(), version);
     }
 
     public IPropertyWriteResult Save(IObjectDataStorageManager dataStorageManager, IProperty property)
     {
         try
         {
-            if (!dataStorageManager.IsEqualToLatestVersion(property))
+            if (!dataStorageManager.IsEqualToLatestRevision(property))
             {
                 // find next version number
-                int nextVersion = dataStorageManager.GetNextVersionNumber(property);
+                int nextVersion = dataStorageManager.GetNextRevisionNumber(property);
                 // write Object properties to
                 // {root}/objects/name/space/type/{Ob/je/ct/Ke/y_}/{propertyName}/{version}/dat
             
-                IPropertyStorageVersionSlot slot = this.GetPropertyVersionSlot(dataStorageManager, property, nextVersion);
+                IPropertyStorageRevisionSlot slot = this.GetPropertyVersionSlot(dataStorageManager, property, nextVersion);
                 return slot.Save(dataStorageManager, property);
             }
             else
@@ -41,7 +41,7 @@ public class PropertyStorageHolder : DirectoryStorageHolder, IPropertyStorageHol
                 {
                     Status = PropertyWriteResults.AlreadySaved,
                     Property = property,
-                    PointerStorageSlot = this.GetPropertyVersionSlot(dataStorageManager, property, dataStorageManager.GetLatestVersionNumber(property.ToDescriptor()))
+                    PointerStorageSlot = this.GetPropertyVersionSlot(dataStorageManager, property, dataStorageManager.GetLatestRevisionNumber(property.ToDescriptor()))
                 };
             }
         }
@@ -56,7 +56,7 @@ public class PropertyStorageHolder : DirectoryStorageHolder, IPropertyStorageHol
         }
     }
 
-    public IEnumerable<IPropertyStorageVersionSlot> GetVersions(IObjectDataStorageManager dataStorageManager, IProperty property)
+    public IEnumerable<IPropertyStorageRevisionSlot> GetVersions(IObjectDataStorageManager dataStorageManager, IProperty property)
     {
         return dataStorageManager.GetPropertyStorageVersionSlots(property.ToDescriptor());
     }

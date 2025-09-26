@@ -92,9 +92,9 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
     }
 
     [UnitTest]
-    public async Task GetNextPropertyStorageVersionSlot()
+    public async Task GetNextPropertyStorageRevisionSlot()
     {
-        string root = Path.Combine(Environment.CurrentDirectory, nameof(GetNextPropertyStorageVersionSlot));
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(GetNextPropertyStorageRevisionSlot));
         ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(root))
             .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
 
@@ -111,10 +111,10 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         };
         IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
 
-        IPropertyStorageVersionSlot propertyStorageVersionSlot = fsObjectDataStorageManager.GetNextPropertyStorageVersionSlot(objectData.Property(propertyName));
+        IPropertyStorageRevisionSlot propertyStorageRevisionSlot = fsObjectDataStorageManager.GetNextPropertyStorageRevisionSlot(objectData.Property(propertyName));
         
-        propertyStorageVersionSlot.ShouldNotBeNull($"{nameof(propertyStorageVersionSlot)} was null");
-        Message.PrintLine(propertyStorageVersionSlot.FullName);
+        propertyStorageRevisionSlot.ShouldNotBeNull($"{nameof(propertyStorageRevisionSlot)} was null");
+        Message.PrintLine(propertyStorageRevisionSlot.FullName);
     }
     
     [UnitTest]
@@ -138,14 +138,14 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
         IProperty property = objectData.Property(propertyName);
 
-        IPropertyStorageVersionSlot propertyStorageVersionSlot =
-            fsObjectDataStorageManager.GetNextPropertyStorageVersionSlot(property);
+        IPropertyStorageRevisionSlot propertyStorageRevisionSlot =
+            fsObjectDataStorageManager.GetNextPropertyStorageRevisionSlot(property);
 
-        propertyStorageVersionSlot.SetData(property.ToRawData());
+        propertyStorageRevisionSlot.SetData(property.ToRawData());
 
-        IPropertyWriteResult result = propertyStorageVersionSlot.Save(fsObjectDataStorageManager, property);
+        IPropertyWriteResult result = propertyStorageRevisionSlot.Save(fsObjectDataStorageManager, property);
         
-        result.PointerStorageSlot.FullName.ShouldBeEqualTo(propertyStorageVersionSlot.FullName);
+        result.PointerStorageSlot.FullName.ShouldBeEqualTo(propertyStorageRevisionSlot.FullName);
         File.Exists(result.PointerStorageSlot.FullName).ShouldBeTrue("file slot was not written");
     }
     
@@ -171,13 +171,13 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
         IProperty property = objectData.Property(propertyName);
 
-        IPropertyStorageVersionSlot propertyStorageVersionSlot =
-            fsObjectDataStorageManager.GetNextPropertyStorageVersionSlot(property);
-        Message.PrintLine(propertyStorageVersionSlot.FullName);
+        IPropertyStorageRevisionSlot propertyStorageRevisionSlot =
+            fsObjectDataStorageManager.GetNextPropertyStorageRevisionSlot(property);
+        Message.PrintLine(propertyStorageRevisionSlot.FullName);
 
-        IObjectStorage objectStorage = fsObjectDataStorageManager.GetStorage(propertyStorageVersionSlot);
-        IStorageSlot slot = objectStorage.Save(property.ToRawData());
-        slot.FullName.ShouldBeEqualTo(propertyStorageVersionSlot.FullName);
+        ISlottedStorage slottedStorage = fsObjectDataStorageManager.GetObjectStorage(propertyStorageRevisionSlot);
+        IStorageSlot slot = slottedStorage.Save(property.ToRawData());
+        slot.FullName.ShouldBeEqualTo(propertyStorageRevisionSlot.FullName);
         fsObjectDataStorageManager.IsSlotWritten(slot).ShouldBeTrue("slot was not written");
     }
 

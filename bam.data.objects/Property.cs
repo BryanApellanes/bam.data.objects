@@ -52,7 +52,7 @@ public class Property : IProperty
         }
     }
 
-    public IEnumerable<IPropertyVersion> Versions { get; set; }
+    public IEnumerable<IPropertyRevision> Versions { get; set; }
 
     public object Decode()
     {

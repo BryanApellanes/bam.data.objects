@@ -7,8 +7,8 @@ public interface IPropertyStorageSlot : IStorageSlot
 {
     IPropertyStorageHolder PropertyStorageHolder { get; }
     
-    IPropertyVersion PropertyVersion { get; }
-    IList<IPropertyVersion> VersionHistory { get; }
+    IPropertyRevision PropertyRevision { get; }
+    IList<IPropertyRevision> VersionHistory { get; }
     
     IPropertyWriteResult Save(IObjectDataStorageManager dataStorageManager, IProperty property);
 }

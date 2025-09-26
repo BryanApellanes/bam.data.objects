@@ -18,22 +18,22 @@ public interface IObjectDataStorageManager
 
     IPropertyStorageHolder GetPropertyStorageHolder(IPropertyDescriptor property);
 
-    IObjectStorage GetStorage();
-    IObjectStorage GetStorage(IStorageSlot slot);
-    IObjectStorage GetStorage(IStorageHolder storageIdentifier);
+    ISlottedStorage GetObjectStorage();
+    ISlottedStorage GetObjectStorage(IStorageSlot slot);
+    ISlottedStorage GetObjectStorage(IStorageHolder storageIdentifier);
 
     IRawStorage GetRawStorage();
 
     bool IsSlotWritten(IStorageSlot slot);
-    IPropertyStorageVersionSlot GetLatestPropertyStorageVersionSlot(IPropertyDescriptor property);
-    IPropertyStorageVersionSlot GetNextPropertyStorageVersionSlot(IProperty property);
-    IPropertyStorageVersionSlot GetPropertyStorageVersionSlot(IPropertyDescriptor property, int version);
-    int GetLatestVersionNumber(IPropertyDescriptor property);
-    int GetNextVersionNumber(IProperty property);
-    bool IsEqualToLatestVersion(IProperty property);
-    bool VersionExists(IPropertyDescriptor property, int version = 1);
-    IEnumerable<IPropertyVersion> ReadVersions(IObjectData parent, IPropertyDescriptor propertyDescriptor); 
-    IEnumerable<IPropertyStorageVersionSlot> GetPropertyStorageVersionSlots(IPropertyDescriptor property);
+    IPropertyStorageRevisionSlot GetLatestPropertyStorageRevisionSlot(IPropertyDescriptor property);
+    IPropertyStorageRevisionSlot GetNextPropertyStorageRevisionSlot(IProperty property);
+    IPropertyStorageRevisionSlot GetPropertyStorageRevisionSlot(IPropertyDescriptor property, int version);
+    int GetLatestRevisionNumber(IPropertyDescriptor property);
+    int GetNextRevisionNumber(IProperty property);
+    bool IsEqualToLatestRevision(IProperty property);
+    bool RevisionExists(IPropertyDescriptor property, int revisionNumber = 1);
+    IEnumerable<IPropertyRevision> ReadRevisions(IObjectData parent, IPropertyDescriptor propertyDescriptor); 
+    IEnumerable<IPropertyStorageRevisionSlot> GetPropertyStorageVersionSlots(IPropertyDescriptor property);
     IPropertyWriteResult WriteProperty(IProperty propertyDescriptor);
 
     IProperty? ReadProperty(IObjectData parent, IPropertyDescriptor propertyDescriptor);

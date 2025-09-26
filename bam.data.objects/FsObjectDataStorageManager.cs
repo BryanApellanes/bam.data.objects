@@ -57,7 +57,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
     
     public virtual IRawStorage GetRawStorage()
     {
-        return GetStorage(new DirectoryStorageHolder(Path.Combine(RootStorage.FullName, "raw")));
+        return GetObjectStorage(new DirectoryStorageHolder(Path.Combine(RootStorage.FullName, "raw")));
     }
 
     public bool IsSlotWritten(IStorageSlot slot)
@@ -65,84 +65,84 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
         return File.Exists(slot.FullName);
     }
 
-    public IPropertyStorageVersionSlot GetLatestPropertyStorageVersionSlot(IPropertyDescriptor propertyDescriptor)
+    public IPropertyStorageRevisionSlot GetLatestPropertyStorageRevisionSlot(IPropertyDescriptor propertyDescriptor)
     {
-        return GetPropertyStorageVersionSlot(propertyDescriptor, GetLatestVersionNumber(propertyDescriptor));
+        return GetPropertyStorageRevisionSlot(propertyDescriptor, GetLatestRevisionNumber(propertyDescriptor));
     }
     
-    public IPropertyStorageVersionSlot GetNextPropertyStorageVersionSlot(IProperty property)
+    public IPropertyStorageRevisionSlot GetNextPropertyStorageRevisionSlot(IProperty property)
     {
-        return GetPropertyStorageVersionSlot(property.ToDescriptor(), GetNextVersionNumber(property));
+        return GetPropertyStorageRevisionSlot(property.ToDescriptor(), GetNextRevisionNumber(property));
     }
 
-    public IPropertyStorageVersionSlot GetPropertyStorageVersionSlot(IPropertyDescriptor propertyDescriptor,
+    public IPropertyStorageRevisionSlot GetPropertyStorageRevisionSlot(IPropertyDescriptor propertyDescriptor,
         int version)
     {
-        return new PropertyStorageVersionSlot(GetPropertyStorageHolder(propertyDescriptor), version);
+        return new PropertyStorageRevisionSlot(GetPropertyStorageHolder(propertyDescriptor), version);
     }
     
-    public int GetLatestVersionNumber(IPropertyDescriptor property)
+    public int GetLatestRevisionNumber(IPropertyDescriptor property)
     {
-        List<IPropertyStorageVersionSlot> slots = GetPropertyStorageVersionSlots(property).ToList();
+        List<IPropertyStorageRevisionSlot> slots = GetPropertyStorageVersionSlots(property).ToList();
         if (slots.Any())
         {
-            return slots[^1].Version;
+            return slots[^1].Revision;
         }
 
         return 0;
     }
 
-    public int GetNextVersionNumber(IProperty property)
+    public int GetNextRevisionNumber(IProperty property)
     {
-        return GetLatestVersionNumber(property.ToDescriptor()) + 1;
+        return GetLatestRevisionNumber(property.ToDescriptor()) + 1;
     }
 
-    public bool IsEqualToLatestVersion(IProperty property)
+    public bool IsEqualToLatestRevision(IProperty property)
     {
-        IProperty latest = ReadProperty(property.Parent, property.ToDescriptor(), GetLatestPropertyStorageVersionSlot(property.ToDescriptor()));
+        IProperty latest = ReadProperty(property.Parent, property.ToDescriptor(), GetLatestPropertyStorageRevisionSlot(property.ToDescriptor()));
         return latest.Decode().Equals(property.Decode());
     }
 
-    public bool VersionExists(IPropertyDescriptor property, int version = 1)
+    public bool RevisionExists(IPropertyDescriptor property, int revisionNumber = 1)
     {
-        return IsSlotWritten(GetPropertyStorageVersionSlot(property, version));
+        return IsSlotWritten(GetPropertyStorageRevisionSlot(property, revisionNumber));
     }
 
     private void SetVersions(IProperty property)
     {
-        property.Versions = ReadVersions(property.Parent, property.ToDescriptor());
+        property.Versions = ReadRevisions(property.Parent, property.ToDescriptor());
     }
     
-    public IEnumerable<IPropertyVersion> ReadVersions(IObjectData parent, IPropertyDescriptor propertyDescriptor)
+    public IEnumerable<IPropertyRevision> ReadRevisions(IObjectData parent, IPropertyDescriptor propertyDescriptor)
     {
-        foreach (IPropertyStorageVersionSlot propertyStorageSlot in GetPropertyStorageVersionSlots(propertyDescriptor))
+        foreach (IPropertyStorageRevisionSlot propertyStorageSlot in GetPropertyStorageVersionSlots(propertyDescriptor))
         {
-            yield return new PropertyVersion(ReadProperty(parent, propertyDescriptor, propertyStorageSlot), propertyStorageSlot.Version, propertyStorageSlot.MetaData);
+            yield return new PropertyRevision(ReadProperty(parent, propertyDescriptor, propertyStorageSlot), propertyStorageSlot.Revision, propertyStorageSlot.MetaData);
         }
     }
     
-    public IEnumerable<IPropertyStorageVersionSlot> GetPropertyStorageVersionSlots(IPropertyDescriptor property)
+    public IEnumerable<IPropertyStorageRevisionSlot> GetPropertyStorageVersionSlots(IPropertyDescriptor property)
     {
         int number = 1;
 
-        IPropertyStorageVersionSlot slot = GetPropertyStorageVersionSlot(property, number);
+        IPropertyStorageRevisionSlot slot = GetPropertyStorageRevisionSlot(property, number);
         while (IsSlotWritten(slot))
         {
             yield return slot;
             number++;
-            slot = GetPropertyStorageVersionSlot(property, number);
+            slot = GetPropertyStorageRevisionSlot(property, number);
         }
     }
 
     public IPropertyWriteResult WriteProperty(IProperty property)
     {
-        IPropertyStorageVersionSlot slot = GetNextPropertyStorageVersionSlot(property);
+        IPropertyStorageRevisionSlot slot = GetNextPropertyStorageRevisionSlot(property);
         return WriteProperty(slot, property);
     }
     
-    private IPropertyWriteResult WriteProperty(IPropertyStorageVersionSlot versionSlot, IProperty property)
+    private IPropertyWriteResult WriteProperty(IPropertyStorageRevisionSlot revisionSlot, IProperty property)
     {
-        Args.ThrowIfNull(versionSlot, nameof(versionSlot));
+        Args.ThrowIfNull(revisionSlot, nameof(revisionSlot));
         Args.ThrowIfNull(property, nameof(property));
         Args.ThrowIfNull(property.Parent, $"{nameof(property)}.Parent");
         
@@ -159,8 +159,8 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
                 PropertyWriteResult = result
             });
             
-            IObjectStorage pointerObjectStorage = this.GetStorage(versionSlot);
-            result.PointerStorageSlot = pointerObjectStorage.Save(property.ToRawDataPointer());
+            ISlottedStorage pointerSlottedStorage = this.GetObjectStorage(revisionSlot);
+            result.PointerStorageSlot = pointerSlottedStorage.Save(property.ToRawDataPointer());
 
             IRawStorage rawStorage = this.GetRawStorage();
             result.ValueStorageSlot = rawStorage.Save(property.ToRawData());
@@ -189,7 +189,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
 
     public IProperty ReadProperty(IObjectData parent, IPropertyDescriptor propertyDescriptor)
     {
-        IProperty property = ReadProperty(parent, propertyDescriptor, GetLatestPropertyStorageVersionSlot(propertyDescriptor));
+        IProperty property = ReadProperty(parent, propertyDescriptor, GetLatestPropertyStorageRevisionSlot(propertyDescriptor));
         SetVersions(property);
         return property;
     }
@@ -230,21 +230,21 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
         return objectData;
     }
 
-    public virtual IObjectStorage GetStorage()
+    public virtual ISlottedStorage GetObjectStorage()
     {
-        return GetStorage(this.RootStorage);
+        return GetObjectStorage(this.RootStorage);
     }
 
-    public IObjectStorage GetStorage(IStorageSlot slot)
+    public ISlottedStorage GetObjectStorage(IStorageSlot slot)
     {
-        IObjectStorage objectStorage = GetStorage(slot.StorageHolder);
-        objectStorage.CurrentSlot = slot;
-        return objectStorage;
+        ISlottedStorage slottedStorage = GetObjectStorage(slot.StorageHolder);
+        slottedStorage.CurrentSlot = slot;
+        return slottedStorage;
     }
 
-    public virtual IObjectStorage GetStorage(IStorageHolder storageIdentifier)
+    public virtual ISlottedStorage GetObjectStorage(IStorageHolder storageIdentifier)
     {
-        return new FsObjectStorage(storageIdentifier.FullName);
+        return new FsSlottedStorage(storageIdentifier.FullName);
     }
     
     private IProperty? ReadProperty(IObjectData parent, IPropertyDescriptor propertyDescriptor, IStorageSlot storageSlot)
@@ -259,8 +259,8 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
             PropertyReadStarted?.Invoke(this,
                 new ObjectDataStorageEventArgs() { PropertyDescriptor = propertyDescriptor, ReadingFrom = storageSlot });
 
-            IObjectStorage pointerObjectStorage = this.GetStorage(storageSlot);
-            IRawData pointerData = pointerObjectStorage.LoadSlot(storageSlot);
+            ISlottedStorage pointerSlottedStorage = this.GetObjectStorage(storageSlot);
+            IRawData pointerData = pointerSlottedStorage.LoadSlot(storageSlot);
             IRawStorage rawStorage = this.GetRawStorage();
             IRawData rawData = rawStorage.LoadHashHexString(pointerData.ToString());
 
