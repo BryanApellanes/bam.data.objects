@@ -71,7 +71,19 @@ public class ObjectDataRepository : AsyncRepository
 
     public override T Retrieve<T>(string uuid)
     {
-        throw new NotImplementedException();
+        IObjectDataKey key = Indexer.LookupByUuidAsync(typeof(T), uuid).GetAwaiter().GetResult();
+        if (key == null)
+        {
+            return default;
+        }
+
+        IObjectDataReadResult result = Reader.ReadObjectDataAsync(key).GetAwaiter().GetResult();
+        if (result?.ObjectData?.Data == null)
+        {
+            return default;
+        }
+
+        return (T)result.ObjectData.Data;
     }
 
     public override object Retrieve(Type objectType, long id)
@@ -93,7 +105,14 @@ public class ObjectDataRepository : AsyncRepository
 
     public override object Retrieve(Type objectType, string uuid)
     {
-        throw new NotImplementedException();
+        IObjectDataKey key = Indexer.LookupByUuidAsync(objectType, uuid).GetAwaiter().GetResult();
+        if (key == null)
+        {
+            return null;
+        }
+
+        IObjectDataReadResult result = Reader.ReadObjectDataAsync(key).GetAwaiter().GetResult();
+        return result?.ObjectData?.Data;
     }
 
     public override bool Delete<T>(T toDelete)

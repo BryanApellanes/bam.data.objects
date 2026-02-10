@@ -41,6 +41,22 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
         retrieved.Id.ShouldEqual(result.Id);
     }
 
+    [UnitTest]
+    public async Task RetrieveByUuid()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(Create));
+        ServiceRegistry serviceRegistry = ConfigureTestRegistry(root);
+
+        ObjectDataRepository repository = serviceRegistry.Get<ObjectDataRepository>();
+        TestRepoData data = new TestRepoData();
+        string originalUuid = data.Uuid;
+        TestRepoData result = repository.Create(data);
+        TestRepoData retrieved = repository.Retrieve<TestRepoData>(originalUuid);
+        retrieved.ShouldNotBeNull("retrieved was null");
+        retrieved.Uuid.ShouldEqual(originalUuid);
+        retrieved.Id.ShouldEqual(result.Id);
+    }
+
     private static ServiceRegistry ConfigureTestRegistry(string root)
     {
         ServiceRegistry serviceRegistry = IntegrationTests.ConfigureDependencies(root);
