@@ -34,7 +34,7 @@ public class ObjectIdentifierFactoryShould : UnitTestMenuContainer
         ObjectDataIdentityCalculator objectDataIdentityHasher = Get<ObjectDataIdentityCalculator>();
         ObjectData data = new ObjectData(new PlainTestClass());
         
-        ulong keyHash = objectDataIdentityHasher.CalculateULongKey(data);
+        string keyHash = objectDataIdentityHasher.CalculateHashHexKey(data);
         IObjectDataKey dataKey = factory.GetObjectKey(data);
         dataKey.Key.ShouldEqual(keyHash);
     }

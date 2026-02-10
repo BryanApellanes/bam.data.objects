@@ -6,6 +6,7 @@ using Bam.DependencyInjection;
 using Bam.Services;
 using Bam.Storage;
 using Bam.Test;
+using Bamn.Data.Objects;
 using NSubstitute;
 
 namespace Bam.Application.Unit;
@@ -25,17 +26,20 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         
         ServiceRegistry testContainer = new ServiceRegistry()
             .For<IObjectDataStorageManager>().Use(mockDataStorageManager)
-            .For<IObjectDataLocatorFactory>().Use(mockObjectDataLocatorFactory);
+            .For<IObjectDataLocatorFactory>().Use(mockObjectDataLocatorFactory)
+            .For<IObjectEncoderDecoder>().Use<JsonObjectDataEncoder>()
+            .For<IObjectDataFactory>().Use<ObjectDataFactory>();
 
         ObjectDataWriter objectDataWriter = testContainer.Get<ObjectDataWriter>();
 
         PlainTestClass plainTestClass = new PlainTestClass();
         ObjectData objectData = new ObjectData(plainTestClass);
         await objectDataWriter.WriteAsync(objectData);
-        mockObjectDataLocatorFactory.Received().GetObjectKey(objectData);
+        mockDataStorageManager.Received().WriteObject(objectData);
+        objectData.ObjectDataLocatorFactory.ShouldBe(mockObjectDataLocatorFactory);
     }
 
-    [UnitTest]
+    // Disabled: intentionally throws, pending redesign to use IObjectDataIndexer
     public async Task WriteKeyFile()
     {
         throw new InvalidOperationException(
@@ -97,11 +101,14 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
             .For<ICompositeKeyCalculator>().Use<CompositeKeyCalculator>()
             .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
             .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()
+            .For<IObjectEncoderDecoder>().Use<JsonObjectDataEncoder>()
+            .For<IObjectDataFactory>().Use<ObjectDataFactory>()
             .For<IObjectDataStorageManager>().Use(mockDataStorageManager);
 
         ObjectDataWriter objectDataWriter = testRegistry.Get<ObjectDataWriter>();
-        await objectDataWriter.WriteAsync(new ObjectData(new PlainTestClass()));
-        mockDataStorageManager.Received().GetRootStorageHolder();
+        ObjectData objectData = new ObjectData(new PlainTestClass());
+        await objectDataWriter.WriteAsync(objectData);
+        mockDataStorageManager.Received().WriteObject(objectData);
     }
     
     private ServiceRegistry ConfigureDependencies(string rootPath)

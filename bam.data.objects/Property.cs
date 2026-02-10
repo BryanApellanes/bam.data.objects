@@ -39,6 +39,8 @@ public class Property : IProperty
     /// <summary>
     /// Gets the unversioned relative storage slot path of this property.
     /// </summary>
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
     public string StorageSlotRelativePath
     {
         get
@@ -52,6 +54,8 @@ public class Property : IProperty
         }
     }
 
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
     public IEnumerable<IPropertyRevision> Versions { get; set; }
 
     public object Decode()
@@ -59,6 +63,8 @@ public class Property : IProperty
         return ObjectDataEncoder.Decode(ObjectEncoding);
     }
     
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
     public IObjectData Parent { get; set; }
 
     /// <summary>
@@ -66,6 +72,8 @@ public class Property : IProperty
     /// </summary>
     public string AssemblyQualifiedTypeName { get; set; }
 
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
     public Type Type { get; set; }
 
     /// <summary>

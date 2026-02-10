@@ -5,6 +5,7 @@ using Bam.DependencyInjection;
 using Bam.Services;
 using Bam.Storage;
 using Bam.Test;
+using Bamn.Data.Objects;
 
 namespace Bam.Application.Unit;
 
@@ -79,7 +80,10 @@ public class PropertyStorageHolderShould: UnitTestMenuContainer
     private ServiceRegistry ConfigureDependencies(string rootPath)
     {
         ServiceRegistry testRegistry = new ServiceRegistry()
-            .For<IRootStorageHolder>().Use(new RootStorageHolder(rootPath));
+            .For<IRootStorageHolder>().Use(new RootStorageHolder(rootPath))
+            .For<IObjectEncoderDecoder>().Use<JsonObjectDataEncoder>()
+            .For<IObjectDataFactory>().Use<ObjectDataFactory>()
+            .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>();
 
         ServiceRegistry serviceRegistry = ConfigureTestRegistry(testRegistry);
         return serviceRegistry;

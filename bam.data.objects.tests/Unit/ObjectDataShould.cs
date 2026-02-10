@@ -93,9 +93,9 @@ public class ObjectDataShould : UnitTestMenuContainer
         ObjectData testObjectData = new ObjectData(plainTestClass);
         IProperty property = testObjectData.Property("IntProperty");
         object decoded = property.Decode();
-        // convert to long because the decoded value of a number 
+        // convert to long because the decoded value of a number
         // gets converted to long by the underlying deserialization
-        (decoded).ShouldEqual((long)expected);
+        Convert.ToInt64(decoded).ShouldEqual((long)expected);
     }
     
     [UnitTest]

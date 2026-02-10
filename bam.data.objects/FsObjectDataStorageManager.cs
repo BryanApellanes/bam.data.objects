@@ -99,8 +99,13 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
 
     public bool IsEqualToLatestRevision(IProperty property)
     {
+        int latestRevision = GetLatestRevisionNumber(property.ToDescriptor());
+        if (latestRevision == 0)
+        {
+            return false;
+        }
         IProperty latest = ReadProperty(property.Parent, property.ToDescriptor(), GetLatestPropertyStorageRevisionSlot(property.ToDescriptor()));
-        return latest.Decode().Equals(property.Decode());
+        return latest != null && latest.Decode().Equals(property.Decode());
     }
 
     public bool RevisionExists(IPropertyDescriptor property, int revisionNumber = 1)
@@ -162,8 +167,10 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
             ISlottedStorage pointerSlottedStorage = this.GetObjectStorage(revisionSlot);
             result.PointerStorageSlot = pointerSlottedStorage.Save(property.ToRawDataPointer());
 
+            IRawData rawData = property.ToRawData();
             IRawStorage rawStorage = this.GetRawStorage();
-            result.ValueStorageSlot = rawStorage.Save(property.ToRawData());
+            result.ValueStorageSlot = rawStorage.Save(rawData);
+            result.RawData = rawData;
             result.Status = PropertyWriteResults.Success;
             
             PropertyWriteComplete?.Invoke(this, new ObjectDataStorageEventArgs()
@@ -203,6 +210,12 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
             {
                 result.AddPropertyWriteResult(this.WriteProperty(property));
             }
+
+            IObjectDataKey objectDataKey = data.GetObjectKey();
+            ITypeStorageHolder typeHolder = GetObjectStorageHolder(objectDataKey.TypeDescriptor);
+            List<string> keyParts = new List<string> { typeHolder.FullName };
+            keyParts.AddRange(objectDataKey.Key.Split(2));
+            result.KeySlot = new FsStorageSlot(new DirectoryStorageHolder(Path.Combine(keyParts.ToArray())), "key");
         }
         catch (Exception ex)
         {

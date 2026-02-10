@@ -32,15 +32,18 @@ public class PropertyWriterShould: UnitTestMenuContainer
         
         objectDataKey.GetPath(objectDataStorageManager).StartsWith(root).ShouldBeTrue("objectKey path was not in correct root");
         
-        List<string> expectedParts = new List<string>();
-        expectedParts.Add(objectDataKey.GetPath(objectDataStorageManager));
-        expectedParts.Add(propertyName);
-        expectedParts.Add("1");
-        expectedParts.Add("dat");
-        
         IPropertyWriter propertyWriter = testContainer.Get<PropertyWriter>();
         IProperty property = testData.Property(propertyName);
         property.ShouldNotBeNull("String property was null");
+
+        int nextVersion = objectDataStorageManager.GetNextRevisionNumber(property);
+
+        List<string> expectedParts = new List<string>();
+        expectedParts.Add(objectDataKey.GetPath(objectDataStorageManager));
+        expectedParts.Add(propertyName);
+        expectedParts.Add(nextVersion.ToString());
+        expectedParts.Add("dat");
+
         IPropertyWriteResult result = await propertyWriter.WritePropertyAsync(property);
         result.PointerStorageSlot.FullName.ShouldEqual(Path.Combine(expectedParts.ToArray()));
     } 

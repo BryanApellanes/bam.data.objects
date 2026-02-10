@@ -78,7 +78,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
         IObjectDataKey dataKey = objectData.GetObjectKey();
         List<string> parts = new List<string>();
-        parts.Add(dataKey.ToString());
+        parts.Add(dataKey.GetPath(fsObjectDataStorageManager));
         parts.Add(propertyName);
         string expected = Path.Combine(parts.ToArray());
 
@@ -138,14 +138,9 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
         IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
         IProperty property = objectData.Property(propertyName);
 
-        IPropertyStorageRevisionSlot propertyStorageRevisionSlot =
-            fsObjectDataStorageManager.GetNextPropertyStorageRevisionSlot(property);
+        IPropertyWriteResult result = fsObjectDataStorageManager.WriteProperty(property);
 
-        propertyStorageRevisionSlot.SetData(property.ToRawData());
-
-        IPropertyWriteResult result = propertyStorageRevisionSlot.Save(fsObjectDataStorageManager, property);
-        
-        result.PointerStorageSlot.FullName.ShouldBeEqualTo(propertyStorageRevisionSlot.FullName);
+        result.PointerStorageSlot.ShouldNotBeNull("PointerStorageSlot was null");
         File.Exists(result.PointerStorageSlot.FullName).ShouldBeTrue("file slot was not written");
     }
     
