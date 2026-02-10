@@ -231,13 +231,21 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
     public IObjectData ReadObject(IObjectDataKey objectDataKey)
     {
         Args.ThrowIfNull(objectDataKey, nameof(objectDataKey));
-        // instantiate type
-        // populate type properties
         object data = objectDataKey.TypeDescriptor.Type.Construct();
         IObjectData objectData = this.ObjectDataFactory.GetObjectData(data);
         foreach (IProperty property in objectData.Properties)
         {
-            objectData.Property(property.PropertyName, ReadProperty(objectData, property.ToDescriptor()));
+            IPropertyDescriptor descriptor = new PropertyDescriptor()
+            {
+                ObjectDataKey = objectDataKey,
+                PropertyName = property.PropertyName,
+                PropertyType = property.Type
+            };
+            IProperty readProperty = ReadProperty(objectData, descriptor);
+            if (readProperty != null)
+            {
+                property.SetValue(data, readProperty.Decode());
+            }
         }
 
         return objectData;
