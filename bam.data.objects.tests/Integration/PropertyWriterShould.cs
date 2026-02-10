@@ -18,33 +18,57 @@ public class PropertyWriterShould: UnitTestMenuContainer
     public async Task WritePropertyDatFile()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(WritePropertyDatFile));
-        string propertyName = "StringProperty"; // defined in TestData class
-        
-        ServiceRegistry testContainer = IntegrationTests.ConfigureDependencies(root);
-        testContainer
-            .For<IPropertyWriter>().Use<PropertyWriter>()
-            .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
-        
-        IObjectDataFactory dataFactory = testContainer.Get<ObjectDataFactory>();
-        IObjectData testData = dataFactory.GetObjectData(new PlainTestClass(true));
-        IObjectDataKey objectDataKey = testData.GetObjectKey();
-        IObjectDataStorageManager objectDataStorageManager = testContainer.Get<FsObjectDataStorageManager>();
-        
-        objectDataKey.GetPath(objectDataStorageManager).StartsWith(root).ShouldBeTrue("objectKey path was not in correct root");
-        
-        IPropertyWriter propertyWriter = testContainer.Get<PropertyWriter>();
-        IProperty property = testData.Property(propertyName);
-        property.ShouldNotBeNull("String property was null");
+        string propertyName = "StringProperty";
+        string expectedPath = null;
 
-        int nextVersion = objectDataStorageManager.GetNextRevisionNumber(property);
+        When.A<PropertyWriter>("writes a property dat file",
+            () =>
+            {
+                ServiceRegistry testContainer = IntegrationTests.ConfigureDependencies(root);
+                testContainer
+                    .For<IPropertyWriter>().Use<PropertyWriter>()
+                    .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
+                return testContainer.Get<PropertyWriter>();
+            },
+            (propertyWriter) =>
+            {
+                ServiceRegistry testContainer = IntegrationTests.ConfigureDependencies(root);
+                testContainer
+                    .For<IPropertyWriter>().Use<PropertyWriter>()
+                    .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
 
-        List<string> expectedParts = new List<string>();
-        expectedParts.Add(objectDataKey.GetPath(objectDataStorageManager));
-        expectedParts.Add(propertyName);
-        expectedParts.Add(nextVersion.ToString());
-        expectedParts.Add("dat");
+                IObjectDataFactory dataFactory = testContainer.Get<ObjectDataFactory>();
+                IObjectData testData = dataFactory.GetObjectData(new PlainTestClass(true));
+                IObjectDataKey objectDataKey = testData.GetObjectKey();
+                IObjectDataStorageManager objectDataStorageManager = testContainer.Get<FsObjectDataStorageManager>();
 
-        IPropertyWriteResult result = await propertyWriter.WritePropertyAsync(property);
-        result.PointerStorageSlot.FullName.ShouldEqual(Path.Combine(expectedParts.ToArray()));
-    } 
+                IProperty property = testData.Property(propertyName);
+                int nextVersion = objectDataStorageManager.GetNextRevisionNumber(property);
+
+                List<string> expectedParts = new List<string>();
+                expectedParts.Add(objectDataKey.GetPath(objectDataStorageManager));
+                expectedParts.Add(propertyName);
+                expectedParts.Add(nextVersion.ToString());
+                expectedParts.Add("dat");
+                expectedPath = Path.Combine(expectedParts.ToArray());
+
+                IPropertyWriteResult result = propertyWriter.WritePropertyAsync(property).GetAwaiter().GetResult();
+                return new object[]
+                {
+                    objectDataKey.GetPath(objectDataStorageManager).StartsWith(root),
+                    property != null,
+                    result.PointerStorageSlot.FullName
+                };
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            object[] results = (object[])because.Result;
+            because.ItsTrue("objectKey path is in correct root", (bool)results[0]);
+            because.ItsTrue("property is not null", (bool)results[1]);
+            because.ItsTrue("result path equals expected", expectedPath.Equals((string)results[2]));
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
 }

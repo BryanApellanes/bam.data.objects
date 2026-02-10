@@ -15,27 +15,43 @@ public class FsObjectStorageManagerShould(ServiceRegistry serviceRegistry) : Uni
     public Task WriteAndReadProperty()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(WriteAndReadProperty));
-        ServiceRegistry serviceRegistry = IntegrationTests.ConfigureDependencies(root);
-        serviceRegistry
-            .For<IObjectDecoder>().Use<JsonObjectDataEncoder>()
-            .For<IPropertyWriter>().Use<PropertyWriter>()
-            .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
+        string stringPropertyValue = null;
 
-        FsObjectDataStorageManager fsObjectDataStorageManager = serviceRegistry.Get<FsObjectDataStorageManager>();
+        When.A<FsObjectDataStorageManager>("writes and reads a property",
+            () =>
+            {
+                ServiceRegistry svcRegistry = IntegrationTests.ConfigureDependencies(root);
+                svcRegistry
+                    .For<IObjectDecoder>().Use<JsonObjectDataEncoder>()
+                    .For<IPropertyWriter>().Use<PropertyWriter>()
+                    .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
+                return svcRegistry.Get<FsObjectDataStorageManager>();
+            },
+            (fsObjectDataStorageManager) =>
+            {
+                IObjectDataFactory objectDataFactory = IntegrationTests.ConfigureDependencies(root)
+                    .For<IObjectDecoder>().Use<JsonObjectDataEncoder>()
+                    .For<IPropertyWriter>().Use<PropertyWriter>()
+                    .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>()
+                    .Get<IObjectDataFactory>();
+                IObjectData testObjectData = objectDataFactory.GetObjectData(new PlainTestClass(true));
+                IProperty stringProperty = testObjectData.Property(nameof(PlainTestClass.StringProperty));
+                stringPropertyValue = stringProperty?.Value;
+                IPropertyWriteResult propertyWriteResult = fsObjectDataStorageManager.WriteProperty(stringProperty!);
+                IProperty readProperty = fsObjectDataStorageManager.ReadProperty(
+                    new ObjectData(propertyWriteResult.ObjectDataKey.TypeDescriptor),
+                    propertyWriteResult.GetDescriptor());
+                return readProperty.Value;
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            because.TheResult.IsNotNull()
+                .IsEqualTo(stringPropertyValue);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
 
-        IObjectDataFactory objectDataFactory = serviceRegistry.Get<IObjectDataFactory>();
-        IObjectData testObjectData = objectDataFactory.GetObjectData(new PlainTestClass(true));
-        
-        IProperty? stringProperty = testObjectData.Property(nameof(PlainTestClass.StringProperty));
-        stringProperty?.ShouldNotBeNull();
-        string? stringPropertyValue = stringProperty?.Value;
-        
-        IPropertyWriteResult propertyWriteResult = fsObjectDataStorageManager.WriteProperty(stringProperty!);
-        
-        Message.PrintLine(propertyWriteResult.PointerStorageSlot.FullName);
-        
-        IProperty readProperty = fsObjectDataStorageManager.ReadProperty(new ObjectData(propertyWriteResult.ObjectDataKey.TypeDescriptor), propertyWriteResult.GetDescriptor());
-        readProperty.Value.ShouldBeEqualTo(stringPropertyValue!);
         return Task.CompletedTask;
     }
 }

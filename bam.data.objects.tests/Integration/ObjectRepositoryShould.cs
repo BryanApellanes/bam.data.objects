@@ -20,41 +20,74 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
     public async Task Create()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(Create));
-        ServiceRegistry serviceRegistry = ConfigureTestRegistry(root);
-
-        ObjectDataRepository repository = serviceRegistry.Get<ObjectDataRepository>();
         TestRepoData data = new TestRepoData();
-        TestRepoData result = repository.Create(data);
-        result.ShouldBe(data);
+
+        When.A<ObjectDataRepository>("creates a TestRepoData entry",
+            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) => repository.Create(data))
+        .TheTest
+        .ShouldPass(because =>
+        {
+            because.ItsTrue("result is the same reference as input", ReferenceEquals(because.Result, data));
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
+
     [UnitTest]
     public async Task Retrieve()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(Create));
-        ServiceRegistry serviceRegistry = ConfigureTestRegistry(root);
-
-        ObjectDataRepository repository = serviceRegistry.Get<ObjectDataRepository>();
         TestRepoData data = new TestRepoData();
-        TestRepoData result = repository.Create(data);
-        result.Id.ShouldBeGreaterThan(0);
-        TestRepoData retrieved = repository.Retrieve<TestRepoData>(result.Id);
-        retrieved.Id.ShouldEqual(result.Id);
+
+        When.A<ObjectDataRepository>("creates and retrieves a TestRepoData entry",
+            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                TestRepoData result = repository.Create(data);
+                TestRepoData retrieved = repository.Retrieve<TestRepoData>(result.Id);
+                return new object[] { result.Id, retrieved?.Id ?? 0UL };
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            object[] results = (object[])because.Result;
+            ulong createdId = (ulong)results[0];
+            ulong retrievedId = (ulong)results[1];
+            because.ItsTrue("created Id is greater than 0", createdId > 0);
+            because.ItsTrue("retrieved Id equals created Id", retrievedId == createdId);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
 
     [UnitTest]
     public async Task RetrieveByUuid()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(Create));
-        ServiceRegistry serviceRegistry = ConfigureTestRegistry(root);
-
-        ObjectDataRepository repository = serviceRegistry.Get<ObjectDataRepository>();
         TestRepoData data = new TestRepoData();
         string originalUuid = data.Uuid;
-        TestRepoData result = repository.Create(data);
-        TestRepoData retrieved = repository.Retrieve<TestRepoData>(originalUuid);
-        retrieved.ShouldNotBeNull("retrieved was null");
-        retrieved.Uuid.ShouldEqual(originalUuid);
-        retrieved.Id.ShouldEqual(result.Id);
+
+        When.A<ObjectDataRepository>("creates and retrieves a TestRepoData entry by UUID",
+            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                TestRepoData result = repository.Create(data);
+                TestRepoData retrieved = repository.Retrieve<TestRepoData>(originalUuid);
+                return new object[] { retrieved, result.Id };
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            object[] results = (object[])because.Result;
+            TestRepoData retrieved = (TestRepoData)results[0];
+            ulong createdId = (ulong)results[1];
+            because.ItsTrue("retrieved is not null", retrieved != null);
+            because.ItsTrue("retrieved Uuid equals original", originalUuid.Equals(retrieved?.Uuid));
+            because.ItsTrue("retrieved Id equals created Id", retrieved?.Id == createdId);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
 
     private static ServiceRegistry ConfigureTestRegistry(string root)

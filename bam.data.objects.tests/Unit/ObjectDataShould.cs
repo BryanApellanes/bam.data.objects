@@ -12,129 +12,169 @@ public class ObjectDataShould : UnitTestMenuContainer
 {
     public ObjectDataShould(ServiceRegistry serviceRegistry) : base(serviceRegistry)
     {
-
     }
-    
+
     [UnitTest]
     public void HaveType()
     {
-        PlainTestClass plainTestClass = new PlainTestClass
+        When.A<PlainTestClass>("is wrapped in ObjectData", (ptc) =>
         {
-            IntProperty = RandomNumber.Between(1, 100),
-            StringProperty = 16.RandomLetters(),
-            LongProperty = RandomNumber.Between(100, 1000),
-            DateTimeProperty = DateTime.Now
-        };
-
-        ObjectData data = new ObjectData(plainTestClass);
-        
-        data.TypeDescriptor.ShouldNotBeNull("Type was null");
-        data.TypeDescriptor.Type.ShouldNotBeNull("TypeIdentifier.Type was null");
-        data.TypeDescriptor.Type.ShouldBe(typeof(PlainTestClass));
-        data.TypeDescriptor.AssemblyQualifiedTypeName.ShouldNotBeNull("TypeIdentifier.AssemblyQualifiedTypeName was null");
+            ptc.IntProperty = RandomNumber.Between(1, 100);
+            ptc.StringProperty = 16.RandomLetters();
+            ptc.LongProperty = RandomNumber.Between(100, 1000);
+            ptc.DateTimeProperty = DateTime.Now;
+            return new ObjectData(ptc);
+        })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            because.TheResult.IsNotNull()
+                .As<ObjectData>("has a TypeDescriptor", od => od?.TypeDescriptor != null)
+                .As<ObjectData>("TypeDescriptor.Type is not null", od => od?.TypeDescriptor?.Type != null)
+                .As<ObjectData>("TypeDescriptor.Type is PlainTestClass", od => od?.TypeDescriptor?.Type == typeof(PlainTestClass))
+                .As<ObjectData>("has an AssemblyQualifiedTypeName", od => od?.TypeDescriptor?.AssemblyQualifiedTypeName != null);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
 
     [UnitTest]
     public void BeIObjectData()
     {
-        (new ObjectData("test"){} is IObjectData).ShouldBeTrue();
+        When.A<PlainTestClass>("is wrapped in ObjectData", (ptc) => new ObjectData(ptc))
+        .TheTest
+        .ShouldPass(because =>
+        {
+            because.ItsTrue("is IObjectData", because.Result is IObjectData);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
-    
+
     [UnitTest]
     public void HaveProperties()
     {
-        PlainTestClass plainTestClass = new PlainTestClass
+        When.A<PlainTestClass>("is wrapped in ObjectData", (ptc) =>
         {
-            IntProperty = RandomNumber.Between(1, 100),
-            StringProperty = 16.RandomLetters(),
-            LongProperty = RandomNumber.Between(100, 1000),
-            DateTimeProperty = DateTime.Now
-        };
-
-        ObjectData data = new ObjectData(plainTestClass);
-        
-        data.Properties.ShouldNotBeNull("data.Properties was null");
-        int propCount = data.Properties.Count();
-        propCount.ShouldEqual(4, $"data.Properties.Count() was {propCount} instead of 4");
+            ptc.IntProperty = RandomNumber.Between(1, 100);
+            ptc.StringProperty = 16.RandomLetters();
+            ptc.LongProperty = RandomNumber.Between(100, 1000);
+            ptc.DateTimeProperty = DateTime.Now;
+            return new ObjectData(ptc);
+        })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            because.TheResult.IsNotNull()
+                .As<ObjectData>("has Properties", od => od?.Properties != null)
+                .As<ObjectData>("has 4 properties", od => od?.Properties?.Count() == 4);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
 
     [UnitTest]
     public void OutputSameJson()
     {
-        PlainTestClass plainTestClass = new PlainTestClass
+        string expected = null;
+
+        When.A<PlainTestClass>("is wrapped in ObjectData and serialized to Json", (ptc) =>
         {
-            IntProperty = RandomNumber.Between(1, 100),
-            StringProperty = 16.RandomLetters(),
-            LongProperty = RandomNumber.Between(100, 1000),
-            DateTimeProperty = DateTime.Now
-        };
-
-        ObjectData testObjectData = new ObjectData(plainTestClass);
-
-        string expected = plainTestClass.ToJson();
-        string actual = testObjectData.ToJson();
-        
-        expected.ShouldEqual(actual);
-        Message.PrintLine(expected);
+            ptc.IntProperty = RandomNumber.Between(1, 100);
+            ptc.StringProperty = 16.RandomLetters();
+            ptc.LongProperty = RandomNumber.Between(100, 1000);
+            ptc.DateTimeProperty = DateTime.Now;
+            expected = ptc.ToJson();
+            return new ObjectData(ptc);
+        })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            because.TheResult.IsNotNull()
+                .As<ObjectData>("outputs same Json", od => expected.Equals(od?.ToJson()));
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
 
     [UnitTest]
     public void GetIntPropertyValue()
     {
         int expected = RandomNumber.Between(100, 1000);
-        PlainTestClass plainTestClass = new PlainTestClass
-        {
-            IntProperty = expected,
-            StringProperty = 8.RandomLetters(),
-            LongProperty = RandomNumber.Between(100, 1000),
-            DateTimeProperty = DateTime.Now
-        };
 
-        ObjectData testObjectData = new ObjectData(plainTestClass);
-        IProperty property = testObjectData.Property("IntProperty");
-        object decoded = property.Decode();
-        // convert to long because the decoded value of a number
-        // gets converted to long by the underlying deserialization
-        Convert.ToInt64(decoded).ShouldEqual((long)expected);
+        When.A<PlainTestClass>("is wrapped in ObjectData and IntProperty is decoded", (ptc) =>
+        {
+            ptc.IntProperty = expected;
+            ptc.StringProperty = 8.RandomLetters();
+            ptc.LongProperty = RandomNumber.Between(100, 1000);
+            ptc.DateTimeProperty = DateTime.Now;
+            ObjectData testObjectData = new ObjectData(ptc);
+            IProperty property = testObjectData.Property("IntProperty");
+            return property.Decode();
+        })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            because.ItsTrue("decoded value equals expected", Convert.ToInt64(because.Result) == (long)expected);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
-    
+
     [UnitTest]
     public void GetStringPropertyValue()
     {
         string expected = 32.RandomLetters();
-        PlainTestClass plainTestClass = new PlainTestClass
-        {
-            IntProperty = RandomNumber.Between(1, 100),
-            StringProperty = expected,
-            LongProperty = RandomNumber.Between(100, 1000),
-            DateTimeProperty = DateTime.Now
-        };
 
-        ObjectData testObjectData = new ObjectData(plainTestClass);
-        IProperty property = testObjectData.Property("StringProperty");
-        property.Decode().ShouldEqual(expected);
+        When.A<PlainTestClass>("is wrapped in ObjectData and StringProperty is decoded", (ptc) =>
+        {
+            ptc.IntProperty = RandomNumber.Between(1, 100);
+            ptc.StringProperty = expected;
+            ptc.LongProperty = RandomNumber.Between(100, 1000);
+            ptc.DateTimeProperty = DateTime.Now;
+            ObjectData testObjectData = new ObjectData(ptc);
+            IProperty property = testObjectData.Property("StringProperty");
+            return property.Decode();
+        })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            because.TheResult.IsNotNull()
+                .IsEqualTo(expected);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
-    
+
     [UnitTest]
     public void SetPropertyValue()
     {
         string expected = 32.RandomLetters();
-        PlainTestClass plainTestClass = new PlainTestClass
-        {
-            IntProperty = RandomNumber.Between(1, 100),
-            StringProperty = 6.RandomLetters(),
-            LongProperty = RandomNumber.Between(100, 1000),
-            DateTimeProperty = DateTime.Now
-        };
+        bool originalDiffers = false;
+        IObjectData setData = null;
 
-        ObjectData testObjectData = new ObjectData(plainTestClass);
-        IProperty getProperty = testObjectData.Property("StringProperty");
-        getProperty.Decode().ShouldNotEqual(expected);
-        IObjectData setData = testObjectData.Property("StringProperty", expected);
-        
-        testObjectData.Property("StringProperty").Decode().ShouldEqual(expected);
-        setData.Property("StringProperty").Decode().ShouldEqual(expected);
-        setData.ShouldEqual(testObjectData);
-        setData.ShouldBe(testObjectData);
+        When.A<PlainTestClass>("has its StringProperty set via ObjectData", (ptc) =>
+        {
+            ptc.IntProperty = RandomNumber.Between(1, 100);
+            ptc.StringProperty = 6.RandomLetters();
+            ptc.LongProperty = RandomNumber.Between(100, 1000);
+            ptc.DateTimeProperty = DateTime.Now;
+            ObjectData testObjectData = new ObjectData(ptc);
+            originalDiffers = !expected.Equals(testObjectData.Property("StringProperty").Decode());
+            setData = testObjectData.Property("StringProperty", expected);
+            return testObjectData;
+        })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            because.ItsTrue("original value was different from expected", originalDiffers);
+            because.TheResult.IsNotNull()
+                .As<ObjectData>("has updated StringProperty", od => expected.Equals(od?.Property("StringProperty")?.Decode()));
+            because.ItsTrue("setData has updated StringProperty", expected.Equals(setData?.Property("StringProperty")?.Decode()));
+            because.ItsTrue("setData equals testObjectData", setData?.Equals(because.Result) == true);
+            because.ItsTrue("setData is same reference as testObjectData", ReferenceEquals(setData, because.Result));
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
 }

@@ -23,20 +23,35 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
     {
         IObjectDataLocatorFactory mockObjectDataLocatorFactory = Substitute.For<IObjectDataLocatorFactory>();
         IObjectDataStorageManager mockDataStorageManager = Substitute.For<IObjectDataStorageManager>();
-        
-        ServiceRegistry testContainer = new ServiceRegistry()
-            .For<IObjectDataStorageManager>().Use(mockDataStorageManager)
-            .For<IObjectDataLocatorFactory>().Use(mockObjectDataLocatorFactory)
-            .For<IObjectEncoderDecoder>().Use<JsonObjectDataEncoder>()
-            .For<IObjectDataFactory>().Use<ObjectDataFactory>();
 
-        ObjectDataWriter objectDataWriter = testContainer.Get<ObjectDataWriter>();
-
-        PlainTestClass plainTestClass = new PlainTestClass();
-        ObjectData objectData = new ObjectData(plainTestClass);
-        await objectDataWriter.WriteAsync(objectData);
-        mockDataStorageManager.Received().WriteObject(objectData);
-        objectData.ObjectDataLocatorFactory.ShouldBe(mockObjectDataLocatorFactory);
+        When.A<ObjectDataWriter>("writes ObjectData",
+            () =>
+            {
+                ServiceRegistry testContainer = new ServiceRegistry()
+                    .For<IObjectDataStorageManager>().Use(mockDataStorageManager)
+                    .For<IObjectDataLocatorFactory>().Use(mockObjectDataLocatorFactory)
+                    .For<IObjectEncoderDecoder>().Use<JsonObjectDataEncoder>()
+                    .For<IObjectDataFactory>().Use<ObjectDataFactory>();
+                return testContainer.Get<ObjectDataWriter>();
+            },
+            (objectDataWriter) =>
+            {
+                PlainTestClass plainTestClass = new PlainTestClass();
+                ObjectData objectData = new ObjectData(plainTestClass);
+                objectDataWriter.WriteAsync(objectData).GetAwaiter().GetResult();
+                return new object[] { objectData, objectData.ObjectDataLocatorFactory };
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            object[] results = (object[])because.Result;
+            ObjectData objectData = (ObjectData)results[0];
+            object locatorFactory = results[1];
+            mockDataStorageManager.Received().WriteObject(objectData);
+            because.ItsTrue("ObjectDataLocatorFactory is the mock", ReferenceEquals(locatorFactory, mockObjectDataLocatorFactory));
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
 
     // Disabled: intentionally throws, pending redesign to use IObjectDataIndexer
@@ -45,72 +60,43 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
         throw new InvalidOperationException(
             "Review this test for validity.  Why should a key file be written to the expected path" +
             "This should probably be replaced by the concept of an IObjectDataIndexer");
-        
-        string root = Path.Combine(Environment.CurrentDirectory, nameof(WriteKeyFile));
-        ServiceRegistry testContainer = ConfigureDependencies(root);
-        
-        IObjectDataKey mockDataKey = Substitute.For<IObjectDataKey>();
-        string testKey = 32.RandomLetters().HashHexString(HashAlgorithms.SHA256);
-        mockDataKey.Key.Returns(testKey);
-        mockDataKey.TypeDescriptor.Returns(new TypeDescriptor(typeof(PlainTestClass)));
-        //mockDataKey.Id.Returns(testKey);
-        
-        IObjectDataFactory mockDataFactory = Substitute.For<IObjectDataFactory>();
-        mockDataFactory.GetObjectKey(Arg.Any<IObjectData>()).Returns(mockDataKey);
-        
-        IObjectDataIdentifier mockObjectDataIdentifier = Substitute.For<IObjectDataIdentifier>();
-        mockObjectDataIdentifier.Id.Returns(testKey);
-        mockDataFactory.GetObjectIdentifier(Arg.Any<IObjectData>()).Returns(mockObjectDataIdentifier);
-
-        testContainer
-            .For<IObjectDataReader>().Use<ObjectDataReader>()
-            .For<IObjectDecoder>().Use<JsonObjectDataEncoder>()
-            .For<IObjectDataFactory>().Use(mockDataFactory)
-            .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>()
-            .For<IPropertyWriter>().Use<PropertyWriter>();
-        
-        ObjectDataWriter objectDataWriter = testContainer.Get<ObjectDataWriter>();
-
-        PlainTestClass plainTestClass = new PlainTestClass();
-        ObjectData objectData = new ObjectData(plainTestClass);
-        IObjectDataWriteResult result = await objectDataWriter.WriteAsync(objectData);
-        result.ObjectData.ShouldNotBeNull("result.Data was null");
-        result.ObjectData.ShouldBe(objectData);
-        
-        List<string> parts = new List<string> { root };
-        parts.Add("objects");
-        parts.AddRange(typeof(PlainTestClass).Namespace.Split('.'));
-        parts.Add(nameof(PlainTestClass));
-        parts.AddRange(testKey.ToString().Split(2));
-        parts.Add("key");
-        
-        string expected = Path.Combine(parts.ToArray());
-        File.Exists(expected).ShouldBeTrue($"Key file was not written to the expected path {expected}");
-        string keyFileContent = await File.ReadAllTextAsync(expected);
-        keyFileContent.ShouldBeEqualTo(testKey.ToString());
     }
 
-
-    
     [UnitTest]
     public async Task CallObjectStorageManagerGetRootStorage()
     {
         IObjectDataStorageManager mockDataStorageManager = Substitute.For<IObjectDataStorageManager>();
-        ServiceRegistry testRegistry = new ServiceRegistry()
-            .For<IHashCalculator>().Use<JsonHashCalculator>()
-            .For<ICompositeKeyCalculator>().Use<CompositeKeyCalculator>()
-            .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
-            .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()
-            .For<IObjectEncoderDecoder>().Use<JsonObjectDataEncoder>()
-            .For<IObjectDataFactory>().Use<ObjectDataFactory>()
-            .For<IObjectDataStorageManager>().Use(mockDataStorageManager);
 
-        ObjectDataWriter objectDataWriter = testRegistry.Get<ObjectDataWriter>();
-        ObjectData objectData = new ObjectData(new PlainTestClass());
-        await objectDataWriter.WriteAsync(objectData);
-        mockDataStorageManager.Received().WriteObject(objectData);
+        When.A<ObjectDataWriter>("writes ObjectData and calls storage manager",
+            () =>
+            {
+                ServiceRegistry testRegistry = new ServiceRegistry()
+                    .For<IHashCalculator>().Use<JsonHashCalculator>()
+                    .For<ICompositeKeyCalculator>().Use<CompositeKeyCalculator>()
+                    .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
+                    .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()
+                    .For<IObjectEncoderDecoder>().Use<JsonObjectDataEncoder>()
+                    .For<IObjectDataFactory>().Use<ObjectDataFactory>()
+                    .For<IObjectDataStorageManager>().Use(mockDataStorageManager);
+                return testRegistry.Get<ObjectDataWriter>();
+            },
+            (objectDataWriter) =>
+            {
+                ObjectData objectData = new ObjectData(new PlainTestClass());
+                objectDataWriter.WriteAsync(objectData).GetAwaiter().GetResult();
+                return objectData;
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            ObjectData objectData = (ObjectData)because.Result;
+            mockDataStorageManager.Received().WriteObject(objectData);
+            because.ItsTrue("storage manager WriteObject was called", true);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
-    
+
     private ServiceRegistry ConfigureDependencies(string rootPath)
     {
         ServiceRegistry testRegistry = new ServiceRegistry()

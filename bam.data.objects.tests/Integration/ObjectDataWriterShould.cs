@@ -13,81 +13,66 @@ public class ObjectDataWriterShould: UnitTestMenuContainer
     public ObjectDataWriterShould(ServiceRegistry serviceRegistry) : base(serviceRegistry)
     {
     }
-    
+
     [UnitTest]
     public async Task WriteData()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(WriteData));
-        ServiceRegistry testContainer = ConfigureDependencies(root);
-        testContainer
-            .For<IPropertyWriter>().Use<PropertyWriter>()
-            .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>()
-            .For<IHashCalculator>().Use<JsonHashCalculator>()
-            .For<ICompositeKeyCalculator>().Use<CompositeKeyCalculator>()
-            .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
-            .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()
-            .For<IObjectDataFactory>().Use<ObjectDataFactory>();
-        
-        ObjectDataWriter objectDataWriter = testContainer.Get<ObjectDataWriter>();
-        
         PlainTestClass plainTestClass = new PlainTestClass(true);
 
-        IObjectDataWriteResult result = await objectDataWriter.WriteAsync(plainTestClass);
-        result.ShouldNotBeNull();
-        result.Success.ShouldBeTrue(result.Message);
-        result.ObjectData.ShouldNotBeNull("result.Data was null");
-        result.ObjectData.Data.ShouldBe(plainTestClass);
-        result.ObjectDataKey.ShouldNotBeNull("result.ObjectKey was null");
-        result.KeySlot.ShouldNotBeNull("result.KeySlot was null");
-        
-        result.PropertyWriteResults.Count.ShouldEqual(4, "result.PropertyWriteResults.Count was not equal to 4");
-        
-        foreach (string key in result.PropertyWriteResults.Keys)
+        When.A<ObjectDataWriter>("writes data",
+            () =>
+            {
+                ServiceRegistry testContainer = ConfigureDependencies(root);
+                testContainer
+                    .For<IPropertyWriter>().Use<PropertyWriter>()
+                    .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>()
+                    .For<IHashCalculator>().Use<JsonHashCalculator>()
+                    .For<ICompositeKeyCalculator>().Use<CompositeKeyCalculator>()
+                    .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
+                    .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()
+                    .For<IObjectDataFactory>().Use<ObjectDataFactory>();
+                return testContainer.Get<ObjectDataWriter>();
+            },
+            (objectDataWriter) =>
+            {
+                return objectDataWriter.WriteAsync(plainTestClass).GetAwaiter().GetResult();
+            })
+        .TheTest
+        .ShouldPass(because =>
         {
-            IPropertyWriteResult propertyWriteResult = result.PropertyWriteResults[key];
-            
-            propertyWriteResult.ShouldNotBeNull("propertyWriteResult was null");
-            propertyWriteResult.Property.ShouldNotBeNull("propertyWriteResult.ObjectProperty was null");
-            propertyWriteResult.RawData.ShouldNotBeNull("propertyWriteResult.RawData was null");
-        }
-        
+            IObjectDataWriteResult result = (IObjectDataWriteResult)because.Result;
+            because.ItsTrue("result is not null", result != null);
+            because.ItsTrue("result succeeded", result?.Success == true);
+            because.ItsTrue("result.ObjectData is not null", result?.ObjectData != null);
+            because.ItsTrue("result.ObjectData.Data is the original object", ReferenceEquals(result?.ObjectData?.Data, plainTestClass));
+            because.ItsTrue("result.ObjectDataKey is not null", result?.ObjectDataKey != null);
+            because.ItsTrue("result.KeySlot is not null", result?.KeySlot != null);
+            because.ItsTrue("result has 4 PropertyWriteResults", result?.PropertyWriteResults?.Count == 4);
+
+            if (result?.PropertyWriteResults != null)
+            {
+                foreach (string key in result.PropertyWriteResults.Keys)
+                {
+                    IPropertyWriteResult propertyWriteResult = result.PropertyWriteResults[key];
+                    because.ItsTrue($"propertyWriteResult[{key}] is not null", propertyWriteResult != null);
+                    because.ItsTrue($"propertyWriteResult[{key}].Property is not null", propertyWriteResult?.Property != null);
+                    because.ItsTrue($"propertyWriteResult[{key}].RawData is not null", propertyWriteResult?.RawData != null);
+                }
+            }
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
 
     public async Task WritePropertyFiles()
     {
-        string root = Path.Combine(Environment.CurrentDirectory, nameof(WritePropertyFiles));
-        ServiceRegistry testContainer = ConfigureDependencies(root);
-        testContainer
-            .For<IPropertyWriter>().Use<PropertyWriter>()
-            .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>()
-            .For<IHashCalculator>().Use<JsonHashCalculator>()
-            .For<ICompositeKeyCalculator>().Use<CompositeKeyCalculator>()
-            .For<IObjectDataIdentityCalculator>().Use<ObjectDataIdentityCalculator>()
-            .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()
-            .For<IObjectDataFactory>().Use<ObjectDataFactory>();
-        
-        ObjectDataWriter objectDataWriter = testContainer.Get<ObjectDataWriter>();
-        IObjectDataStorageManager dataStorageManager = testContainer.Get<IObjectDataStorageManager>();
-        PlainTestClass plainTestClass = new PlainTestClass(true);
-
-        IObjectDataWriteResult result = await objectDataWriter.WriteAsync(plainTestClass);
-        // validate against newly documented implementation
-        result.PropertyWriteResults.Count.ShouldEqual(4);
-        foreach (string key in result.PropertyWriteResults.Keys)
-        {
-            
-            IPropertyWriteResult propertyWriteResult = result.PropertyWriteResults[key];
-            //propertyWriteResult.StorageSlot.FullName.ShouldEqual();
-        }
-        // rewrite implementation to conform to the README
-
         throw new NotImplementedException();
     }
-    
+
     private ServiceRegistry ConfigureDependencies(string rootPath)
     {
         ServiceRegistry testRegistry = IntegrationTests.ConfigureDependencies(rootPath);
-
         ServiceRegistry dependencyProvider = Configure(testRegistry);
         return dependencyProvider;
     }

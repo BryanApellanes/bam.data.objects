@@ -18,16 +18,35 @@ public class TypeIdentifierShould : UnitTestMenuContainer
     {
         Type type = typeof(PlainTestClass);
         string typeName = type.AssemblyQualifiedName;
-        TypeDescriptor descriptor = new TypeDescriptor(typeName);
-        descriptor.Type.ShouldNotBeNull("Type was null");
-        descriptor.Type.ShouldEqual(type);
-        descriptor.Type.ShouldBe(type);
+
+        When.A<TypeDescriptor>("is created from AssemblyQualifiedName",
+            () => new TypeDescriptor(typeName),
+            (descriptor) => descriptor)
+        .TheTest
+        .ShouldPass(because =>
+        {
+            because.TheResult.IsNotNull()
+                .As<TypeDescriptor>("has a Type", d => d?.Type != null)
+                .As<TypeDescriptor>("Type equals PlainTestClass", d => type.Equals(d?.Type))
+                .As<TypeDescriptor>("Type is PlainTestClass", d => d?.Type == type);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
 
     [UnitTest]
     public void HaveTypeName()
     {
-        TypeDescriptor descriptor = new TypeDescriptor(typeof(PlainTestClass));
-        descriptor.AssemblyQualifiedTypeName.ShouldNotBeNull("AssemblyQualifiedTypeName was null");
+        When.A<TypeDescriptor>("is created from a Type",
+            () => new TypeDescriptor(typeof(PlainTestClass)),
+            (descriptor) => descriptor)
+        .TheTest
+        .ShouldPass(because =>
+        {
+            because.TheResult.IsNotNull()
+                .As<TypeDescriptor>("has an AssemblyQualifiedTypeName", d => d?.AssemblyQualifiedTypeName != null);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
 }

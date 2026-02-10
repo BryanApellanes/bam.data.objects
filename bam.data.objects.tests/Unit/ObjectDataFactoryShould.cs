@@ -20,16 +20,29 @@ public class ObjectDataFactoryShould : UnitTestMenuContainer
     public async Task SetObjectIdentifierFactoryOnObjectData()
     {
         string rootPath = Path.Combine(Environment.CurrentDirectory, nameof(SetObjectIdentifierFactoryOnObjectData));
-        ServiceRegistry testRegistry = IntegrationTests.ConfigureDependencies(rootPath)
-            .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
-        
-        ObjectDataFactory dataFactory = testRegistry.Get<ObjectDataFactory>();
-        
-        IObjectData objectData = dataFactory.GetObjectData(new PlainTestClass(true));
-        
-        objectData.ObjectDataLocatorFactory.ShouldNotBeNull($"{nameof(objectData.ObjectDataLocatorFactory)} was null");
-        IObjectDataKey objectDataKey = objectData.GetObjectKey();
-        objectDataKey.ShouldNotBeNull("objectKey was null");
-        Message.PrintLine(objectDataKey.ToString());
+
+        When.A<ObjectDataFactory>("creates ObjectData from a PlainTestClass",
+            () =>
+            {
+                ServiceRegistry testRegistry = IntegrationTests.ConfigureDependencies(rootPath)
+                    .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
+                return testRegistry.Get<ObjectDataFactory>();
+            },
+            (dataFactory) =>
+            {
+                IObjectData objectData = dataFactory.GetObjectData(new PlainTestClass(true));
+                return new object[] { objectData, objectData.GetObjectKey() };
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            object[] results = (object[])because.Result;
+            IObjectData objectData = (IObjectData)results[0];
+            IObjectDataKey objectDataKey = (IObjectDataKey)results[1];
+            because.ItsTrue("ObjectDataLocatorFactory is not null", objectData.ObjectDataLocatorFactory != null);
+            because.ItsTrue("objectKey is not null", objectDataKey != null);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
 }

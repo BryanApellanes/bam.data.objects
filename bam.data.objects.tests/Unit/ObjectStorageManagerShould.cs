@@ -15,165 +15,236 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
     public ObjectStorageManagerShould(ServiceRegistry serviceRegistry) : base(serviceRegistry)
     {
     }
-    
+
     [UnitTest]
     public void GetRootStorage()
     {
         string expected = Path.Combine(Environment.CurrentDirectory, nameof(GetRootStorage));
-        DependencyProvider dependencyProvider = ConfigureDependencies(expected);
-        FsObjectDataStorageManager dataStorageManager = dependencyProvider.Get<FsObjectDataStorageManager>();
 
-        string actual = dataStorageManager.GetRootStorageHolder().FullName;
-        actual.ShouldEqual(expected, $"root was not expected value {expected} but {actual}");
+        When.A<FsObjectDataStorageManager>("gets root storage",
+            () => ConfigureDependencies(expected).Get<FsObjectDataStorageManager>(),
+            (mgr) => mgr.GetRootStorageHolder().FullName)
+        .TheTest
+        .ShouldPass(because =>
+        {
+            because.TheResult.IsNotNull()
+                .IsEqualTo(expected);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
-    
+
     [UnitTest]
     public void GetTypeDirectoryForDynamicType()
-    {        
+    {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(GetTypeDirectoryForDynamicType));
-        DependencyProvider dependencyProvider = ConfigureDependencies(root);
-        FsObjectDataStorageManager ofs = dependencyProvider.Get<FsObjectDataStorageManager>();
-        dynamic ob = new
+
+        When.A<FsObjectDataStorageManager>("gets type directory for dynamic type",
+            () => ConfigureDependencies(root).Get<FsObjectDataStorageManager>(),
+            (ofs) =>
+            {
+                dynamic ob = new { };
+                return ofs.GetObjectStorageHolder(ob.GetType());
+            })
+        .TheTest
+        .ShouldPass(because =>
         {
-        };
-        
-        DirectoryInfo directoryInfo = ofs.GetObjectStorageHolder(ob.GetType());
-        directoryInfo.ShouldNotBeNull();
-        Message.PrintLine("typeDir = '{0}'", directoryInfo.FullName);
+            because.ItsTrue("directory info is not null", because.Result != null);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
 
     [UnitTest]
     public void GetTypeStorage()
-    {        
+    {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(GetTypeDirectoryForDynamicType));
-        DependencyProvider dependencyProvider = ConfigureDependencies(root);
-        FsObjectDataStorageManager fsObjectDataStorageManager = dependencyProvider.Get<FsObjectDataStorageManager>();
-        PlainTestClass ob = new PlainTestClass();
-        
-        ITypeStorageHolder typeStorageHolder = fsObjectDataStorageManager.GetObjectStorageHolder(ob.GetType());
-        typeStorageHolder.ShouldNotBeNull();
-        typeStorageHolder.RootStorageHolder.ShouldNotBeNull();
-        
-        Message.PrintLine("typeDir = '{0}'", typeStorageHolder.FullName);
+
+        When.A<FsObjectDataStorageManager>("gets type storage for PlainTestClass",
+            () => ConfigureDependencies(root).Get<FsObjectDataStorageManager>(),
+            (fsObjectDataStorageManager) =>
+            {
+                PlainTestClass ob = new PlainTestClass();
+                return fsObjectDataStorageManager.GetObjectStorageHolder(ob.GetType());
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            because.ItsTrue("typeStorageHolder is not null", because.Result != null);
+            because.ItsTrue("typeStorageHolder has RootStorageHolder",
+                because.Result is ITypeStorageHolder tsh && tsh.RootStorageHolder != null);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
-    
+
     [UnitTest]
     public void GetPropertyStorageContainer()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(GetPropertyStorageContainer));
-        ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(root))
-            .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
-
-        FsObjectDataStorageManager fsObjectDataStorageManager = serviceRegistry.Get<FsObjectDataStorageManager>();
-        ObjectDataFactory dataFactory = serviceRegistry.Get<ObjectDataFactory>();
         string propertyName = "StringProperty";
-        
-        PlainTestClass plainTestClass = new PlainTestClass
-        {
-            IntProperty = RandomNumber.Between(1, 100),
-            StringProperty = 64.RandomLetters(),
-            LongProperty = RandomNumber.Between(100, 1000),
-            DateTimeProperty = DateTime.Now
-        };
-        IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
-        IObjectDataKey dataKey = objectData.GetObjectKey();
-        List<string> parts = new List<string>();
-        parts.Add(dataKey.GetPath(fsObjectDataStorageManager));
-        parts.Add(propertyName);
-        string expected = Path.Combine(parts.ToArray());
+        string expected = null;
 
-        IPropertyStorageHolder propertyStorage = fsObjectDataStorageManager.GetPropertyStorageHolder(objectData.Property(propertyName).ToDescriptor());
-        propertyStorage.TypeStorageHolder.ShouldNotBeNull("TypeStorageHolder was null");
-        
-        propertyStorage.PropertyName.ShouldNotBeNull();
-        propertyStorage.PropertyName.ShouldEqual(propertyName);
-        propertyStorage.FullName.ShouldEqual(expected);
-        Message.PrintLine(expected);
+        When.A<FsObjectDataStorageManager>("gets property storage container",
+            () =>
+            {
+                ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(root))
+                    .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
+                return serviceRegistry.Get<FsObjectDataStorageManager>();
+            },
+            (fsObjectDataStorageManager) =>
+            {
+                ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(root))
+                    .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
+                ObjectDataFactory dataFactory = serviceRegistry.Get<ObjectDataFactory>();
+                PlainTestClass plainTestClass = new PlainTestClass
+                {
+                    IntProperty = RandomNumber.Between(1, 100),
+                    StringProperty = 64.RandomLetters(),
+                    LongProperty = RandomNumber.Between(100, 1000),
+                    DateTimeProperty = DateTime.Now
+                };
+                IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
+                IObjectDataKey dataKey = objectData.GetObjectKey();
+                List<string> parts = new List<string>();
+                parts.Add(dataKey.GetPath(fsObjectDataStorageManager));
+                parts.Add(propertyName);
+                expected = Path.Combine(parts.ToArray());
+                return fsObjectDataStorageManager.GetPropertyStorageHolder(objectData.Property(propertyName).ToDescriptor());
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            IPropertyStorageHolder propertyStorage = (IPropertyStorageHolder)because.Result;
+            because.ItsTrue("TypeStorageHolder is not null", propertyStorage?.TypeStorageHolder != null);
+            because.ItsTrue("PropertyName is not null", propertyStorage?.PropertyName != null);
+            because.ItsTrue("PropertyName equals expected", propertyName.Equals(propertyStorage?.PropertyName));
+            because.ItsTrue("FullName equals expected path", expected.Equals(propertyStorage?.FullName));
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
 
     [UnitTest]
     public async Task GetNextPropertyStorageRevisionSlot()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(GetNextPropertyStorageRevisionSlot));
-        ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(root))
-            .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
 
-        FsObjectDataStorageManager fsObjectDataStorageManager = serviceRegistry.Get<FsObjectDataStorageManager>();
-        ObjectDataFactory dataFactory = serviceRegistry.Get<ObjectDataFactory>();
-        string propertyName = "StringProperty";
-        
-        PlainTestClass plainTestClass = new PlainTestClass
+        When.A<FsObjectDataStorageManager>("gets next property storage revision slot",
+            () =>
+            {
+                ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(root))
+                    .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
+                return serviceRegistry.Get<FsObjectDataStorageManager>();
+            },
+            (fsObjectDataStorageManager) =>
+            {
+                ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(root))
+                    .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
+                ObjectDataFactory dataFactory = serviceRegistry.Get<ObjectDataFactory>();
+                PlainTestClass plainTestClass = new PlainTestClass
+                {
+                    IntProperty = RandomNumber.Between(1, 100),
+                    StringProperty = 64.RandomLetters(),
+                    LongProperty = RandomNumber.Between(100, 1000),
+                    DateTimeProperty = DateTime.Now
+                };
+                IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
+                return fsObjectDataStorageManager.GetNextPropertyStorageRevisionSlot(objectData.Property("StringProperty"));
+            })
+        .TheTest
+        .ShouldPass(because =>
         {
-            IntProperty = RandomNumber.Between(1, 100),
-            StringProperty = 64.RandomLetters(),
-            LongProperty = RandomNumber.Between(100, 1000),
-            DateTimeProperty = DateTime.Now
-        };
-        IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
-
-        IPropertyStorageRevisionSlot propertyStorageRevisionSlot = fsObjectDataStorageManager.GetNextPropertyStorageRevisionSlot(objectData.Property(propertyName));
-        
-        propertyStorageRevisionSlot.ShouldNotBeNull($"{nameof(propertyStorageRevisionSlot)} was null");
-        Message.PrintLine(propertyStorageRevisionSlot.FullName);
+            because.ItsTrue("propertyStorageRevisionSlot is not null", because.Result != null);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
-    
+
     [UnitTest]
     public async Task SavePropertyInStorageVersionSlot()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(SavePropertyInStorageVersionSlot));
-        ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(root))
-            .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
 
-        FsObjectDataStorageManager fsObjectDataStorageManager = serviceRegistry.Get<FsObjectDataStorageManager>();
-        ObjectDataFactory dataFactory = serviceRegistry.Get<ObjectDataFactory>();
-        string propertyName = "StringProperty";
-
-        PlainTestClass plainTestClass = new PlainTestClass
+        When.A<FsObjectDataStorageManager>("saves a property in a storage version slot",
+            () =>
+            {
+                ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(root))
+                    .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
+                return serviceRegistry.Get<FsObjectDataStorageManager>();
+            },
+            (fsObjectDataStorageManager) =>
+            {
+                ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(root))
+                    .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
+                ObjectDataFactory dataFactory = serviceRegistry.Get<ObjectDataFactory>();
+                PlainTestClass plainTestClass = new PlainTestClass
+                {
+                    IntProperty = RandomNumber.Between(1, 100),
+                    StringProperty = 64.RandomLetters(),
+                    LongProperty = RandomNumber.Between(100, 1000),
+                    DateTimeProperty = DateTime.Now
+                };
+                IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
+                IProperty property = objectData.Property("StringProperty");
+                IPropertyWriteResult result = fsObjectDataStorageManager.WriteProperty(property);
+                return result;
+            })
+        .TheTest
+        .ShouldPass(because =>
         {
-            IntProperty = RandomNumber.Between(1, 100),
-            StringProperty = 64.RandomLetters(),
-            LongProperty = RandomNumber.Between(100, 1000),
-            DateTimeProperty = DateTime.Now
-        };
-        IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
-        IProperty property = objectData.Property(propertyName);
-
-        IPropertyWriteResult result = fsObjectDataStorageManager.WriteProperty(property);
-
-        result.PointerStorageSlot.ShouldNotBeNull("PointerStorageSlot was null");
-        File.Exists(result.PointerStorageSlot.FullName).ShouldBeTrue("file slot was not written");
+            IPropertyWriteResult result = (IPropertyWriteResult)because.Result;
+            because.ItsTrue("PointerStorageSlot is not null", result?.PointerStorageSlot != null);
+            because.ItsTrue("file slot was written", File.Exists(result?.PointerStorageSlot?.FullName));
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
-    
-        
+
     [UnitTest]
     public async Task GetStorageForPropertyStorageVersionSlot()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(SavePropertyInStorageVersionSlot));
-        ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(root))
-            .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
 
-        FsObjectDataStorageManager fsObjectDataStorageManager = serviceRegistry.Get<FsObjectDataStorageManager>();
-        ObjectDataFactory dataFactory = serviceRegistry.Get<ObjectDataFactory>();
-        string propertyName = "StringProperty";
-
-        PlainTestClass plainTestClass = new PlainTestClass
+        When.A<FsObjectDataStorageManager>("gets storage for property storage version slot",
+            () =>
+            {
+                ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(root))
+                    .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
+                return serviceRegistry.Get<FsObjectDataStorageManager>();
+            },
+            (fsObjectDataStorageManager) =>
+            {
+                ServiceRegistry serviceRegistry = ConfigureTestRegistry(ConfigureDependencies(root))
+                    .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>();
+                ObjectDataFactory dataFactory = serviceRegistry.Get<ObjectDataFactory>();
+                PlainTestClass plainTestClass = new PlainTestClass
+                {
+                    IntProperty = RandomNumber.Between(1, 100),
+                    StringProperty = 64.RandomLetters(),
+                    LongProperty = RandomNumber.Between(100, 1000),
+                    DateTimeProperty = DateTime.Now
+                };
+                IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
+                IProperty property = objectData.Property("StringProperty");
+                IPropertyStorageRevisionSlot propertyStorageRevisionSlot =
+                    fsObjectDataStorageManager.GetNextPropertyStorageRevisionSlot(property);
+                ISlottedStorage slottedStorage = fsObjectDataStorageManager.GetObjectStorage(propertyStorageRevisionSlot);
+                IStorageSlot slot = slottedStorage.Save(property.ToRawData());
+                return new object[] { slot, propertyStorageRevisionSlot, fsObjectDataStorageManager };
+            })
+        .TheTest
+        .ShouldPass(because =>
         {
-            IntProperty = RandomNumber.Between(1, 100),
-            StringProperty = 64.RandomLetters(),
-            LongProperty = RandomNumber.Between(100, 1000),
-            DateTimeProperty = DateTime.Now
-        };
-        IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
-        IProperty property = objectData.Property(propertyName);
-
-        IPropertyStorageRevisionSlot propertyStorageRevisionSlot =
-            fsObjectDataStorageManager.GetNextPropertyStorageRevisionSlot(property);
-        Message.PrintLine(propertyStorageRevisionSlot.FullName);
-
-        ISlottedStorage slottedStorage = fsObjectDataStorageManager.GetObjectStorage(propertyStorageRevisionSlot);
-        IStorageSlot slot = slottedStorage.Save(property.ToRawData());
-        slot.FullName.ShouldBeEqualTo(propertyStorageRevisionSlot.FullName);
-        fsObjectDataStorageManager.IsSlotWritten(slot).ShouldBeTrue("slot was not written");
+            object[] results = (object[])because.Result;
+            IStorageSlot slot = (IStorageSlot)results[0];
+            IPropertyStorageRevisionSlot revisionSlot = (IPropertyStorageRevisionSlot)results[1];
+            FsObjectDataStorageManager mgr = (FsObjectDataStorageManager)results[2];
+            because.ItsTrue("slot path equals revision slot path", slot?.FullName?.Equals(revisionSlot?.FullName) == true);
+            because.ItsTrue("slot was written", mgr.IsSlotWritten(slot));
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
 
     public ServiceRegistry ConfigureTestRegistry(ServiceRegistry serviceRegistry)
@@ -183,7 +254,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
             .For<IHashCalculator>().Use<JsonHashCalculator>()
             .For<ICompositeKeyCalculator>().Use<CompositeKeyCalculator>();
     }
-    
+
     private ServiceRegistry ConfigureDependencies(string rootPath)
     {
         return UnitTests.ConfigureDependencies(rootPath);
