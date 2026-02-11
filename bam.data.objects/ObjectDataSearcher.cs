@@ -4,14 +4,16 @@ namespace Bam.Data.Objects;
 
 public class ObjectDataSearcher : IObjectDataSearcher
 {
-    public ObjectDataSearcher(IObjectDataSearchIndexer searchIndexer, IObjectDataReader reader)
+    public ObjectDataSearcher(IObjectDataSearchIndexer searchIndexer, IObjectDataReader reader, IObjectDataIndexer indexer)
     {
         this.SearchIndexer = searchIndexer;
         this.Reader = reader;
+        this.Indexer = indexer;
     }
 
     private IObjectDataSearchIndexer SearchIndexer { get; }
     private IObjectDataReader Reader { get; }
+    private IObjectDataIndexer Indexer { get; }
 
     public async Task<IObjectDataSearchResult> SearchAsync(IObjectDataSearch dataSearch)
     {
@@ -30,34 +32,91 @@ public class ObjectDataSearcher : IObjectDataSearcher
                 };
             }
 
-            // 1. Parallel criteria lookup: each criterion hits its own index file
-            ConcurrentBag<HashSet<string>> perCriterionKeys = new();
+            ObjectDataSearchCriterion[] equalsCriteria = criteria.Where(c => c.Operator == SearchOperator.Equals).ToArray();
+            ObjectDataSearchCriterion[] nonEqualsCriteria = criteria.Where(c => c.Operator != SearchOperator.Equals).ToArray();
 
-            Parallel.ForEach(criteria, criterion =>
-            {
-                string valueHash = ObjectDataSearchIndexer.ComputeValueHash(
-                    EncodeValue(criterion.Value));
-                IEnumerable<IObjectDataKey> keys = SearchIndexer
-                    .LookupAsync(type, criterion.PropertyName, valueHash)
-                    .GetAwaiter().GetResult();
-                perCriterionKeys.Add(new HashSet<string>(keys.Select(k => k.Key)));
-            });
+            List<HashSet<string>> allKeySets = new();
 
-            // 2. Intersect all sets (AND semantics)
-            HashSet<string> matchingKeys = null;
-            foreach (HashSet<string> keySet in perCriterionKeys)
+            // 1. Hash-based lookup for Equals criteria
+            if (equalsCriteria.Length > 0)
             {
-                if (matchingKeys == null)
+                ConcurrentBag<HashSet<string>> perCriterionKeys = new();
+
+                Parallel.ForEach(equalsCriteria, criterion =>
                 {
-                    matchingKeys = keySet;
-                }
-                else
+                    string valueHash = ObjectDataSearchIndexer.ComputeValueHash(
+                        EncodeValue(criterion.Value));
+                    IEnumerable<IObjectDataKey> keys = SearchIndexer
+                        .LookupAsync(type, criterion.PropertyName, valueHash)
+                        .GetAwaiter().GetResult();
+                    perCriterionKeys.Add(new HashSet<string>(keys.Select(k => k.Key)));
+                });
+
+                foreach (HashSet<string> keySet in perCriterionKeys)
                 {
-                    matchingKeys.IntersectWith(keySet);
+                    allKeySets.Add(keySet);
                 }
             }
 
-            if (matchingKeys == null || matchingKeys.Count == 0)
+            // 2. In-memory scan for non-Equals criteria
+            if (nonEqualsCriteria.Length > 0)
+            {
+                IEnumerable<IObjectDataKey> allKeys = await Indexer.GetAllKeysAsync(type);
+                IObjectDataKey[] allKeysArray = allKeys.ToArray();
+
+                ConcurrentDictionary<string, IObjectData> loadedObjects = new();
+
+                Parallel.ForEach(allKeysArray, objectKey =>
+                {
+                    IObjectDataReadResult readResult = Reader
+                        .ReadObjectDataAsync(objectKey).GetAwaiter().GetResult();
+                    if (readResult?.ObjectData != null)
+                    {
+                        loadedObjects[objectKey.Key] = readResult.ObjectData;
+                    }
+                });
+
+                foreach (ObjectDataSearchCriterion criterion in nonEqualsCriteria)
+                {
+                    HashSet<string> matchingKeys = new();
+                    string searchValue = criterion.Value?.ToString() ?? string.Empty;
+
+                    foreach (KeyValuePair<string, IObjectData> kvp in loadedObjects)
+                    {
+                        object data = kvp.Value.Data;
+                        if (data == null) continue;
+
+                        System.Reflection.PropertyInfo prop = data.GetType().GetProperty(criterion.PropertyName);
+                        if (prop == null) continue;
+
+                        object propValue = prop.GetValue(data);
+                        string propertyValue = propValue?.ToString() ?? string.Empty;
+
+                        if (MatchesOperator(propertyValue, searchValue, criterion.Operator))
+                        {
+                            matchingKeys.Add(kvp.Key);
+                        }
+                    }
+
+                    allKeySets.Add(matchingKeys);
+                }
+            }
+
+            // 3. Intersect all sets (AND semantics)
+            HashSet<string> matchingKeysResult = null;
+            foreach (HashSet<string> keySet in allKeySets)
+            {
+                if (matchingKeysResult == null)
+                {
+                    matchingKeysResult = keySet;
+                }
+                else
+                {
+                    matchingKeysResult.IntersectWith(keySet);
+                }
+            }
+
+            if (matchingKeysResult == null || matchingKeysResult.Count == 0)
             {
                 return new ObjectDataSearchResult
                 {
@@ -67,10 +126,10 @@ public class ObjectDataSearcher : IObjectDataSearcher
                 };
             }
 
-            // 3. Parallel object loading
+            // 4. Parallel object loading
             ConcurrentBag<IObjectData> results = new();
 
-            Parallel.ForEach(matchingKeys, hexKey =>
+            Parallel.ForEach(matchingKeysResult, hexKey =>
             {
                 IObjectDataKey key = new ObjectDataKey
                 {
@@ -104,6 +163,20 @@ public class ObjectDataSearcher : IObjectDataSearcher
                 TotalCount = 0
             };
         }
+    }
+
+    private static bool MatchesOperator(string propertyValue, string searchValue, SearchOperator op)
+    {
+        return op switch
+        {
+            SearchOperator.StartsWith => propertyValue.StartsWith(searchValue, StringComparison.OrdinalIgnoreCase),
+            SearchOperator.EndsWith => propertyValue.EndsWith(searchValue, StringComparison.OrdinalIgnoreCase),
+            SearchOperator.Contains => propertyValue.Contains(searchValue, StringComparison.OrdinalIgnoreCase),
+            SearchOperator.DoesntStartWith => !propertyValue.StartsWith(searchValue, StringComparison.OrdinalIgnoreCase),
+            SearchOperator.DoesntEndWith => !propertyValue.EndsWith(searchValue, StringComparison.OrdinalIgnoreCase),
+            SearchOperator.DoesntContain => !propertyValue.Contains(searchValue, StringComparison.OrdinalIgnoreCase),
+            _ => false
+        };
     }
 
     private static string EncodeValue(object value)

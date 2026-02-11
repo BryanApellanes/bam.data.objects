@@ -49,7 +49,29 @@ To load an object by its key the property values are read from the dat files wit
 
 ### Searching
 
-When objects are searched an `ObjectDataSearch` is used to provide search criteria. The `ObjectDataSearcher` encodes search values using SHA256, looks up matching object keys in the search index, and retrieves matching objects via the storage manager.
+When objects are searched an `ObjectDataSearch` is used to provide search criteria. The `ObjectDataSearcher` supports the following operators:
+
+| Operator | Description | Strategy |
+|---|---|---|
+| `Equals` | Exact match (default) | Hash-based index lookup — O(1) |
+| `StartsWith` | Value starts with search term | In-memory scan — O(n) |
+| `EndsWith` | Value ends with search term | In-memory scan — O(n) |
+| `Contains` | Value contains search term | In-memory scan — O(n) |
+| `DoesntStartWith` | Value does not start with search term | In-memory scan — O(n) |
+| `DoesntEndWith` | Value does not end with search term | In-memory scan — O(n) |
+| `DoesntContain` | Value does not contain search term | In-memory scan — O(n) |
+
+All string comparisons for non-Equals operators use `OrdinalIgnoreCase`.
+
+`Equals` uses SHA256 hash-based index lookup for fast O(1) matching. All other operators load objects via `IObjectDataReader` (which handles decryption transparently) and compare property values in memory. No cleartext property values are stored on disk — search indexes remain opaque.
+
+```csharp
+ObjectDataSearch search = new ObjectDataSearch(typeof(MyType))
+    .Where("Name", "John", SearchOperator.StartsWith)
+    .Where("Status", "Active", SearchOperator.Equals);
+```
+
+Multiple criteria use AND semantics — each criterion produces a key set and results are intersected.
 
 ## Encrypted (Opaque) Storage
 

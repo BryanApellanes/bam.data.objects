@@ -530,6 +530,210 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
     }
 
     [UnitTest]
+    public async Task SearchStartsWith()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(SearchStartsWith));
+        CleanDirectory(root);
+
+        When.A<ObjectDataRepository>("searches with StartsWith operator",
+            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                repository.Create(new TestRepoData { Name = "JohnDoe" });
+                repository.Create(new TestRepoData { Name = "JohnSmith" });
+                repository.Create(new TestRepoData { Name = "JaneDoe" });
+
+                ObjectDataSearch search = new ObjectDataSearch(typeof(TestRepoData))
+                    .Where("Name", "John", SearchOperator.StartsWith);
+
+                IObjectDataSearcher searcher = ConfigureTestRegistry(root).Get<IObjectDataSearcher>();
+                IObjectDataSearchResult result = searcher.SearchAsync(search).GetAwaiter().GetResult();
+                return new object[] { result.Success, result.TotalCount };
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            object[] results = (object[])because.Result;
+            bool success = (bool)results[0];
+            int count = (int)results[1];
+            because.ItsTrue("search succeeded", success);
+            because.ItsTrue("found 2 entries starting with John", count == 2);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
+    [UnitTest]
+    public async Task SearchEndsWith()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(SearchEndsWith));
+        CleanDirectory(root);
+
+        When.A<ObjectDataRepository>("searches with EndsWith operator",
+            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                repository.Create(new TestRepoData { Name = "JohnDoe" });
+                repository.Create(new TestRepoData { Name = "JohnSmith" });
+                repository.Create(new TestRepoData { Name = "JaneDoe" });
+
+                ObjectDataSearch search = new ObjectDataSearch(typeof(TestRepoData))
+                    .Where("Name", "Smith", SearchOperator.EndsWith);
+
+                IObjectDataSearcher searcher = ConfigureTestRegistry(root).Get<IObjectDataSearcher>();
+                IObjectDataSearchResult result = searcher.SearchAsync(search).GetAwaiter().GetResult();
+                return new object[] { result.Success, result.TotalCount };
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            object[] results = (object[])because.Result;
+            bool success = (bool)results[0];
+            int count = (int)results[1];
+            because.ItsTrue("search succeeded", success);
+            because.ItsTrue("found 1 entry ending with Smith", count == 1);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
+    [UnitTest]
+    public async Task SearchContains()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(SearchContains));
+        CleanDirectory(root);
+
+        When.A<ObjectDataRepository>("searches with Contains operator",
+            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                repository.Create(new TestRepoData { Name = "JohnDoe" });
+                repository.Create(new TestRepoData { Name = "JohnSmith" });
+                repository.Create(new TestRepoData { Name = "JaneDoe" });
+
+                ObjectDataSearch search = new ObjectDataSearch(typeof(TestRepoData))
+                    .Where("Name", "Doe", SearchOperator.Contains);
+
+                IObjectDataSearcher searcher = ConfigureTestRegistry(root).Get<IObjectDataSearcher>();
+                IObjectDataSearchResult result = searcher.SearchAsync(search).GetAwaiter().GetResult();
+                return new object[] { result.Success, result.TotalCount };
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            object[] results = (object[])because.Result;
+            bool success = (bool)results[0];
+            int count = (int)results[1];
+            because.ItsTrue("search succeeded", success);
+            because.ItsTrue("found 2 entries containing Doe", count == 2);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
+    [UnitTest]
+    public async Task SearchDoesntStartWith()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(SearchDoesntStartWith));
+        CleanDirectory(root);
+
+        When.A<ObjectDataRepository>("searches with DoesntStartWith operator",
+            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                repository.Create(new TestRepoData { Name = "JohnDoe" });
+                repository.Create(new TestRepoData { Name = "JohnSmith" });
+                repository.Create(new TestRepoData { Name = "JaneDoe" });
+
+                ObjectDataSearch search = new ObjectDataSearch(typeof(TestRepoData))
+                    .Where("Name", "John", SearchOperator.DoesntStartWith);
+
+                IObjectDataSearcher searcher = ConfigureTestRegistry(root).Get<IObjectDataSearcher>();
+                IObjectDataSearchResult result = searcher.SearchAsync(search).GetAwaiter().GetResult();
+                return new object[] { result.Success, result.TotalCount };
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            object[] results = (object[])because.Result;
+            bool success = (bool)results[0];
+            int count = (int)results[1];
+            because.ItsTrue("search succeeded", success);
+            because.ItsTrue("found 1 entry not starting with John", count == 1);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
+    [UnitTest]
+    public async Task SearchDoesntEndWith()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(SearchDoesntEndWith));
+        CleanDirectory(root);
+
+        When.A<ObjectDataRepository>("searches with DoesntEndWith operator",
+            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                repository.Create(new TestRepoData { Name = "JohnDoe" });
+                repository.Create(new TestRepoData { Name = "JohnSmith" });
+                repository.Create(new TestRepoData { Name = "JaneDoe" });
+
+                ObjectDataSearch search = new ObjectDataSearch(typeof(TestRepoData))
+                    .Where("Name", "Doe", SearchOperator.DoesntEndWith);
+
+                IObjectDataSearcher searcher = ConfigureTestRegistry(root).Get<IObjectDataSearcher>();
+                IObjectDataSearchResult result = searcher.SearchAsync(search).GetAwaiter().GetResult();
+                return new object[] { result.Success, result.TotalCount };
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            object[] results = (object[])because.Result;
+            bool success = (bool)results[0];
+            int count = (int)results[1];
+            because.ItsTrue("search succeeded", success);
+            because.ItsTrue("found 1 entry not ending with Doe", count == 1);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
+    [UnitTest]
+    public async Task SearchDoesntContain()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(SearchDoesntContain));
+        CleanDirectory(root);
+
+        When.A<ObjectDataRepository>("searches with DoesntContain operator",
+            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                repository.Create(new TestRepoData { Name = "JohnDoe" });
+                repository.Create(new TestRepoData { Name = "JohnSmith" });
+                repository.Create(new TestRepoData { Name = "JaneDoe" });
+
+                ObjectDataSearch search = new ObjectDataSearch(typeof(TestRepoData))
+                    .Where("Name", "Doe", SearchOperator.DoesntContain);
+
+                IObjectDataSearcher searcher = ConfigureTestRegistry(root).Get<IObjectDataSearcher>();
+                IObjectDataSearchResult result = searcher.SearchAsync(search).GetAwaiter().GetResult();
+                return new object[] { result.Success, result.TotalCount };
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            object[] results = (object[])because.Result;
+            bool success = (bool)results[0];
+            int count = (int)results[1];
+            because.ItsTrue("search succeeded", success);
+            because.ItsTrue("found 1 entry not containing Doe", count == 1);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
+    [UnitTest]
     public async Task EncryptedCreateAndRetrieve()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(EncryptedCreateAndRetrieve));
