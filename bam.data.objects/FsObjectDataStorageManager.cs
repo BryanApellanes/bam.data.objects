@@ -1,3 +1,4 @@
+using System.Reflection;
 using Bam.Data.Objects;
 using Bam.Storage;
 using Bamn.Data.Objects;
@@ -231,20 +232,29 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
     public IObjectData ReadObject(IObjectDataKey objectDataKey)
     {
         Args.ThrowIfNull(objectDataKey, nameof(objectDataKey));
-        object data = objectDataKey.TypeDescriptor.Type.Construct();
+        Type type = objectDataKey.TypeDescriptor.Type;
+        object data = type.Construct();
         IObjectData objectData = this.ObjectDataFactory.GetObjectData(data);
-        foreach (IProperty property in objectData.Properties)
+        IDataTypeTranslator translator = Bam.Data.DataTypeTranslator.Default;
+
+        foreach (PropertyInfo propertyInfo in type.GetProperties())
         {
+            DataTypes enumType = translator.EnumFromType(propertyInfo.PropertyType);
+            if (enumType == DataTypes.Default) continue;
+
             IPropertyDescriptor descriptor = new PropertyDescriptor()
             {
                 ObjectDataKey = objectDataKey,
-                PropertyName = property.PropertyName,
-                PropertyType = property.Type
+                PropertyName = propertyInfo.Name,
+                PropertyType = propertyInfo.PropertyType
             };
+
+            if (GetLatestRevisionNumber(descriptor) == 0) continue;
+
             IProperty readProperty = ReadProperty(objectData, descriptor);
             if (readProperty != null)
             {
-                property.SetValue(data, readProperty.Decode());
+                propertyInfo.SetValue(data, readProperty.Decode());
             }
         }
 
