@@ -12,6 +12,7 @@
       <ProjectReference Include="..\..\bam.shell\bam.shell\bam.shell.csproj" />
       <ProjectReference Include="..\..\bam.test\bam.test\bam.test.csproj" />
       <ProjectReference Include="..\bam.data.objects\bam.data.objects.csproj" />
+      <ProjectReference Include="..\..\bam.encryption\bam.encryption\bam.encryption.csproj" />
     </ItemGroup>
 
     <ItemGroup>

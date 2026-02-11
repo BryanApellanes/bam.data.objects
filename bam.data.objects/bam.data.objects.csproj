@@ -25,6 +25,7 @@
       <ProjectReference Include="..\..\bam.data\bam.data\bam.data.csproj" />
       <ProjectReference Include="..\..\bam.logging\bam.logging\bam.logging.csproj" />
       <ProjectReference Include="..\..\bam.storage\bam.storage\bam.storage.csproj" />
+      <ProjectReference Include="..\..\bam.encryption\bam.encryption\bam.encryption.csproj" />
     </ItemGroup>
 
     <ItemGroup>

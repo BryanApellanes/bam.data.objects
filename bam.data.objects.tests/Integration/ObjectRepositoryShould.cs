@@ -3,7 +3,9 @@ using Bam.Data.Dynamic.Objects;
 using Bam.Data.Dynamic.TestClasses;
 using Bam.Data.Repositories;
 using Bam.DependencyInjection;
+using Bam.Encryption;
 using Bam.Services;
+using Bam.Storage;
 using Bam.Test;
 
 namespace Bam.Data.Objects.Tests.Integration;
@@ -501,5 +503,161 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
             .For<IObjectDataSearchIndexer>().Use<ObjectDataSearchIndexer>()
             .For<IObjectDataSearcher>().Use<ObjectDataSearcher>();
         return serviceRegistry;
+    }
+
+    private static ServiceRegistry ConfigureEncryptedTestRegistry(string root)
+    {
+        ServiceRegistry serviceRegistry = IntegrationTests.ConfigureDependencies(root);
+        serviceRegistry
+            .For<IAesKeySource>().Use(new AesKey())
+            .For<IEncryptor>().Use<AesEncryptor>()
+            .For<IDecryptor>().Use<AesDecryptor>();
+        serviceRegistry
+            .For<IObjectDecoder>().Use<JsonObjectDataEncoder>()
+            .For<IPropertyWriter>().Use<PropertyWriter>()
+            .For<IObjectDataStorageManager>().Use<EncryptedFsObjectDataStorageManager>();
+        serviceRegistry
+            .For<IObjectEncoderDecoder>().UseSingleton(serviceRegistry.Get<IObjectDecoder>())
+            .For<IObjectDataLocatorFactory>().Use<ObjectDataLocatorFactory>()
+            .For<IObjectDataWriter>().Use<ObjectDataWriter>()
+            .For<IObjectDataIndexer>().Use<ObjectDataIndexer>()
+            .For<IObjectDataDeleter>().Use<ObjectDataDeleter>()
+            .For<IObjectDataFactory>().Use<ObjectDataFactory>()
+            .For<IObjectDataArchiver>().Use<ObjectDataArchiver>()
+            .For<IObjectDataSearchIndexer>().Use<ObjectDataSearchIndexer>()
+            .For<IObjectDataSearcher>().Use<ObjectDataSearcher>();
+        return serviceRegistry;
+    }
+
+    [UnitTest]
+    public async Task EncryptedCreateAndRetrieve()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(EncryptedCreateAndRetrieve));
+        CleanDirectory(root);
+        TestRepoData data = new TestRepoData();
+
+        When.A<ObjectDataRepository>("creates and retrieves via encrypted storage",
+            () => ConfigureEncryptedTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                TestRepoData created = repository.Create(data);
+                TestRepoData retrieved = repository.Retrieve<TestRepoData>(created.Id);
+
+                // Verify raw files on disk are not readable as plaintext JSON
+                string rawDir = Path.Combine(root, "raw");
+                bool rawFilesArePlaintext = false;
+                if (Directory.Exists(rawDir))
+                {
+                    foreach (string file in Directory.GetFiles(rawDir, "dat", SearchOption.AllDirectories))
+                    {
+                        string content = File.ReadAllText(file);
+                        if (content.Contains(data.Uuid))
+                        {
+                            rawFilesArePlaintext = true;
+                            break;
+                        }
+                    }
+                }
+
+                return new object[] { created.Id, retrieved?.Id ?? 0UL, retrieved?.Uuid, data.Uuid, rawFilesArePlaintext };
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            object[] results = (object[])because.Result;
+            ulong createdId = (ulong)results[0];
+            ulong retrievedId = (ulong)results[1];
+            string retrievedUuid = (string)results[2];
+            string expectedUuid = (string)results[3];
+            bool rawFilesArePlaintext = (bool)results[4];
+            because.ItsTrue("created Id is greater than 0", createdId > 0);
+            because.ItsTrue("retrieved Id equals created Id", retrievedId == createdId);
+            because.ItsTrue("retrieved Uuid matches", expectedUuid.Equals(retrievedUuid));
+            because.ItsTrue("raw files are NOT plaintext", !rawFilesArePlaintext);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
+    [UnitTest]
+    public async Task EncryptedSearchByProperty()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(EncryptedSearchByProperty));
+        CleanDirectory(root);
+        ServiceRegistry registry = ConfigureEncryptedTestRegistry(root);
+
+        When.A<ObjectDataRepository>("creates entries and searches by Uuid via encrypted storage",
+            () => registry.Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                TestRepoData data1 = new TestRepoData();
+                TestRepoData data2 = new TestRepoData();
+                TestRepoData data3 = new TestRepoData();
+                repository.Create(data1);
+                repository.Create(data2);
+                repository.Create(data3);
+
+                ObjectDataSearch search = new ObjectDataSearch(typeof(TestRepoData))
+                    .Where("Uuid", data2.Uuid);
+
+                IObjectDataSearcher searcher = registry.Get<IObjectDataSearcher>();
+                IObjectDataSearchResult result = searcher.SearchAsync(search).GetAwaiter().GetResult();
+                object foundData = result.Results.FirstOrDefault()?.Data;
+                string foundUuid = (foundData as TestRepoData)?.Uuid;
+                return new object[] { result.Success, result.TotalCount, foundUuid, data2.Uuid };
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            object[] results = (object[])because.Result;
+            bool success = (bool)results[0];
+            int count = (int)results[1];
+            string foundUuid = (string)results[2];
+            string expectedUuid = (string)results[3];
+            because.ItsTrue("search succeeded", success);
+            because.ItsTrue("found exactly 1 result", count == 1);
+            because.ItsTrue("found correct entry by Uuid", expectedUuid.Equals(foundUuid));
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
+    [UnitTest]
+    public async Task EncryptedDeleteAndSearch()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(EncryptedDeleteAndSearch));
+        CleanDirectory(root);
+        ServiceRegistry registry = ConfigureEncryptedTestRegistry(root);
+
+        When.A<ObjectDataRepository>("creates, deletes, then searches via encrypted storage",
+            () => registry.Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                TestRepoData data1 = new TestRepoData();
+                TestRepoData data2 = new TestRepoData();
+                repository.Create(data1);
+                repository.Create(data2);
+
+                string deletedUuid = data1.Uuid;
+                repository.Delete(data1);
+
+                ObjectDataSearch search = new ObjectDataSearch(typeof(TestRepoData))
+                    .Where("Uuid", deletedUuid);
+
+                IObjectDataSearcher searcher = registry.Get<IObjectDataSearcher>();
+                IObjectDataSearchResult result = searcher.SearchAsync(search).GetAwaiter().GetResult();
+                return new object[] { result.Success, result.TotalCount };
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            object[] results = (object[])because.Result;
+            bool success = (bool)results[0];
+            int count = (int)results[1];
+            because.ItsTrue("search succeeded", success);
+            because.ItsTrue("deleted entry not found in search", count == 0);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
 }
