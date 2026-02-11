@@ -42,6 +42,25 @@ public class ObjectDataRepository : AsyncRepository
         return toCreate;
     }
 
+    public override object Create(object toCreate)
+    {
+        IObjectData objectData = Factory.GetObjectData(toCreate);
+
+        ulong id = CompositeKeyCalculator.CalculateULongKey(objectData);
+        PropertyInfo keyProp = GetKeyProperty(toCreate.GetType());
+        keyProp?.SetValue(toCreate, id);
+
+        Writer.WriteAsync(objectData).GetAwaiter().GetResult();
+        Indexer.IndexAsync(objectData).GetAwaiter().GetResult();
+
+        return toCreate;
+    }
+
+    public override object Create(Type type, object toCreate)
+    {
+        return Create(toCreate);
+    }
+
     public override T Retrieve<T>(ulong id)
     {
         IObjectDataKey key = Indexer.LookupAsync(typeof(T), id).GetAwaiter().GetResult();
@@ -115,93 +134,207 @@ public class ObjectDataRepository : AsyncRepository
         return result?.ObjectData?.Data;
     }
 
-    public override bool Delete<T>(T toDelete)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override IEnumerable<object> Query(Type type, IQueryFilter query)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override bool Delete(object toDelete)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override bool Delete(Type type, object toDelete)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override object Create(object toCreate)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override IEnumerable<T> Query<T>(Func<T, bool> query)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override IEnumerable<object> Query(Type type, Func<object, bool> predicate)
-    {
-        throw new NotImplementedException();
-    }
-
     public override T Update<T>(T toUpdate)
     {
-        throw new NotImplementedException();
+        IObjectData objectData = Factory.GetObjectData(toUpdate);
+
+        ulong id = CompositeKeyCalculator.CalculateULongKey(objectData);
+        PropertyInfo keyProp = GetKeyProperty(typeof(T));
+        keyProp?.SetValue(toUpdate, id);
+
+        Writer.WriteAsync(objectData).GetAwaiter().GetResult();
+        Indexer.IndexAsync(objectData).GetAwaiter().GetResult();
+
+        return toUpdate;
     }
 
     public override object Update(object toUpdate)
     {
-        throw new NotImplementedException();
+        IObjectData objectData = Factory.GetObjectData(toUpdate);
+
+        ulong id = CompositeKeyCalculator.CalculateULongKey(objectData);
+        PropertyInfo keyProp = GetKeyProperty(toUpdate.GetType());
+        keyProp?.SetValue(toUpdate, id);
+
+        Writer.WriteAsync(objectData).GetAwaiter().GetResult();
+        Indexer.IndexAsync(objectData).GetAwaiter().GetResult();
+
+        return toUpdate;
     }
 
     public override object Update(Type type, object toUpdate)
     {
-        throw new NotImplementedException();
+        return Update(toUpdate);
     }
 
-    public override IEnumerable<T> Query<T>(Dictionary<string, object> queryParameters)
+    public override bool Delete<T>(T toDelete)
     {
-        throw new NotImplementedException();
+        IObjectData objectData = Factory.GetObjectData(toDelete);
+        IObjectDataDeleteResult result = Deleter.DeleteAsync(objectData).GetAwaiter().GetResult();
+        return result.Success;
     }
 
-    public override IEnumerable<object> Query(Type type, Dictionary<string, object> queryParameters)
+    public override bool Delete(object toDelete)
     {
-        throw new NotImplementedException();
+        IObjectData objectData = Factory.GetObjectData(toDelete);
+        IObjectDataDeleteResult result = Deleter.DeleteAsync(objectData).GetAwaiter().GetResult();
+        return result.Success;
     }
 
-    public override object Create(Type type, object toCreate)
+    public override bool Delete(Type type, object toDelete)
     {
-        throw new NotImplementedException();
-    }
-
-    public override IEnumerable<T> Query<T>(IQueryFilter query)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override IEnumerable<object> Query(string propertyName, object propertyValue)
-    {
-        throw new NotImplementedException();
+        return Delete(toDelete);
     }
 
     public override IEnumerable<T> RetrieveAll<T>()
     {
-        throw new NotImplementedException();
+        IEnumerable<IObjectDataKey> keys = Indexer.GetAllKeysAsync(typeof(T)).GetAwaiter().GetResult();
+        List<T> results = new List<T>();
+        foreach (IObjectDataKey key in keys)
+        {
+            IObjectDataReadResult readResult = Reader.ReadObjectDataAsync(key).GetAwaiter().GetResult();
+            if (readResult?.ObjectData?.Data is T typedData)
+            {
+                results.Add(typedData);
+            }
+        }
+
+        return results;
     }
 
     public override IEnumerable<object> RetrieveAll(Type type)
     {
-        throw new NotImplementedException();
+        IEnumerable<IObjectDataKey> keys = Indexer.GetAllKeysAsync(type).GetAwaiter().GetResult();
+        List<object> results = new List<object>();
+        foreach (IObjectDataKey key in keys)
+        {
+            IObjectDataReadResult readResult = Reader.ReadObjectDataAsync(key).GetAwaiter().GetResult();
+            if (readResult?.ObjectData?.Data != null)
+            {
+                results.Add(readResult.ObjectData.Data);
+            }
+        }
+
+        return results;
     }
 
     public override void BatchRetrieveAll(Type dtoOrPocoType, int batchSize, Action<IEnumerable<object>> processor)
     {
-        throw new NotImplementedException();
+        IEnumerable<object> all = RetrieveAll(dtoOrPocoType);
+        List<object> batch = new List<object>();
+        foreach (object item in all)
+        {
+            batch.Add(item);
+            if (batch.Count >= batchSize)
+            {
+                processor(batch);
+                batch = new List<object>();
+            }
+        }
+
+        if (batch.Count > 0)
+        {
+            processor(batch);
+        }
+    }
+
+    public override IEnumerable<T> Query<T>(Func<T, bool> query)
+    {
+        return RetrieveAll<T>().Where(query);
+    }
+
+    public override IEnumerable<object> Query(Type type, Func<object, bool> predicate)
+    {
+        return RetrieveAll(type).Where(predicate);
+    }
+
+    public override IEnumerable<T> Query<T>(Dictionary<string, object> queryParameters)
+    {
+        return RetrieveAll<T>().Where(item => MatchesQueryParameters(item, queryParameters));
+    }
+
+    public override IEnumerable<object> Query(Type type, Dictionary<string, object> queryParameters)
+    {
+        return RetrieveAll(type).Where(item => MatchesQueryParameters(item, queryParameters));
+    }
+
+    public override IEnumerable<T> Query<T>(IQueryFilter query)
+    {
+        return RetrieveAll<T>().Where(item => MatchesQueryFilter(item, query));
+    }
+
+    public override IEnumerable<object> Query(Type type, IQueryFilter query)
+    {
+        return RetrieveAll(type).Where(item => MatchesQueryFilter(item, query));
+    }
+
+    public override IEnumerable<object> Query(string propertyName, object propertyValue)
+    {
+        if (DefaultType == null)
+        {
+            return Enumerable.Empty<object>();
+        }
+
+        return RetrieveAll(DefaultType).Where(item =>
+        {
+            PropertyInfo prop = item.GetType().GetProperty(propertyName);
+            if (prop == null)
+            {
+                return false;
+            }
+
+            object value = prop.GetValue(item);
+            return Equals(value, propertyValue);
+        });
+    }
+
+    private static bool MatchesQueryParameters(object item, Dictionary<string, object> queryParameters)
+    {
+        foreach (KeyValuePair<string, object> param in queryParameters)
+        {
+            PropertyInfo prop = item.GetType().GetProperty(param.Key);
+            if (prop == null)
+            {
+                return false;
+            }
+
+            object value = prop.GetValue(item);
+            if (!Equals(value, param.Value))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool MatchesQueryFilter(object item, IQueryFilter query)
+    {
+        foreach (IFilterToken token in query.Filters)
+        {
+            if (token is IParameterInfo parameterInfo)
+            {
+                string columnName = parameterInfo.ColumnName;
+                object filterValue = parameterInfo.Value;
+                if (columnName == null)
+                {
+                    continue;
+                }
+
+                PropertyInfo prop = item.GetType().GetProperty(columnName);
+                if (prop == null)
+                {
+                    return false;
+                }
+
+                object itemValue = prop.GetValue(item);
+                if (!Equals(itemValue, filterValue))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

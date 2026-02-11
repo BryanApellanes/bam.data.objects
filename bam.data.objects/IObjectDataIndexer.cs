@@ -8,4 +8,6 @@ public interface IObjectDataIndexer
     Task<IObjectDataKey?> LookupAsync(Type type, ulong id);
     Task<IObjectDataKey?> LookupByUuidAsync<T>(string uuid);
     Task<IObjectDataKey?> LookupByUuidAsync(Type type, string uuid);
+    Task<IEnumerable<IObjectDataKey>> GetAllKeysAsync(Type type);
+    Task<IEnumerable<IObjectDataKey>> GetAllKeysAsync<T>();
 }

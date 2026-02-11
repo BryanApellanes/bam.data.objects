@@ -92,6 +92,43 @@ public class ObjectDataIndexer : IObjectDataIndexer
         };
     }
 
+    public Task<IEnumerable<IObjectDataKey>> GetAllKeysAsync<T>()
+    {
+        return GetAllKeysAsync(typeof(T));
+    }
+
+    public async Task<IEnumerable<IObjectDataKey>> GetAllKeysAsync(Type type)
+    {
+        string indexDirectory = GetIndexDirectoryPath(type);
+        List<IObjectDataKey> keys = new List<IObjectDataKey>();
+        if (!Directory.Exists(indexDirectory))
+        {
+            return keys;
+        }
+
+        foreach (string filePath in Directory.GetFiles(indexDirectory))
+        {
+            string hexKey = await File.ReadAllTextAsync(filePath);
+            keys.Add(new ObjectDataKey
+            {
+                TypeDescriptor = new TypeDescriptor(type),
+                Key = hexKey
+            });
+        }
+
+        return keys;
+    }
+
+    private string GetIndexDirectoryPath(Type type)
+    {
+        List<string> parts = new List<string>();
+        parts.Add(StorageManager.GetRootStorageHolder().FullName);
+        parts.Add("index");
+        string fullName = type.FullName ?? "UNSPECIFIED_TYPE_NAME";
+        parts.AddRange(fullName.Split('.'));
+        return Path.Combine(parts.ToArray());
+    }
+
     private static string GetUuid(object data)
     {
         PropertyInfo uuidProp = data.GetType().GetProperty("Uuid");
