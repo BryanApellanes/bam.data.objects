@@ -5,7 +5,7 @@ namespace Bam.Data.Objects;
 
 public class ObjectDataRepository : AsyncRepository
 {
-    public ObjectDataRepository(IObjectDataFactory factory, IObjectDataWriter writer, IObjectDataIndexer indexer, IObjectDataDeleter deleter, IObjectDataArchiver archiver, IObjectDataReader reader, IObjectDataSearcher searcher, ICompositeKeyCalculator compositeKeyCalculator)
+    public ObjectDataRepository(IObjectDataFactory factory, IObjectDataWriter writer, IObjectDataIndexer indexer, IObjectDataDeleter deleter, IObjectDataArchiver archiver, IObjectDataReader reader, IObjectDataSearcher searcher, IObjectDataSearchIndexer searchIndexer, ICompositeKeyCalculator compositeKeyCalculator)
     {
         this.Factory = factory;
         this.Writer = writer;
@@ -14,6 +14,7 @@ public class ObjectDataRepository : AsyncRepository
         this.Archiver = archiver;
         this.Reader = reader;
         this.Searcher = searcher;
+        this.SearchIndexer = searchIndexer;
         this.CompositeKeyCalculator = compositeKeyCalculator;
     }
 
@@ -24,6 +25,7 @@ public class ObjectDataRepository : AsyncRepository
     protected IObjectDataArchiver Archiver { get; }
     protected IObjectDataReader Reader { get; }
     protected IObjectDataSearcher Searcher { get; }
+    protected IObjectDataSearchIndexer SearchIndexer { get; }
     protected ICompositeKeyCalculator CompositeKeyCalculator { get; }
 
     public override T Create<T>(T toCreate)
@@ -38,6 +40,7 @@ public class ObjectDataRepository : AsyncRepository
         writeTask.GetAwaiter().GetResult();
 
         Indexer.IndexAsync(objectData).GetAwaiter().GetResult();
+        SearchIndexer.IndexAsync(objectData).GetAwaiter().GetResult();
 
         return toCreate;
     }
@@ -52,6 +55,7 @@ public class ObjectDataRepository : AsyncRepository
 
         Writer.WriteAsync(objectData).GetAwaiter().GetResult();
         Indexer.IndexAsync(objectData).GetAwaiter().GetResult();
+        SearchIndexer.IndexAsync(objectData).GetAwaiter().GetResult();
 
         return toCreate;
     }
@@ -144,6 +148,7 @@ public class ObjectDataRepository : AsyncRepository
 
         Writer.WriteAsync(objectData).GetAwaiter().GetResult();
         Indexer.IndexAsync(objectData).GetAwaiter().GetResult();
+        SearchIndexer.IndexAsync(objectData).GetAwaiter().GetResult();
 
         return toUpdate;
     }
@@ -158,6 +163,7 @@ public class ObjectDataRepository : AsyncRepository
 
         Writer.WriteAsync(objectData).GetAwaiter().GetResult();
         Indexer.IndexAsync(objectData).GetAwaiter().GetResult();
+        SearchIndexer.IndexAsync(objectData).GetAwaiter().GetResult();
 
         return toUpdate;
     }
@@ -170,6 +176,7 @@ public class ObjectDataRepository : AsyncRepository
     public override bool Delete<T>(T toDelete)
     {
         IObjectData objectData = Factory.GetObjectData(toDelete);
+        SearchIndexer.RemoveAsync(objectData).GetAwaiter().GetResult();
         IObjectDataDeleteResult result = Deleter.DeleteAsync(objectData).GetAwaiter().GetResult();
         return result.Success;
     }
@@ -177,6 +184,7 @@ public class ObjectDataRepository : AsyncRepository
     public override bool Delete(object toDelete)
     {
         IObjectData objectData = Factory.GetObjectData(toDelete);
+        SearchIndexer.RemoveAsync(objectData).GetAwaiter().GetResult();
         IObjectDataDeleteResult result = Deleter.DeleteAsync(objectData).GetAwaiter().GetResult();
         return result.Success;
     }

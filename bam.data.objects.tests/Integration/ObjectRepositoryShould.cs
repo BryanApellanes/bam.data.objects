@@ -321,6 +321,160 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
         .UnlessItFailed();
     }
 
+    [UnitTest]
+    public async Task SearchByProperty()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(SearchByProperty));
+        CleanDirectory(root);
+
+        When.A<ObjectDataRepository>("creates entries and searches by Uuid",
+            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                TestRepoData data1 = new TestRepoData();
+                TestRepoData data2 = new TestRepoData();
+                TestRepoData data3 = new TestRepoData();
+                repository.Create(data1);
+                repository.Create(data2);
+                repository.Create(data3);
+
+                ObjectDataSearch search = new ObjectDataSearch(typeof(TestRepoData))
+                    .Where("Uuid", data2.Uuid);
+
+                IObjectDataSearcher searcher = ConfigureTestRegistry(root).Get<IObjectDataSearcher>();
+                IObjectDataSearchResult result = searcher.SearchAsync(search).GetAwaiter().GetResult();
+                object foundData = result.Results.FirstOrDefault()?.Data;
+                string foundUuid = (foundData as TestRepoData)?.Uuid;
+                return new object[] { result.Success, result.TotalCount, foundUuid, data2.Uuid };
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            object[] results = (object[])because.Result;
+            bool success = (bool)results[0];
+            int count = (int)results[1];
+            string foundUuid = (string)results[2];
+            string expectedUuid = (string)results[3];
+            because.ItsTrue("search succeeded", success);
+            because.ItsTrue("found exactly 1 result", count == 1);
+            because.ItsTrue("found correct entry by Uuid", expectedUuid.Equals(foundUuid));
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
+    [UnitTest]
+    public async Task SearchMultiCriteria()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(SearchMultiCriteria));
+        CleanDirectory(root);
+
+        When.A<ObjectDataRepository>("creates entries and searches by multiple criteria",
+            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                TestRepoData data1 = new TestRepoData();
+                TestRepoData data2 = new TestRepoData();
+                repository.Create(data1);
+                repository.Create(data2);
+
+                ObjectDataSearch search = new ObjectDataSearch(typeof(TestRepoData))
+                    .Where("Uuid", data1.Uuid)
+                    .Where("Cuid", data1.Cuid);
+
+                IObjectDataSearcher searcher = ConfigureTestRegistry(root).Get<IObjectDataSearcher>();
+                IObjectDataSearchResult result = searcher.SearchAsync(search).GetAwaiter().GetResult();
+                object foundData = result.Results.FirstOrDefault()?.Data;
+                string foundCuid = (foundData as TestRepoData)?.Cuid;
+                return new object[] { result.Success, result.TotalCount, foundCuid, data1.Cuid };
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            object[] results = (object[])because.Result;
+            bool success = (bool)results[0];
+            int count = (int)results[1];
+            string foundCuid = (string)results[2];
+            string expectedCuid = (string)results[3];
+            because.ItsTrue("search succeeded", success);
+            because.ItsTrue("found exactly 1 result", count == 1);
+            because.ItsTrue("found correct entry by Cuid", expectedCuid.Equals(foundCuid));
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
+    [UnitTest]
+    public async Task SearchAfterDelete()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(SearchAfterDelete));
+        CleanDirectory(root);
+
+        When.A<ObjectDataRepository>("creates, deletes, then searches",
+            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                TestRepoData data1 = new TestRepoData();
+                TestRepoData data2 = new TestRepoData();
+                repository.Create(data1);
+                repository.Create(data2);
+
+                string deletedUuid = data1.Uuid;
+                repository.Delete(data1);
+
+                ObjectDataSearch search = new ObjectDataSearch(typeof(TestRepoData))
+                    .Where("Uuid", deletedUuid);
+
+                IObjectDataSearcher searcher = ConfigureTestRegistry(root).Get<IObjectDataSearcher>();
+                IObjectDataSearchResult result = searcher.SearchAsync(search).GetAwaiter().GetResult();
+                return new object[] { result.Success, result.TotalCount };
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            object[] results = (object[])because.Result;
+            bool success = (bool)results[0];
+            int count = (int)results[1];
+            because.ItsTrue("search succeeded", success);
+            because.ItsTrue("deleted entry not found in search", count == 0);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
+    [UnitTest]
+    public async Task SearchNoResults()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(SearchNoResults));
+        CleanDirectory(root);
+
+        When.A<ObjectDataRepository>("searches for non-existent value",
+            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                TestRepoData data1 = new TestRepoData();
+                repository.Create(data1);
+
+                ObjectDataSearch search = new ObjectDataSearch(typeof(TestRepoData))
+                    .Where("Uuid", "non-existent-uuid-value");
+
+                IObjectDataSearcher searcher = ConfigureTestRegistry(root).Get<IObjectDataSearcher>();
+                IObjectDataSearchResult result = searcher.SearchAsync(search).GetAwaiter().GetResult();
+                return new object[] { result.Success, result.TotalCount };
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            object[] results = (object[])because.Result;
+            bool success = (bool)results[0];
+            int count = (int)results[1];
+            because.ItsTrue("search succeeded", success);
+            because.ItsTrue("no results found", count == 0);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
     private static void CleanDirectory(string root)
     {
         if (Directory.Exists(root))
@@ -344,6 +498,7 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
             .For<IObjectDataDeleter>().Use<ObjectDataDeleter>()
             .For<IObjectDataFactory>().Use<ObjectDataFactory>()
             .For<IObjectDataArchiver>().Use<ObjectDataArchiver>()
+            .For<IObjectDataSearchIndexer>().Use<ObjectDataSearchIndexer>()
             .For<IObjectDataSearcher>().Use<ObjectDataSearcher>();
         return serviceRegistry;
     }
