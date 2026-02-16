@@ -4,14 +4,30 @@ using Bam.Data.Repositories;
 
 namespace Bam.Data.Objects;
 
+/// <summary>
+/// Calculates composite keys for objects by hashing properties adorned with <see cref="Bam.Data.Repositories.CompositeKeyAttribute"/>.
+/// </summary>
 public class CompositeKeyCalculator: ICompositeKeyCalculator
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CompositeKeyCalculator"/> class with SHA256 as the default hash algorithm.
+    /// </summary>
     public CompositeKeyCalculator()
     {
         this.HashAlgorithm = HashAlgorithms.SHA256;
     }
+
+    /// <summary>
+    /// Gets or sets the hash algorithm used for key calculations.
+    /// </summary>
     public HashAlgorithms HashAlgorithm { get; set; }
+
+    /// <summary>
+    /// Gets or sets the text encoding used when converting data to bytes for hashing.
+    /// </summary>
     public Encoding Encoding { get; set; }
+
+    /// <inheritdoc />
     public ulong CalculateULongKey(object instance)
     {
         if (instance == null)
@@ -24,6 +40,7 @@ public class CompositeKeyCalculator: ICompositeKeyCalculator
         return jsonify.ToJson().ToHashULong(this.HashAlgorithm, this.Encoding);
     }
     
+    /// <inheritdoc />
     public ulong CalculateULongKey(IObjectData objectData)
     {
         if (objectData == null)
@@ -36,6 +53,7 @@ public class CompositeKeyCalculator: ICompositeKeyCalculator
         return jsonify.ToJson().ToHashULong(this.HashAlgorithm, this.Encoding);
     }
 
+    /// <inheritdoc />
     public string CalculateHashHexKey(object instance)
     {
         if (instance == null)
@@ -48,6 +66,7 @@ public class CompositeKeyCalculator: ICompositeKeyCalculator
         return jsonify.ToJson().HashHexString(this.HashAlgorithm, this.Encoding);
     }
 
+    /// <inheritdoc />
     public string CalculateHashHexKey(IObjectData objectData)
     {
         if (objectData == null)

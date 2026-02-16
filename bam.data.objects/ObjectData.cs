@@ -5,8 +5,15 @@ using YamlDotNet.Serialization;
 
 namespace Bam.Data.Objects;
 
+/// <summary>
+/// Default implementation of <see cref="IObjectData"/> that wraps an arbitrary object and provides property-level access, encoding, and identity operations.
+/// </summary>
 public class ObjectData : IObjectData
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObjectData"/> class wrapping the specified data object.
+    /// </summary>
+    /// <param name="data">The data object to wrap.</param>
     public ObjectData(object data) : base()
     {
         this.Data = data;
@@ -15,6 +22,10 @@ public class ObjectData : IObjectData
         this.DataTypeTranslator = Bam.Data.DataTypeTranslator.Default;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObjectData"/> class by constructing a new instance of the type described by the specified type descriptor.
+    /// </summary>
+    /// <param name="typeDescriptor">The type descriptor whose type to construct and wrap.</param>
     public ObjectData(TypeDescriptor typeDescriptor) : base()
     {
         this.Data = typeDescriptor.Type.Construct();
@@ -31,6 +42,7 @@ public class ObjectData : IObjectData
         this.DataTypeTranslator = Bam.Data.DataTypeTranslator.Default;
     }
     
+    /// <inheritdoc />
     [JsonIgnore]
     [YamlIgnore]
     public object Data
@@ -51,8 +63,10 @@ public class ObjectData : IObjectData
         set;
     }
     
+    /// <inheritdoc />
     public IObjectDataLocatorFactory ObjectDataLocatorFactory { get; set; }
 
+    /// <inheritdoc />
     public TypeDescriptor TypeDescriptor
     {
         get;
@@ -60,6 +74,8 @@ public class ObjectData : IObjectData
     }
 
     private Dictionary<string, IProperty> _propertyDictionary;
+
+    /// <inheritdoc />
     public IProperty? Property(string propertyName)
     {
         if (_propertyDictionary == null)
@@ -74,12 +90,7 @@ public class ObjectData : IObjectData
         return _propertyDictionary.GetValueOrDefault(propertyName);
     }
 
-    /// <summary>
-    /// Sets the value of the specified property to the specified value.
-    /// </summary>
-    /// <param name="propertyName"></param>
-    /// <param name="value"></param>
-    /// <returns></returns>
+    /// <inheritdoc />
     public IObjectData? Property(string propertyName, object value)
     {
         IProperty? property = Property(propertyName);
@@ -92,6 +103,8 @@ public class ObjectData : IObjectData
     }
 
     private IEnumerable<IProperty> _properties;
+
+    /// <inheritdoc />
     public IEnumerable<IProperty> Properties
     {
         get
@@ -112,22 +125,29 @@ public class ObjectData : IObjectData
         set => _properties = value;
     }
 
+    /// <summary>
+    /// Serializes the underlying data object to a JSON string.
+    /// </summary>
+    /// <returns>The JSON representation of the data.</returns>
     public string ToJson()
     {
         return Data.ToJson();
     }
 
+    /// <inheritdoc />
     public IObjectEncoding Encode()
     {
         return ObjectEncoder.Encode(this.Data);
     }
     
+    /// <inheritdoc />
     public IObjectDataKey GetObjectKey()
     {
         Args.ThrowIfNull(this.ObjectDataLocatorFactory, nameof(ObjectDataLocatorFactory));
         return this.ObjectDataLocatorFactory.GetObjectKey(this);
     }
 
+    /// <inheritdoc />
     public IObjectDataIdentifier GetObjectIdentifier()
     {
         Args.ThrowIfNull(this.ObjectDataLocatorFactory, nameof(ObjectDataLocatorFactory));

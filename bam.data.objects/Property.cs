@@ -7,8 +7,17 @@ using Bam.Storage;
 
 namespace Bam.Data.Dynamic.Objects;
 
+/// <summary>
+/// Default implementation of <see cref="IProperty"/> that represents a named, JSON-encoded property of an object with versioning and storage support.
+/// </summary>
 public class Property : IProperty
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Property"/> class with the specified parent, property name, and value.
+    /// </summary>
+    /// <param name="parent">The parent object data that owns this property.</param>
+    /// <param name="propertyName">The name of the property.</param>
+    /// <param name="propertyValue">The value of the property.</param>
     public Property(IObjectData parent, string propertyName, object propertyValue)
     {
         Args.ThrowIfNull(parent, nameof(parent));
@@ -54,15 +63,18 @@ public class Property : IProperty
         }
     }
 
+    /// <inheritdoc />
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     public IEnumerable<IPropertyRevision> Versions { get; set; }
 
+    /// <inheritdoc />
     public object Decode()
     {
         return ObjectDataEncoder.Decode(ObjectEncoding);
     }
     
+    /// <inheritdoc />
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     public IObjectData Parent { get; set; }
@@ -72,6 +84,7 @@ public class Property : IProperty
     /// </summary>
     public string AssemblyQualifiedTypeName { get; set; }
 
+    /// <inheritdoc />
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     public Type Type { get; set; }
@@ -86,6 +99,7 @@ public class Property : IProperty
     /// </summary>
     public string Value { get; set; }
 
+    /// <inheritdoc />
     public object SetValue(object target)
     {
         Type type = Type.GetType(AssemblyQualifiedTypeName);
@@ -94,6 +108,7 @@ public class Property : IProperty
         return target;
     }
 
+    /// <inheritdoc />
     public object SetValue(object target, object value)
     {
         this.ObjectEncoding = this.ObjectDataEncoder.Encode(value);
@@ -101,16 +116,24 @@ public class Property : IProperty
         return SetValue(target);
     }
     
+    /// <inheritdoc />
     public IRawData ToRawData(Encoding encoding = null)
     {
         return new RawData(this.ObjectDataEncoder.Encode(this).Value, encoding);
     }
 
+    /// <inheritdoc />
     public IRawData ToRawDataPointer(Encoding encoding = null)
     {
         return new RawData(ToRawData().HashHexString);
     }
 
+    /// <summary>
+    /// Creates a <see cref="Property"/> instance from a <see cref="PropertyInfo"/> and the data object it belongs to.
+    /// </summary>
+    /// <param name="property">The property metadata.</param>
+    /// <param name="data">The data object to read the property value from.</param>
+    /// <returns>A new property instance.</returns>
     public static Property FromData(PropertyInfo property, object data)
     {
         IObjectData parent = new ObjectData(data);
@@ -121,17 +144,30 @@ public class Property : IProperty
         return new Property(parent, property.Name, property.GetValue(data));
     }
 
+    /// <summary>
+    /// Reconstructs a <see cref="Property"/> from raw data by decoding the bytes using the specified decoder and property descriptor.
+    /// </summary>
+    /// <param name="parent">The parent object data that owns the property.</param>
+    /// <param name="objectDecoder">The decoder used to deserialize the raw data.</param>
+    /// <param name="propertyDescriptor">The descriptor identifying the property name and type.</param>
+    /// <param name="rawData">The raw data bytes to decode.</param>
+    /// <returns>A new property instance with the decoded value.</returns>
     public static Property FromRawData(IObjectData parent, IObjectDecoder objectDecoder, IPropertyDescriptor propertyDescriptor, IRawData rawData)
     {
         return new Property(parent, propertyDescriptor.PropertyName,
             objectDecoder.Decode(rawData.Value, propertyDescriptor.PropertyType));
     }
     
+    /// <inheritdoc />
     public IPropertyDescriptor ToDescriptor()
     {
         return new PropertyDescriptor(this);
     }
     
+    /// <summary>
+    /// Returns the JSON-serialized value of this property.
+    /// </summary>
+    /// <returns>The JSON value string.</returns>
     public string ToJson()
     {
         return Value;

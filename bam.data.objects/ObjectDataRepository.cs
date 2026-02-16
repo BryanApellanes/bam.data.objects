@@ -3,8 +3,23 @@ using Bam.Data.Repositories;
 
 namespace Bam.Data.Objects;
 
+/// <summary>
+/// File-system-based repository implementation that provides CRUD, query, and batch operations using object data storage with composite key indexing and search indexing.
+/// </summary>
 public class ObjectDataRepository : AsyncRepository
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObjectDataRepository"/> class with all required dependencies.
+    /// </summary>
+    /// <param name="factory">The factory used to create object data wrappers.</param>
+    /// <param name="writer">The writer used to persist object data.</param>
+    /// <param name="indexer">The indexer used to maintain ID and UUID indices.</param>
+    /// <param name="deleter">The deleter used to remove object data and indices.</param>
+    /// <param name="archiver">The archiver used for archive operations.</param>
+    /// <param name="reader">The reader used to load object data from storage.</param>
+    /// <param name="searcher">The searcher used for multi-criteria search operations.</param>
+    /// <param name="searchIndexer">The search indexer used to maintain property value search indices.</param>
+    /// <param name="compositeKeyCalculator">The composite key calculator used to compute IDs.</param>
     public ObjectDataRepository(IObjectDataFactory factory, IObjectDataWriter writer, IObjectDataIndexer indexer, IObjectDataDeleter deleter, IObjectDataArchiver archiver, IObjectDataReader reader, IObjectDataSearcher searcher, IObjectDataSearchIndexer searchIndexer, ICompositeKeyCalculator compositeKeyCalculator)
     {
         this.Factory = factory;
@@ -28,6 +43,7 @@ public class ObjectDataRepository : AsyncRepository
     protected IObjectDataSearchIndexer SearchIndexer { get; }
     protected ICompositeKeyCalculator CompositeKeyCalculator { get; }
 
+    /// <inheritdoc />
     public override T Create<T>(T toCreate)
     {
         IObjectData objectData = Factory.GetObjectData(toCreate);
@@ -45,6 +61,7 @@ public class ObjectDataRepository : AsyncRepository
         return toCreate;
     }
 
+    /// <inheritdoc />
     public override object Create(object toCreate)
     {
         IObjectData objectData = Factory.GetObjectData(toCreate);
@@ -60,11 +77,13 @@ public class ObjectDataRepository : AsyncRepository
         return toCreate;
     }
 
+    /// <inheritdoc />
     public override object Create(Type type, object toCreate)
     {
         return Create(toCreate);
     }
 
+    /// <inheritdoc />
     public override T Retrieve<T>(ulong id)
     {
         IObjectDataKey key = Indexer.LookupAsync(typeof(T), id).GetAwaiter().GetResult();
@@ -82,16 +101,19 @@ public class ObjectDataRepository : AsyncRepository
         return (T)result.ObjectData.Data;
     }
 
+    /// <inheritdoc />
     public override T Retrieve<T>(int id)
     {
         return Retrieve<T>((ulong)id);
     }
 
+    /// <inheritdoc />
     public override T Retrieve<T>(long id)
     {
         return Retrieve<T>((ulong)id);
     }
 
+    /// <inheritdoc />
     public override T Retrieve<T>(string uuid)
     {
         IObjectDataKey key = Indexer.LookupByUuidAsync(typeof(T), uuid).GetAwaiter().GetResult();
@@ -109,11 +131,13 @@ public class ObjectDataRepository : AsyncRepository
         return (T)result.ObjectData.Data;
     }
 
+    /// <inheritdoc />
     public override object Retrieve(Type objectType, long id)
     {
         return Retrieve(objectType, (ulong)id);
     }
 
+    /// <inheritdoc />
     public override object Retrieve(Type objectType, ulong id)
     {
         IObjectDataKey key = Indexer.LookupAsync(objectType, id).GetAwaiter().GetResult();
@@ -126,6 +150,7 @@ public class ObjectDataRepository : AsyncRepository
         return result?.ObjectData?.Data;
     }
 
+    /// <inheritdoc />
     public override object Retrieve(Type objectType, string uuid)
     {
         IObjectDataKey key = Indexer.LookupByUuidAsync(objectType, uuid).GetAwaiter().GetResult();
@@ -138,6 +163,7 @@ public class ObjectDataRepository : AsyncRepository
         return result?.ObjectData?.Data;
     }
 
+    /// <inheritdoc />
     public override T Update<T>(T toUpdate)
     {
         IObjectData objectData = Factory.GetObjectData(toUpdate);
@@ -153,6 +179,7 @@ public class ObjectDataRepository : AsyncRepository
         return toUpdate;
     }
 
+    /// <inheritdoc />
     public override object Update(object toUpdate)
     {
         IObjectData objectData = Factory.GetObjectData(toUpdate);
@@ -168,11 +195,13 @@ public class ObjectDataRepository : AsyncRepository
         return toUpdate;
     }
 
+    /// <inheritdoc />
     public override object Update(Type type, object toUpdate)
     {
         return Update(toUpdate);
     }
 
+    /// <inheritdoc />
     public override bool Delete<T>(T toDelete)
     {
         IObjectData objectData = Factory.GetObjectData(toDelete);
@@ -181,6 +210,7 @@ public class ObjectDataRepository : AsyncRepository
         return result.Success;
     }
 
+    /// <inheritdoc />
     public override bool Delete(object toDelete)
     {
         IObjectData objectData = Factory.GetObjectData(toDelete);
@@ -189,11 +219,13 @@ public class ObjectDataRepository : AsyncRepository
         return result.Success;
     }
 
+    /// <inheritdoc />
     public override bool Delete(Type type, object toDelete)
     {
         return Delete(toDelete);
     }
 
+    /// <inheritdoc />
     public override IEnumerable<T> RetrieveAll<T>()
     {
         IEnumerable<IObjectDataKey> keys = Indexer.GetAllKeysAsync(typeof(T)).GetAwaiter().GetResult();
@@ -210,6 +242,7 @@ public class ObjectDataRepository : AsyncRepository
         return results;
     }
 
+    /// <inheritdoc />
     public override IEnumerable<object> RetrieveAll(Type type)
     {
         IEnumerable<IObjectDataKey> keys = Indexer.GetAllKeysAsync(type).GetAwaiter().GetResult();
@@ -226,6 +259,7 @@ public class ObjectDataRepository : AsyncRepository
         return results;
     }
 
+    /// <inheritdoc />
     public override void BatchRetrieveAll(Type dtoOrPocoType, int batchSize, Action<IEnumerable<object>> processor)
     {
         IEnumerable<object> all = RetrieveAll(dtoOrPocoType);
@@ -246,36 +280,43 @@ public class ObjectDataRepository : AsyncRepository
         }
     }
 
+    /// <inheritdoc />
     public override IEnumerable<T> Query<T>(Func<T, bool> query)
     {
         return RetrieveAll<T>().Where(query);
     }
 
+    /// <inheritdoc />
     public override IEnumerable<object> Query(Type type, Func<object, bool> predicate)
     {
         return RetrieveAll(type).Where(predicate);
     }
 
+    /// <inheritdoc />
     public override IEnumerable<T> Query<T>(Dictionary<string, object> queryParameters)
     {
         return RetrieveAll<T>().Where(item => MatchesQueryParameters(item, queryParameters));
     }
 
+    /// <inheritdoc />
     public override IEnumerable<object> Query(Type type, Dictionary<string, object> queryParameters)
     {
         return RetrieveAll(type).Where(item => MatchesQueryParameters(item, queryParameters));
     }
 
+    /// <inheritdoc />
     public override IEnumerable<T> Query<T>(IQueryFilter query)
     {
         return RetrieveAll<T>().Where(item => MatchesQueryFilter(item, query));
     }
 
+    /// <inheritdoc />
     public override IEnumerable<object> Query(Type type, IQueryFilter query)
     {
         return RetrieveAll(type).Where(item => MatchesQueryFilter(item, query));
     }
 
+    /// <inheritdoc />
     public override IEnumerable<object> Query(string propertyName, object propertyValue)
     {
         if (DefaultType == null)

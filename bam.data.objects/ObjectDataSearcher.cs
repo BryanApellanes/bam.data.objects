@@ -2,8 +2,17 @@ using System.Collections.Concurrent;
 
 namespace Bam.Data.Objects;
 
+/// <summary>
+/// Default implementation of <see cref="IObjectDataSearcher"/> that combines hash-based index lookups for equality criteria with in-memory scanning for other operators.
+/// </summary>
 public class ObjectDataSearcher : IObjectDataSearcher
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObjectDataSearcher"/> class.
+    /// </summary>
+    /// <param name="searchIndexer">The search indexer used for hash-based property value lookups.</param>
+    /// <param name="reader">The reader used to load object data from storage.</param>
+    /// <param name="indexer">The indexer used to enumerate all keys for a type.</param>
     public ObjectDataSearcher(IObjectDataSearchIndexer searchIndexer, IObjectDataReader reader, IObjectDataIndexer indexer)
     {
         this.SearchIndexer = searchIndexer;
@@ -15,6 +24,7 @@ public class ObjectDataSearcher : IObjectDataSearcher
     private IObjectDataReader Reader { get; }
     private IObjectDataIndexer Indexer { get; }
 
+    /// <inheritdoc />
     public async Task<IObjectDataSearchResult> SearchAsync(IObjectDataSearch dataSearch)
     {
         try

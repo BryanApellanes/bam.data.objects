@@ -3,24 +3,40 @@ using Bam.Storage;
 
 namespace Bam.Data.Objects;
 
+/// <summary>
+/// Default implementation of <see cref="IPropertyStorageHolder"/> that manages a directory-based storage location for a specific property.
+/// </summary>
 public class PropertyStorageHolder : DirectoryStorageHolder, IPropertyStorageHolder
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PropertyStorageHolder"/> class with the specified path.
+    /// </summary>
+    /// <param name="path">The file system path for the property storage directory.</param>
     public PropertyStorageHolder(string path) : base(path)
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PropertyStorageHolder"/> class with the specified directory.
+    /// </summary>
+    /// <param name="directory">The directory info for the property storage directory.</param>
     public PropertyStorageHolder(DirectoryInfo directory) : base(directory)
     {
     }
-    
+
+    /// <inheritdoc />
     public string PropertyName { get; internal set; }
+
+    /// <inheritdoc />
     public ITypeStorageHolder TypeStorageHolder { get; internal set; }
-    
+
+    /// <inheritdoc />
     public IPropertyStorageRevisionSlot GetPropertyVersionSlot(IObjectDataStorageManager dataStorageManager, IProperty property, int version)
     {
         return dataStorageManager.GetPropertyStorageRevisionSlot(property.ToDescriptor(), version);
     }
 
+    /// <inheritdoc />
     public IPropertyWriteResult Save(IObjectDataStorageManager dataStorageManager, IProperty property)
     {
         try
@@ -56,6 +72,7 @@ public class PropertyStorageHolder : DirectoryStorageHolder, IPropertyStorageHol
         }
     }
 
+    /// <inheritdoc />
     public IEnumerable<IPropertyStorageRevisionSlot> GetVersions(IObjectDataStorageManager dataStorageManager, IProperty property)
     {
         return dataStorageManager.GetPropertyStorageVersionSlots(property.ToDescriptor());

@@ -6,8 +6,16 @@ using Type = System.Type;
 
 namespace Bam.Data.Dynamic.Objects;
 
+/// <summary>
+/// File-system-based implementation of <see cref="IObjectDataStorageManager"/> that stores object properties as versioned files in a directory tree.
+/// </summary>
 public class FsObjectDataStorageManager : IObjectDataStorageManager
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FsObjectDataStorageManager"/> class.
+    /// </summary>
+    /// <param name="rootStorage">The root storage holder for the file system storage location.</param>
+    /// <param name="objectDataFactory">The factory used to create object data wrappers and encode/decode properties.</param>
     public FsObjectDataStorageManager(IRootStorageHolder rootStorage, IObjectDataFactory objectDataFactory)
     {
         this.RootStorage = rootStorage;
@@ -20,18 +28,31 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
 
     private IObjectDataLocatorFactory ObjectDataLocatorFactory => ObjectDataFactory.ObjectDataLocatorFactory;
 
+    /// <inheritdoc />
     public event EventHandler<ObjectDataStorageEventArgs>? PropertyWriteStarted;
+
+    /// <inheritdoc />
     public event EventHandler<ObjectDataStorageEventArgs>? PropertyWriteComplete;
+
+    /// <inheritdoc />
     public event EventHandler<ObjectDataStorageEventArgs>? PropertyWriteException;
+
+    /// <inheritdoc />
     public event EventHandler<ObjectDataStorageEventArgs>? PropertyReadStarted;
+
+    /// <inheritdoc />
     public event EventHandler<ObjectDataStorageEventArgs>? PropertyReadComplete;
+
+    /// <inheritdoc />
     public event EventHandler<ObjectDataStorageEventArgs>? PropertyReadException;
 
+    /// <inheritdoc />
     public IRootStorageHolder GetRootStorageHolder()
     {
         return RootStorage;
     }
 
+    /// <inheritdoc />
     public ITypeStorageHolder GetObjectStorageHolder(Type type)
     {
         IRootStorageHolder rootStorageHolder = GetRootStorageHolder();
@@ -42,6 +63,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
         };
     }
 
+    /// <inheritdoc />
     public IPropertyStorageHolder GetPropertyStorageHolder(IPropertyDescriptor propertyDescriptor)
     {
         List<string> parts = new List<string>();
@@ -56,32 +78,38 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
         };
     }
     
+    /// <inheritdoc />
     public virtual IRawStorage GetRawStorage()
     {
         return GetObjectStorage(new DirectoryStorageHolder(Path.Combine(RootStorage.FullName, "raw")));
     }
 
+    /// <inheritdoc />
     public bool IsSlotWritten(IStorageSlot slot)
     {
         return File.Exists(slot.FullName);
     }
 
+    /// <inheritdoc />
     public IPropertyStorageRevisionSlot GetLatestPropertyStorageRevisionSlot(IPropertyDescriptor propertyDescriptor)
     {
         return GetPropertyStorageRevisionSlot(propertyDescriptor, GetLatestRevisionNumber(propertyDescriptor));
     }
     
+    /// <inheritdoc />
     public IPropertyStorageRevisionSlot GetNextPropertyStorageRevisionSlot(IProperty property)
     {
         return GetPropertyStorageRevisionSlot(property.ToDescriptor(), GetNextRevisionNumber(property));
     }
 
+    /// <inheritdoc />
     public IPropertyStorageRevisionSlot GetPropertyStorageRevisionSlot(IPropertyDescriptor propertyDescriptor,
         int version)
     {
         return new PropertyStorageRevisionSlot(GetPropertyStorageHolder(propertyDescriptor), version);
     }
     
+    /// <inheritdoc />
     public int GetLatestRevisionNumber(IPropertyDescriptor property)
     {
         List<IPropertyStorageRevisionSlot> slots = GetPropertyStorageVersionSlots(property).ToList();
@@ -93,11 +121,13 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
         return 0;
     }
 
+    /// <inheritdoc />
     public int GetNextRevisionNumber(IProperty property)
     {
         return GetLatestRevisionNumber(property.ToDescriptor()) + 1;
     }
 
+    /// <inheritdoc />
     public bool IsEqualToLatestRevision(IProperty property)
     {
         int latestRevision = GetLatestRevisionNumber(property.ToDescriptor());
@@ -109,6 +139,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
         return latest != null && latest.Decode().Equals(property.Decode());
     }
 
+    /// <inheritdoc />
     public bool RevisionExists(IPropertyDescriptor property, int revisionNumber = 1)
     {
         return IsSlotWritten(GetPropertyStorageRevisionSlot(property, revisionNumber));
@@ -119,6 +150,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
         property.Versions = ReadRevisions(property.Parent, property.ToDescriptor());
     }
     
+    /// <inheritdoc />
     public IEnumerable<IPropertyRevision> ReadRevisions(IObjectData parent, IPropertyDescriptor propertyDescriptor)
     {
         foreach (IPropertyStorageRevisionSlot propertyStorageSlot in GetPropertyStorageVersionSlots(propertyDescriptor))
@@ -127,6 +159,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
         }
     }
     
+    /// <inheritdoc />
     public IEnumerable<IPropertyStorageRevisionSlot> GetPropertyStorageVersionSlots(IPropertyDescriptor property)
     {
         int number = 1;
@@ -140,6 +173,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
         }
     }
 
+    /// <inheritdoc />
     public IPropertyWriteResult WriteProperty(IProperty property)
     {
         IPropertyStorageRevisionSlot slot = GetNextPropertyStorageRevisionSlot(property);
@@ -195,6 +229,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
         return result;
     }
 
+    /// <inheritdoc />
     public IProperty ReadProperty(IObjectData parent, IPropertyDescriptor propertyDescriptor)
     {
         IProperty property = ReadProperty(parent, propertyDescriptor, GetLatestPropertyStorageRevisionSlot(propertyDescriptor));
@@ -202,6 +237,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
         return property;
     }
 
+    /// <inheritdoc />
     public IObjectDataWriteResult WriteObject(IObjectData data)
     {
         ObjectDataWriteResult result = new ObjectDataWriteResult(data);
@@ -229,6 +265,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
         return result;
     }
     
+    /// <inheritdoc />
     public IObjectData ReadObject(IObjectDataKey objectDataKey)
     {
         Args.ThrowIfNull(objectDataKey, nameof(objectDataKey));
@@ -261,11 +298,13 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
         return objectData;
     }
 
+    /// <inheritdoc />
     public virtual ISlottedStorage GetObjectStorage()
     {
         return GetObjectStorage(this.RootStorage);
     }
 
+    /// <inheritdoc />
     public ISlottedStorage GetObjectStorage(IStorageSlot slot)
     {
         ISlottedStorage slottedStorage = GetObjectStorage(slot.StorageHolder);
@@ -273,6 +312,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
         return slottedStorage;
     }
 
+    /// <inheritdoc />
     public virtual ISlottedStorage GetObjectStorage(IStorageHolder storageIdentifier)
     {
         return new FsSlottedStorage(storageIdentifier.FullName);

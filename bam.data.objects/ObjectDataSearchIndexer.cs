@@ -2,10 +2,18 @@ using System.Collections.Concurrent;
 
 namespace Bam.Data.Objects;
 
+/// <summary>
+/// Default implementation of <see cref="IObjectDataSearchIndexer"/> that maintains a file-system-based search index mapping hashed property values to object keys.
+/// </summary>
 public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
 {
     private static readonly ConcurrentDictionary<string, object> FileLocks = new();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObjectDataSearchIndexer"/> class.
+    /// </summary>
+    /// <param name="storageManager">The storage manager used to resolve storage paths and read objects.</param>
+    /// <param name="indexer">The indexer used to enumerate all keys when rebuilding the search index.</param>
     public ObjectDataSearchIndexer(IObjectDataStorageManager storageManager, IObjectDataIndexer indexer)
     {
         this.StorageManager = storageManager;
@@ -15,6 +23,7 @@ public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
     private IObjectDataStorageManager StorageManager { get; }
     private IObjectDataIndexer Indexer { get; }
 
+    /// <inheritdoc />
     public Task<IObjectDataSearchIndexResult> IndexAsync(IObjectData data)
     {
         IObjectDataKey objectDataKey = data.GetObjectKey();
@@ -53,6 +62,7 @@ public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
         });
     }
 
+    /// <inheritdoc />
     public Task RemoveAsync(IObjectData data)
     {
         IObjectDataKey objectDataKey = data.GetObjectKey();
@@ -90,6 +100,7 @@ public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<IObjectDataKey>> LookupAsync(Type type, string propertyName, string valueHash)
     {
         string indexPath = GetSearchIndexPath(type, propertyName, valueHash);
@@ -108,11 +119,13 @@ public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
             });
     }
 
+    /// <inheritdoc />
     public async Task RebuildAsync<T>()
     {
         await RebuildAsync(typeof(T));
     }
 
+    /// <inheritdoc />
     public async Task RebuildAsync(Type type)
     {
         string searchIndexDir = GetSearchIndexDirectoryForType(type);

@@ -2,8 +2,16 @@ using System.Reflection;
 
 namespace Bam.Data.Objects;
 
+/// <summary>
+/// Default implementation of <see cref="IObjectDataIndexer"/> that maintains file-system-based indices mapping composite key IDs and UUIDs to object keys.
+/// </summary>
 public class ObjectDataIndexer : IObjectDataIndexer
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObjectDataIndexer"/> class.
+    /// </summary>
+    /// <param name="storageManager">The storage manager used to resolve the root storage path for index files.</param>
+    /// <param name="compositeKeyCalculator">The composite key calculator used to compute ulong IDs for indexing.</param>
     public ObjectDataIndexer(IObjectDataStorageManager storageManager, ICompositeKeyCalculator compositeKeyCalculator)
     {
         this.StorageManager = storageManager;
@@ -13,6 +21,7 @@ public class ObjectDataIndexer : IObjectDataIndexer
     private IObjectDataStorageManager StorageManager { get; }
     private ICompositeKeyCalculator CompositeKeyCalculator { get; }
 
+    /// <inheritdoc />
     public async Task<IObjectDataIndexResult> IndexAsync(object data)
     {
         if (data is IObjectData objectData)
@@ -23,6 +32,7 @@ public class ObjectDataIndexer : IObjectDataIndexer
         return await IndexAsync(new ObjectData(data));
     }
 
+    /// <inheritdoc />
     public async Task<IObjectDataIndexResult> IndexAsync(IObjectData data)
     {
         IObjectDataKey objectDataKey = data.GetObjectKey();
@@ -50,11 +60,13 @@ public class ObjectDataIndexer : IObjectDataIndexer
         };
     }
 
+    /// <inheritdoc />
     public Task<IObjectDataKey?> LookupAsync<T>(ulong id)
     {
         return LookupAsync(typeof(T), id);
     }
 
+    /// <inheritdoc />
     public async Task<IObjectDataKey?> LookupAsync(Type type, ulong id)
     {
         string indexPath = GetIndexPath(type, id);
@@ -71,11 +83,13 @@ public class ObjectDataIndexer : IObjectDataIndexer
         };
     }
 
+    /// <inheritdoc />
     public Task<IObjectDataKey?> LookupByUuidAsync<T>(string uuid)
     {
         return LookupByUuidAsync(typeof(T), uuid);
     }
 
+    /// <inheritdoc />
     public async Task<IObjectDataKey?> LookupByUuidAsync(Type type, string uuid)
     {
         string indexPath = GetUuidIndexPath(type, uuid);
@@ -92,11 +106,13 @@ public class ObjectDataIndexer : IObjectDataIndexer
         };
     }
 
+    /// <inheritdoc />
     public Task<IEnumerable<IObjectDataKey>> GetAllKeysAsync<T>()
     {
         return GetAllKeysAsync(typeof(T));
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<IObjectDataKey>> GetAllKeysAsync(Type type)
     {
         string indexDirectory = GetIndexDirectoryPath(type);

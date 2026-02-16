@@ -2,8 +2,17 @@ using System.Reflection;
 
 namespace Bam.Data.Objects;
 
+/// <summary>
+/// Default implementation of <see cref="IObjectDataDeleter"/> that removes object property storage, ID index entries, and UUID index entries from the file system.
+/// </summary>
 public class ObjectDataDeleter : IObjectDataDeleter
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObjectDataDeleter"/> class.
+    /// </summary>
+    /// <param name="factory">The factory used to create object data wrappers.</param>
+    /// <param name="storageManager">The storage manager used to resolve storage paths.</param>
+    /// <param name="compositeKeyCalculator">The composite key calculator used to compute IDs for index cleanup.</param>
     public ObjectDataDeleter(IObjectDataFactory factory, IObjectDataStorageManager storageManager, ICompositeKeyCalculator compositeKeyCalculator)
     {
         this.Factory = factory;
@@ -15,12 +24,14 @@ public class ObjectDataDeleter : IObjectDataDeleter
     private IObjectDataStorageManager StorageManager { get; }
     private ICompositeKeyCalculator CompositeKeyCalculator { get; }
 
+    /// <inheritdoc />
     public Task<IObjectDataDeleteResult> DeleteAsync(object data)
     {
         IObjectData objectData = Factory.GetObjectData(data);
         return DeleteAsync(objectData);
     }
 
+    /// <inheritdoc />
     public async Task<IObjectDataDeleteResult> DeleteAsync(IObjectData data)
     {
         try
