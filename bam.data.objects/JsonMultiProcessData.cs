@@ -9,8 +9,16 @@ using Bam.Storage;
 
 namespace Bam.Data.Dynamic.Objects
 {
+    /// <summary>
+    /// Provides multi-process-safe read/write access to JSON-serialized data files using file-based locking.
+    /// </summary>
     public class JsonMultiProcessData : RawData
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JsonMultiProcessData"/> class, encoding the data as JSON.
+        /// </summary>
+        /// <param name="data">The data object to serialize and manage.</param>
+        /// <param name="encoding">The text encoding to use, or null for the default.</param>
         public JsonMultiProcessData(object data, Encoding encoding = null) : base(JsonObjectDataEncoder.Default.Encode(data).Value, encoding)
         {         
             Args.ThrowIfNull(data, nameof(data));
@@ -26,6 +34,11 @@ namespace Bam.Data.Dynamic.Objects
             set;
         }
         
+        /// <summary>
+        /// Writes the specified data to the file system using a file-based lock for multi-process safety.
+        /// </summary>
+        /// <param name="data">The data object to write.</param>
+        /// <returns>True if the lock was acquired and data was written; false if the lock timed out.</returns>
         public virtual bool Write(object data)
         {
             if(AcquireLock(LockTimeout))
@@ -59,6 +72,11 @@ namespace Bam.Data.Dynamic.Objects
             return false;
         }
         
+        /// <summary>
+        /// Reads and deserializes the data from the read-copy file.
+        /// </summary>
+        /// <typeparam name="T">The type to deserialize the data as.</typeparam>
+        /// <returns>The deserialized data, or default if the read file does not exist.</returns>
         public T Read<T>()
         {            
             if (File.Exists(ReadFile))
@@ -92,6 +110,9 @@ namespace Bam.Data.Dynamic.Objects
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the CLR type of the managed data object.
+        /// </summary>
         public Type DataType
         {
             get;
@@ -100,6 +121,9 @@ namespace Bam.Data.Dynamic.Objects
 
         string _rootDirectory;
         readonly object _rootDirectoryLock = new object();
+        /// <summary>
+        /// Gets or sets the root directory for this multi-process data instance, combining the process data folder with the data type name.
+        /// </summary>
         public string RootDirectory
         {
             get
@@ -109,6 +133,9 @@ namespace Bam.Data.Dynamic.Objects
             set => _rootDirectory = Path.Combine(value, DataType.Name);
         }
 
+        /// <summary>
+        /// Occurs when an exception is thrown while attempting to acquire a lock.
+        /// </summary>
         public event EventHandler AcquireLockException;
       
         protected void OnAcquireLockException(Exception ex)
@@ -120,6 +147,9 @@ namespace Bam.Data.Dynamic.Objects
             }
         }
 
+        /// <summary>
+        /// Occurs when the instance is waiting for another process to release the lock.
+        /// </summary>
         public event EventHandler WaitingForLock;
 
         protected void OnWaitingForLock()
@@ -127,6 +157,9 @@ namespace Bam.Data.Dynamic.Objects
             WaitingForLock?.Invoke(this, new EventArgs());
         }
                 
+        /// <summary>
+        /// Gets or sets the message from the last exception encountered during lock acquisition.
+        /// </summary>
         public string LastExceptionMessage { get; set; }
 
         /// <summary>
@@ -135,6 +168,9 @@ namespace Bam.Data.Dynamic.Objects
         /// </summary>
         public string CurrentLockerId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the machine name of the process that currently holds the lock.
+        /// </summary>
         public string CurrentLockerMachineName { get; set; }
 
         protected string LockFile => Path.Combine(RootDirectory, "{0}.lock".Format(HashHexString));
