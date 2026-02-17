@@ -23,7 +23,7 @@ public class ObjectDataSearch : IObjectDataSearch
     }
 
     /// <inheritdoc />
-    public Type Type { get; set; }
+    public Type Type { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the mutable list of search criteria.

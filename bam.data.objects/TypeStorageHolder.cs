@@ -16,5 +16,5 @@ public class TypeStorageHolder : DirectoryStorageHolder, ITypeStorageHolder
     }
 
     /// <inheritdoc />
-    public IRootStorageHolder RootStorageHolder { get; internal set; }
+    public IRootStorageHolder RootStorageHolder { get; internal set; } = null!;
 }

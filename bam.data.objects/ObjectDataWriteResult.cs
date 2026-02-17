@@ -23,14 +23,14 @@ public class ObjectDataWriteResult : IObjectDataWriteResult
     public bool Success { get; set; }
 
     /// <inheritdoc />
-    public string Message { get; set; }
+    public string Message { get; set; } = null!;
 
     /// <summary>
     /// Gets the type descriptor from the written object data.
     /// </summary>
     public TypeDescriptor TypeDescriptor
     {
-        get => ObjectData?.TypeDescriptor;
+        get => ObjectData?.TypeDescriptor!;
     }
 
     /// <inheritdoc />
@@ -40,13 +40,13 @@ public class ObjectDataWriteResult : IObjectDataWriteResult
     public IObjectDataKey ObjectDataKey => this.ObjectData.GetObjectKey();
 
     /// <inheritdoc />
-    public IStorageSlot KeySlot { get; set; }
+    public IStorageSlot KeySlot { get; set; } = null!;
 
     /// <inheritdoc />
     public IDictionary<string, IPropertyWriteResult> PropertyWriteResults { get; init; }
 
     internal void AddPropertyWriteResult(IPropertyWriteResult propertyWriteResult)
     {
-        PropertyWriteResults.Add(propertyWriteResult.Property?.PropertyName, propertyWriteResult);
+        PropertyWriteResults.Add(propertyWriteResult.Property?.PropertyName!, propertyWriteResult);
     }
 }

@@ -38,7 +38,7 @@ public class ObjectIdentifierFactoryShould : UnitTestMenuContainer
             ObjectData data = new ObjectData(ptc);
             string keyHash = objectDataIdentityHasher.CalculateHashHexKey(data);
             IObjectDataKey dataKey = factory.GetObjectKey(data);
-            return new object[] { keyHash, dataKey.Key };
+            return new object[] { keyHash!, dataKey.Key! };
         })
         .TheTest
         .ShouldPass(because =>

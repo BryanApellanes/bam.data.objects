@@ -11,28 +11,28 @@ namespace Bam.Data.Objects;
 public class PropertyWriteResult : IPropertyWriteResult
 {
     /// <inheritdoc />
-    public IObjectDataKey ObjectDataKey { get; set; }
+    public IObjectDataKey ObjectDataKey { get; set; } = null!;
 
     /// <inheritdoc />
-    public IStorageSlot PointerStorageSlot { get; set; }
+    public IStorageSlot PointerStorageSlot { get; set; } = null!;
 
     /// <inheritdoc />
-    public IStorageSlot ValueStorageSlot { get; set; }
+    public IStorageSlot ValueStorageSlot { get; set; } = null!;
 
     /// <inheritdoc />
-    public IProperty Property { get; set; }
+    public IProperty Property { get; set; } = null!;
 
     /// <inheritdoc />
-    public IRawData RawData { get; set; }
+    public IRawData RawData { get; set; } = null!;
 
     /// <inheritdoc />
     public PropertyWriteResults Status { get; set; }
 
     /// <inheritdoc />
-    public string Message { get; set; }
+    public string Message { get; set; } = null!;
 
     /// <inheritdoc />
-    public string RawDataHash { get; set; }
+    public string RawDataHash { get; set; } = null!;
 
     /// <inheritdoc />
     public IPropertyDescriptor GetDescriptor()

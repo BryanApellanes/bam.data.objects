@@ -15,7 +15,7 @@ public class PropertyStorageRevisionSlot : PropertyStorageSlot, IPropertyStorage
     public PropertyStorageRevisionSlot(IPropertyStorageHolder storageHolder, int version) : base(storageHolder)
     {
         this.Revision = version;
-        this.PropertyStorageRevisionHolder = new PropertyStorageRevisionHolder(storageHolder.FullName, version);
+        this.PropertyStorageRevisionHolder = new PropertyStorageRevisionHolder(storageHolder.FullName!, version);
         this.StorageHolder = this.PropertyStorageRevisionHolder;
     }
 
@@ -28,7 +28,7 @@ public class PropertyStorageRevisionSlot : PropertyStorageSlot, IPropertyStorage
     /// <summary>
     /// Gets the full file path for this revision slot.
     /// </summary>
-    public string? FullName => Path.Combine(PropertyStorageRevisionHolder.FullName, Name);
+    public new string? FullName => Path.Combine(PropertyStorageRevisionHolder.FullName!, Name);
 
     /// <summary>
     /// Gets the file name for this slot, always "dat".
@@ -59,5 +59,5 @@ public class PropertyStorageRevisionSlot : PropertyStorageSlot, IPropertyStorage
         return dataStorageManager.WriteProperty(property);
     }
 
-    private string MetaDataFile => Path.Combine(PropertyStorageRevisionHolder.FullName, "meta");
+    private string MetaDataFile => Path.Combine(PropertyStorageRevisionHolder.FullName!, "meta");
 }

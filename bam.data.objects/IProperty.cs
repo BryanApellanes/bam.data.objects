@@ -69,14 +69,14 @@ public interface IProperty : IJsonable
     /// </summary>
     /// <param name="encoding">The text encoding to use, or null for UTF-8.</param>
     /// <returns>The raw data representation of this property.</returns>
-    IRawData ToRawData(Encoding encoding = null);
+    IRawData ToRawData(Encoding encoding = null!);
 
     /// <summary>
     /// Converts this property to a raw data pointer (the hash hex string of the raw data).
     /// </summary>
     /// <param name="encoding">The text encoding to use, or null for UTF-8.</param>
     /// <returns>The raw data pointer for this property.</returns>
-    IRawData ToRawDataPointer(Encoding encoding = null);
+    IRawData ToRawDataPointer(Encoding encoding = null!);
 
     /// <summary>
     /// Creates a property descriptor from this property.

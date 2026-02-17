@@ -9,7 +9,7 @@ public class ObjectDataSearchIndexResult : IObjectDataSearchIndexResult
     public bool Success { get; set; }
 
     /// <inheritdoc />
-    public string Message { get; set; }
+    public string Message { get; set; } = null!;
 
     /// <inheritdoc />
     public int PropertiesIndexed { get; set; }

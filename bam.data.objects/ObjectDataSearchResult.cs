@@ -9,10 +9,10 @@ public class ObjectDataSearchResult : IObjectDataSearchResult
     public bool Success { get; set; }
 
     /// <inheritdoc />
-    public string Message { get; set; }
+    public string Message { get; set; } = null!;
 
     /// <inheritdoc />
-    public IEnumerable<IObjectData> Results { get; set; }
+    public IEnumerable<IObjectData> Results { get; set; } = null!;
 
     /// <inheritdoc />
     public int TotalCount { get; set; }

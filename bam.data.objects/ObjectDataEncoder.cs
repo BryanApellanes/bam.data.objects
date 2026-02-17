@@ -8,7 +8,7 @@ namespace Bam.Data.Objects;
 public abstract class ObjectDataEncoder: IObjectEncoderDecoder//, IObjectConverter, IObjectEncoder, IObjectDecoder
 {
     private static readonly object _defaultLock = new();
-    private static JsonObjectDataEncoder _default;
+    private static JsonObjectDataEncoder _default = null!;
 
     /// <summary>
     /// Gets the default <see cref="JsonObjectDataEncoder"/> singleton instance.

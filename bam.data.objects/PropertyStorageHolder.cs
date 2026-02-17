@@ -25,10 +25,10 @@ public class PropertyStorageHolder : DirectoryStorageHolder, IPropertyStorageHol
     }
 
     /// <inheritdoc />
-    public string PropertyName { get; internal set; }
+    public string PropertyName { get; internal set; } = null!;
 
     /// <inheritdoc />
-    public ITypeStorageHolder TypeStorageHolder { get; internal set; }
+    public ITypeStorageHolder TypeStorageHolder { get; internal set; } = null!;
 
     /// <inheritdoc />
     public IPropertyStorageRevisionSlot GetPropertyVersionSlot(IObjectDataStorageManager dataStorageManager, IProperty property, int version)

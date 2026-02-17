@@ -138,7 +138,7 @@ public class ObjectDataIndexer : IObjectDataIndexer
     private string GetIndexDirectoryPath(Type type)
     {
         List<string> parts = new List<string>();
-        parts.Add(StorageManager.GetRootStorageHolder().FullName);
+        parts.Add(StorageManager.GetRootStorageHolder().FullName!);
         parts.Add("index");
         string fullName = type.FullName ?? "UNSPECIFIED_TYPE_NAME";
         parts.AddRange(fullName.Split('.'));
@@ -147,14 +147,14 @@ public class ObjectDataIndexer : IObjectDataIndexer
 
     private static string GetUuid(object data)
     {
-        PropertyInfo uuidProp = data.GetType().GetProperty("Uuid");
-        return uuidProp?.GetValue(data) as string;
+        PropertyInfo uuidProp = data.GetType().GetProperty("Uuid")!;
+        return (uuidProp?.GetValue(data) as string)!;
     }
 
     private string GetUuidIndexPath(Type type, string uuid)
     {
         List<string> parts = new List<string>();
-        parts.Add(StorageManager.GetRootStorageHolder().FullName);
+        parts.Add(StorageManager.GetRootStorageHolder().FullName!);
         parts.Add("index-uuid");
         string fullName = type.FullName ?? "UNSPECIFIED_TYPE_NAME";
         parts.AddRange(fullName.Split('.'));
@@ -165,7 +165,7 @@ public class ObjectDataIndexer : IObjectDataIndexer
     private string GetIndexPath(Type type, ulong id)
     {
         List<string> parts = new List<string>();
-        parts.Add(StorageManager.GetRootStorageHolder().FullName);
+        parts.Add(StorageManager.GetRootStorageHolder().FullName!);
         parts.Add("index");
         string fullName = type.FullName ?? "UNSPECIFIED_TYPE_NAME";
         parts.AddRange(fullName.Split('.'));

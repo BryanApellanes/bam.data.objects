@@ -19,7 +19,7 @@ public class PropertyWriterShould: UnitTestMenuContainer
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(WritePropertyDatFile));
         string propertyName = "StringProperty";
-        string expectedPath = null;
+        string? expectedPath = null;
 
         When.A<PropertyWriter>("writes a property dat file",
             () =>
@@ -42,7 +42,7 @@ public class PropertyWriterShould: UnitTestMenuContainer
                 IObjectDataKey objectDataKey = testData.GetObjectKey();
                 IObjectDataStorageManager objectDataStorageManager = testContainer.Get<FsObjectDataStorageManager>();
 
-                IProperty property = testData.Property(propertyName);
+                IProperty property = testData.Property(propertyName)!;
                 int nextVersion = objectDataStorageManager.GetNextRevisionNumber(property);
 
                 List<string> expectedParts = new List<string>();
@@ -57,7 +57,7 @@ public class PropertyWriterShould: UnitTestMenuContainer
                 {
                     objectDataKey.GetPath(objectDataStorageManager).StartsWith(root),
                     property != null,
-                    result.PointerStorageSlot.FullName
+                    result.PointerStorageSlot.FullName!
                 };
             })
         .TheTest
@@ -66,7 +66,7 @@ public class PropertyWriterShould: UnitTestMenuContainer
             object[] results = (object[])because.Result;
             because.ItsTrue("objectKey path is in correct root", (bool)results[0]);
             because.ItsTrue("property is not null", (bool)results[1]);
-            because.ItsTrue("result path equals expected", expectedPath.Equals((string)results[2]));
+            because.ItsTrue("result path equals expected", expectedPath!.Equals((string)results[2]));
         })
         .SoBeHappy()
         .UnlessItFailed();

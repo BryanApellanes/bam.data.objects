@@ -21,12 +21,12 @@ public class ObjectData<T>: ObjectData, IObjectData<T>
     /// Initializes a new instance of the <see cref="ObjectData{T}"/> class wrapping the specified data.
     /// </summary>
     /// <param name="data">The data object to wrap.</param>
-    public ObjectData(T data) : base(data)
+    public ObjectData(T data) : base(data!)
     {
         this.Data = data;
     }
 
-    private T _data;
+    private T _data = default!;
     /// <summary>
     /// Gets or sets the strongly-typed underlying data object, casting from the base <see cref="ObjectData.Data"/> if needed.
     /// </summary>
@@ -48,7 +48,7 @@ public class ObjectData<T>: ObjectData, IObjectData<T>
         set
         {
             _data = value;
-            base.Data = value;
+            base.Data = value!;
         }
     }
 }

@@ -18,13 +18,13 @@ public abstract class PropertyStorageSlot : FsStorageSlot, IPropertyStorageSlot
     }
     
     /// <inheritdoc />
-    public IPropertyStorageHolder PropertyStorageHolder { get; }
+    public IPropertyStorageHolder PropertyStorageHolder { get; } = null!;
 
     /// <inheritdoc />
-    public IPropertyRevision PropertyRevision { get; }
+    public IPropertyRevision PropertyRevision { get; } = null!;
 
     /// <inheritdoc />
-    public IList<IPropertyRevision> VersionHistory { get; }
+    public IList<IPropertyRevision> VersionHistory { get; } = null!;
 
     /// <inheritdoc />
     public abstract IPropertyWriteResult Save(IObjectDataStorageManager dataStorageManager, IProperty property);

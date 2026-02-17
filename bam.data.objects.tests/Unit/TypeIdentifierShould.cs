@@ -14,10 +14,10 @@ public class TypeIdentifierShould : UnitTestMenuContainer
     }
 
     [UnitTest]
-    public void GetType()
+    public new void GetType()
     {
         Type type = typeof(PlainTestClass);
-        string typeName = type.AssemblyQualifiedName;
+        string typeName = type.AssemblyQualifiedName!;
 
         When.A<TypeDescriptor>("is created from AssemblyQualifiedName",
             () => new TypeDescriptor(typeName),

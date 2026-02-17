@@ -76,7 +76,7 @@ public class ObjectDataShould : UnitTestMenuContainer
     [UnitTest]
     public void OutputSameJson()
     {
-        string expected = null;
+        string? expected = null;
 
         When.A<PlainTestClass>("is wrapped in ObjectData and serialized to Json", (ptc) =>
         {
@@ -91,7 +91,7 @@ public class ObjectDataShould : UnitTestMenuContainer
         .ShouldPass(because =>
         {
             because.TheResult.IsNotNull()
-                .As<ObjectData>("outputs same Json", od => expected.Equals(od?.ToJson()));
+                .As<ObjectData>("outputs same Json", od => expected!.Equals(od?.ToJson()));
         })
         .SoBeHappy()
         .UnlessItFailed();
@@ -109,7 +109,7 @@ public class ObjectDataShould : UnitTestMenuContainer
             ptc.LongProperty = RandomNumber.Between(100, 1000);
             ptc.DateTimeProperty = DateTime.Now;
             ObjectData testObjectData = new ObjectData(ptc);
-            IProperty property = testObjectData.Property("IntProperty");
+            IProperty property = testObjectData.Property("IntProperty")!;
             return property.Decode();
         })
         .TheTest
@@ -133,7 +133,7 @@ public class ObjectDataShould : UnitTestMenuContainer
             ptc.LongProperty = RandomNumber.Between(100, 1000);
             ptc.DateTimeProperty = DateTime.Now;
             ObjectData testObjectData = new ObjectData(ptc);
-            IProperty property = testObjectData.Property("StringProperty");
+            IProperty property = testObjectData.Property("StringProperty")!;
             return property.Decode();
         })
         .TheTest
@@ -151,7 +151,7 @@ public class ObjectDataShould : UnitTestMenuContainer
     {
         string expected = 32.RandomLetters();
         bool originalDiffers = false;
-        IObjectData setData = null;
+        IObjectData? setData = null;
 
         When.A<PlainTestClass>("has its StringProperty set via ObjectData", (ptc) =>
         {
@@ -160,7 +160,7 @@ public class ObjectDataShould : UnitTestMenuContainer
             ptc.LongProperty = RandomNumber.Between(100, 1000);
             ptc.DateTimeProperty = DateTime.Now;
             ObjectData testObjectData = new ObjectData(ptc);
-            originalDiffers = !expected.Equals(testObjectData.Property("StringProperty").Decode());
+            originalDiffers = !expected.Equals(testObjectData.Property("StringProperty")!.Decode());
             setData = testObjectData.Property("StringProperty", expected);
             return testObjectData;
         })

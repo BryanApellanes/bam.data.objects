@@ -53,7 +53,7 @@ public class TypeDescriptor : ITypeDescriptor
         this.AssemblyQualifiedTypeName = assemblyQualifiedTypeName;
     }
     
-    private Type _type;
+    private Type _type = null!;
 
     /// <inheritdoc />
     [JsonIgnore]
@@ -64,15 +64,15 @@ public class TypeDescriptor : ITypeDescriptor
         {
             if (_type == null && !string.IsNullOrEmpty(AssemblyQualifiedTypeName))
             {
-                _type = Type.GetType(AssemblyQualifiedTypeName);
+                _type = Type.GetType(AssemblyQualifiedTypeName)!;
             }
 
-            return _type;
+            return _type!;
         }
         set => _type = value;
     }
 
-    private string _typeName;
+    private string _typeName = null!;
 
     /// <inheritdoc />
     public string AssemblyQualifiedTypeName
@@ -81,10 +81,10 @@ public class TypeDescriptor : ITypeDescriptor
         {
             if (string.IsNullOrEmpty(_typeName) && Type != null)
             {
-                _typeName = Type.AssemblyQualifiedName;
+                _typeName = Type.AssemblyQualifiedName!;
             }
 
-            return _typeName;
+            return _typeName!;
         }
         set => _typeName = value;
     }

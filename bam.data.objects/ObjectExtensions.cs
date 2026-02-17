@@ -41,7 +41,7 @@ public static class ObjectExtensions
         }
         catch
         {
-            obj = default;
+            obj = default!;
             return false;
         }
     }

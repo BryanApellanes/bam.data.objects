@@ -9,5 +9,5 @@ public interface IObjectStorageLoadResult<T>
     /// <summary>
     /// Gets the loaded strongly-typed object data, or null if the load failed.
     /// </summary>
-    new IObjectData<T> Data { get; }
+    IObjectData<T> Data { get; }
 }

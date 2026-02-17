@@ -8,11 +8,11 @@ namespace Bam.Data.Objects;
 public class ObjectDataLocator : IObjectDataLocator
 {
     /// <inheritdoc />
-    public IStorageIdentifier StorageIdentifier { get; init; }
+    public IStorageIdentifier StorageIdentifier { get; init; } = null!;
 
     /// <inheritdoc />
-    public IObjectDataKey ObjectDataKey { get; set;}
+    public IObjectDataKey ObjectDataKey { get; set;} = null!;
 
     /// <inheritdoc />
-    public IObjectDataIdentifier ObjectDataIdentifier { get; set; }
+    public IObjectDataIdentifier ObjectDataIdentifier { get; set; } = null!;
 }

@@ -8,7 +8,7 @@ namespace Bam.Data.Objects;
 public class ObjectDataKey : IObjectDataKey
 {
     /// <inheritdoc />
-    public TypeDescriptor TypeDescriptor { get; set; }
+    public TypeDescriptor TypeDescriptor { get; set; } = null!;
 
 
     /// <summary>
@@ -39,11 +39,11 @@ public class ObjectDataKey : IObjectDataKey
         List<string> parts = new List<string>();
         if (objectDataStorageManager != null)
         {
-            parts.Add(this.GetStorageIdentifier(objectDataStorageManager).FullName);
+            parts.Add(this.GetStorageIdentifier(objectDataStorageManager).FullName!);
         }
         if (!string.IsNullOrEmpty(this.Key))
         {
-            parts.AddRange(this.Key.Split(2));
+            parts.AddRange(this.Key!.Split(2));
         }
 
         return Path.Combine(parts.ToArray());

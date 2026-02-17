@@ -34,7 +34,7 @@ public class PropertyShould
     [UnitTest]
     public void ConvertObjectPropertyListToData()
     {
-        string originalJson = null;
+        string? originalJson = null;
 
         When.A<PlainTestClass>("is round-tripped through object properties", (ptc) =>
         {
@@ -44,14 +44,14 @@ public class PropertyShould
             ptc.DateTimeProperty = DateTime.Now;
             originalJson = ptc.ToJson();
             IEnumerable<IProperty> properties = ptc.ToObjectProperties();
-            PlainTestClass recovered = properties.FromObjectProperties<PlainTestClass>();
+            PlainTestClass recovered = properties.FromObjectProperties<PlainTestClass>()!;
             return recovered.ToJson();
         })
         .TheTest
         .ShouldPass(because =>
         {
             because.TheResult.IsNotNull()
-                .IsEqualTo(originalJson);
+                .IsEqualTo(originalJson!);
         })
         .SoBeHappy()
         .UnlessItFailed();
@@ -66,7 +66,7 @@ public class PropertyShould
         {
             ptc.StringProperty = expected;
             ObjectData data = new ObjectData(ptc);
-            PropertyInfo prop = typeof(PlainTestClass).GetProperty("StringProperty");
+            PropertyInfo prop = typeof(PlainTestClass).GetProperty("StringProperty")!;
             Property property = new Property(data, prop.Name, expected);
             return property.Decode();
         })
@@ -112,7 +112,7 @@ public class PropertyShould
         {
             ptc.StringProperty = 16.RandomLetters();
             ObjectData data = new ObjectData(ptc);
-            return new object[] { data, data.Property("StringProperty") };
+            return new object[] { data, data.Property("StringProperty")! };
         })
         .TheTest
         .ShouldPass(because =>

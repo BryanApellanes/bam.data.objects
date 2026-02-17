@@ -23,7 +23,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
 
         When.A<FsObjectDataStorageManager>("gets root storage",
             () => ConfigureDependencies(expected).Get<FsObjectDataStorageManager>(),
-            (mgr) => mgr.GetRootStorageHolder().FullName)
+            (mgr) => mgr.GetRootStorageHolder().FullName!)
         .TheTest
         .ShouldPass(because =>
         {
@@ -83,7 +83,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(GetPropertyStorageContainer));
         string propertyName = "StringProperty";
-        string expected = null;
+        string? expected = null;
 
         When.A<FsObjectDataStorageManager>("gets property storage container",
             () =>
@@ -110,7 +110,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
                 parts.Add(dataKey.GetPath(fsObjectDataStorageManager));
                 parts.Add(propertyName);
                 expected = Path.Combine(parts.ToArray());
-                return fsObjectDataStorageManager.GetPropertyStorageHolder(objectData.Property(propertyName).ToDescriptor());
+                return fsObjectDataStorageManager.GetPropertyStorageHolder(objectData.Property(propertyName)!.ToDescriptor());
             })
         .TheTest
         .ShouldPass(because =>
@@ -119,7 +119,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
             because.ItsTrue("TypeStorageHolder is not null", propertyStorage?.TypeStorageHolder != null);
             because.ItsTrue("PropertyName is not null", propertyStorage?.PropertyName != null);
             because.ItsTrue("PropertyName equals expected", propertyName.Equals(propertyStorage?.PropertyName));
-            because.ItsTrue("FullName equals expected path", expected.Equals(propertyStorage?.FullName));
+            because.ItsTrue("FullName equals expected path", expected!.Equals(propertyStorage?.FullName));
         })
         .SoBeHappy()
         .UnlessItFailed();
@@ -150,7 +150,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
                     DateTimeProperty = DateTime.Now
                 };
                 IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
-                return fsObjectDataStorageManager.GetNextPropertyStorageRevisionSlot(objectData.Property("StringProperty"));
+                return fsObjectDataStorageManager.GetNextPropertyStorageRevisionSlot(objectData.Property("StringProperty")!);
             })
         .TheTest
         .ShouldPass(because =>
@@ -186,7 +186,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
                     DateTimeProperty = DateTime.Now
                 };
                 IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
-                IProperty property = objectData.Property("StringProperty");
+                IProperty property = objectData.Property("StringProperty")!;
                 IPropertyWriteResult result = fsObjectDataStorageManager.WriteProperty(property);
                 return result;
             })
@@ -226,7 +226,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
                     DateTimeProperty = DateTime.Now
                 };
                 IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
-                IProperty property = objectData.Property("StringProperty");
+                IProperty property = objectData.Property("StringProperty")!;
                 IPropertyStorageRevisionSlot propertyStorageRevisionSlot =
                     fsObjectDataStorageManager.GetNextPropertyStorageRevisionSlot(property);
                 ISlottedStorage slottedStorage = fsObjectDataStorageManager.GetObjectStorage(propertyStorageRevisionSlot);
@@ -241,7 +241,7 @@ public class ObjectStorageManagerShould : UnitTestMenuContainer
             IPropertyStorageRevisionSlot revisionSlot = (IPropertyStorageRevisionSlot)results[1];
             FsObjectDataStorageManager mgr = (FsObjectDataStorageManager)results[2];
             because.ItsTrue("slot path equals revision slot path", slot?.FullName?.Equals(revisionSlot?.FullName) == true);
-            because.ItsTrue("slot was written", mgr.IsSlotWritten(slot));
+            because.ItsTrue("slot was written", mgr.IsSlotWritten(slot!));
         })
         .SoBeHappy()
         .UnlessItFailed();

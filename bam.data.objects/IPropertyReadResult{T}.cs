@@ -11,12 +11,12 @@ public interface IPropertyReadResult<TValue> : IPropertyReadResult
     /// <summary>
     /// Gets the type that declares the property.
     /// </summary>
-    Type Type { get; }
+    new Type Type { get; }
 
     /// <summary>
     /// Gets the property metadata that was read.
     /// </summary>
-    PropertyInfo Property { get; }
+    new PropertyInfo Property { get; }
 
     /// <summary>
     /// Gets the strongly-typed value that was read from the property.
@@ -26,5 +26,5 @@ public interface IPropertyReadResult<TValue> : IPropertyReadResult
     /// <summary>
     /// Gets a value indicating whether the read operation succeeded.
     /// </summary>
-    bool Success { get; }
+    new bool Success { get; }
 }

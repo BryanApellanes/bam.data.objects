@@ -108,7 +108,7 @@ public class JsonObjectDataEncoder : ObjectDataEncoder
             return jsonEncoding.ToObject();
         }
 
-        return null;
+        return null!;
     }
 
     /// <summary>
@@ -136,6 +136,6 @@ public class JsonObjectDataEncoder : ObjectDataEncoder
             return jsonEncoding.ToObject();
         }
 
-        return default;
+        return default!;
     }
 }

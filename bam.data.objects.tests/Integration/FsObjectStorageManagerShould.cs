@@ -15,7 +15,7 @@ public class FsObjectStorageManagerShould(ServiceRegistry serviceRegistry) : Uni
     public Task WriteAndReadProperty()
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(WriteAndReadProperty));
-        string stringPropertyValue = null;
+        string? stringPropertyValue = null;
 
         When.A<FsObjectDataStorageManager>("writes and reads a property",
             () =>
@@ -35,7 +35,7 @@ public class FsObjectStorageManagerShould(ServiceRegistry serviceRegistry) : Uni
                     .For<IObjectDataStorageManager>().Use<FsObjectDataStorageManager>()
                     .Get<IObjectDataFactory>();
                 IObjectData testObjectData = objectDataFactory.GetObjectData(new PlainTestClass(true));
-                IProperty stringProperty = testObjectData.Property(nameof(PlainTestClass.StringProperty));
+                IProperty? stringProperty = testObjectData.Property(nameof(PlainTestClass.StringProperty));
                 stringPropertyValue = stringProperty?.Value;
                 IPropertyWriteResult propertyWriteResult = fsObjectDataStorageManager.WriteProperty(stringProperty!);
                 IProperty readProperty = fsObjectDataStorageManager.ReadProperty(
@@ -47,7 +47,7 @@ public class FsObjectStorageManagerShould(ServiceRegistry serviceRegistry) : Uni
         .ShouldPass(because =>
         {
             because.TheResult.IsNotNull()
-                .IsEqualTo(stringPropertyValue);
+                .IsEqualTo(stringPropertyValue!);
         })
         .SoBeHappy()
         .UnlessItFailed();

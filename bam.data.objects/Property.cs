@@ -26,7 +26,7 @@ public class Property : IProperty
         this.Parent = parent;
         this.ObjectDataEncoder = JsonObjectDataEncoder.Default;
         this.ObjectEncoding = this.ObjectDataEncoder.Encode(propertyValue);
-        this.AssemblyQualifiedTypeName = parent.TypeDescriptor.Type.AssemblyQualifiedName;
+        this.AssemblyQualifiedTypeName = parent.TypeDescriptor.Type.AssemblyQualifiedName!;
         this.PropertyName = propertyName;
         PropertyInfo propertyInfo = parent.TypeDescriptor.Type.GetProperty(PropertyName)!;
         this.Type = propertyInfo?.PropertyType ?? typeof(object);
@@ -55,9 +55,9 @@ public class Property : IProperty
         get
         {
             List<string> pathSegments = new List<string>();
-            pathSegments.AddRange(Parent.TypeDescriptor.Type.Namespace.Split('.'));
+            pathSegments.AddRange(Parent.TypeDescriptor.Type.Namespace!.Split('.'));
             pathSegments.Add(Parent.TypeDescriptor.Type.Name);
-            pathSegments.AddRange(Parent.GetObjectKey().Key.Split(2));
+            pathSegments.AddRange(Parent.GetObjectKey().Key!.Split(2));
             pathSegments.Add(PropertyName);
             return Path.Combine(pathSegments.ToArray());
         }
@@ -66,7 +66,7 @@ public class Property : IProperty
     /// <inheritdoc />
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
-    public IEnumerable<IPropertyRevision> Versions { get; set; }
+    public IEnumerable<IPropertyRevision> Versions { get; set; } = null!;
 
     /// <inheritdoc />
     public object Decode()
@@ -82,7 +82,7 @@ public class Property : IProperty
     /// <summary>
     /// Gets or sets the AssemblyQualifiedName of the type this property belongs to.
     /// </summary>
-    public string AssemblyQualifiedTypeName { get; set; }
+    public string AssemblyQualifiedTypeName { get; set; } = null!;
 
     /// <inheritdoc />
     [Newtonsoft.Json.JsonIgnore]
@@ -102,9 +102,9 @@ public class Property : IProperty
     /// <inheritdoc />
     public object SetValue(object target)
     {
-        Type type = Type.GetType(AssemblyQualifiedTypeName);
-        PropertyInfo property = type.GetProperty(PropertyName);
-        property.SetValue(target, Decode());
+        Type type = Type.GetType(AssemblyQualifiedTypeName)!;
+        PropertyInfo property = type!.GetProperty(PropertyName)!;
+        property!.SetValue(target, Decode());
         return target;
     }
 
@@ -117,13 +117,13 @@ public class Property : IProperty
     }
     
     /// <inheritdoc />
-    public IRawData ToRawData(Encoding encoding = null)
+    public IRawData ToRawData(Encoding encoding = null!)
     {
         return new RawData(this.ObjectDataEncoder.Encode(this).Value, encoding);
     }
 
     /// <inheritdoc />
-    public IRawData ToRawDataPointer(Encoding encoding = null)
+    public IRawData ToRawDataPointer(Encoding encoding = null!)
     {
         return new RawData(ToRawData().HashHexString);
     }
@@ -141,7 +141,7 @@ public class Property : IProperty
         {
             parent = dataParent;
         }
-        return new Property(parent, property.Name, property.GetValue(data));
+        return new Property(parent, property.Name, property.GetValue(data)!);
     }
 
     /// <summary>

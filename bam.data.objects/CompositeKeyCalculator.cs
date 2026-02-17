@@ -25,7 +25,7 @@ public class CompositeKeyCalculator: ICompositeKeyCalculator
     /// <summary>
     /// Gets or sets the text encoding used when converting data to bytes for hashing.
     /// </summary>
-    public Encoding Encoding { get; set; }
+    public Encoding Encoding { get; set; } = null!;
 
     /// <inheritdoc />
     public ulong CalculateULongKey(object instance)
@@ -94,7 +94,7 @@ public class CompositeKeyCalculator: ICompositeKeyCalculator
         Type type = instance.GetType();
         SortedDictionary<string, string> jsonify = new SortedDictionary<string, string>
         {
-            { "type", type.AssemblyQualifiedName }
+            { "type", type.AssemblyQualifiedName! }
         };
         this.AddCompositeKeysToDictionary(type, instance, jsonify);
         return jsonify;

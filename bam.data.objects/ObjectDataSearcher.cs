@@ -59,7 +59,7 @@ public class ObjectDataSearcher : IObjectDataSearcher
                     IEnumerable<IObjectDataKey> keys = SearchIndexer
                         .LookupAsync(type, criterion.PropertyName, valueHash)
                         .GetAwaiter().GetResult();
-                    perCriterionKeys.Add(new HashSet<string>(keys.Select(k => k.Key)));
+                    perCriterionKeys.Add(new HashSet<string>(keys.Select(k => k.Key!)));
                 });
 
                 foreach (HashSet<string> keySet in perCriterionKeys)
@@ -82,7 +82,7 @@ public class ObjectDataSearcher : IObjectDataSearcher
                         .ReadObjectDataAsync(objectKey).GetAwaiter().GetResult();
                     if (readResult?.ObjectData != null)
                     {
-                        loadedObjects[objectKey.Key] = readResult.ObjectData;
+                        loadedObjects[objectKey.Key!] = readResult.ObjectData;
                     }
                 });
 
@@ -96,10 +96,10 @@ public class ObjectDataSearcher : IObjectDataSearcher
                         object data = kvp.Value.Data;
                         if (data == null) continue;
 
-                        System.Reflection.PropertyInfo prop = data.GetType().GetProperty(criterion.PropertyName);
+                        System.Reflection.PropertyInfo prop = data.GetType().GetProperty(criterion.PropertyName)!;
                         if (prop == null) continue;
 
-                        object propValue = prop.GetValue(data);
+                        object propValue = prop.GetValue(data)!;
                         string propertyValue = propValue?.ToString() ?? string.Empty;
 
                         if (MatchesOperator(propertyValue, searchValue, criterion.Operator))
@@ -113,7 +113,7 @@ public class ObjectDataSearcher : IObjectDataSearcher
             }
 
             // 3. Intersect all sets (AND semantics)
-            HashSet<string> matchingKeysResult = null;
+            HashSet<string> matchingKeysResult = null!;
             foreach (HashSet<string> keySet in allKeySets)
             {
                 if (matchingKeysResult == null)
@@ -196,6 +196,6 @@ public class ObjectDataSearcher : IObjectDataSearcher
             return "null";
         }
 
-        return JsonObjectDataEncoder.Default.Encode(value).ToString();
+        return JsonObjectDataEncoder.Default.Encode(value).ToString()!;
     }
 }

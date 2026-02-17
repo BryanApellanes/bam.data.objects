@@ -46,7 +46,7 @@ public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
                     ? new HashSet<string>(File.ReadAllLines(indexPath))
                     : new HashSet<string>();
 
-                if (keys.Add(objectDataKey.Key))
+                if (keys.Add(objectDataKey.Key!))
                 {
                     File.WriteAllLines(indexPath, keys);
                 }
@@ -83,7 +83,7 @@ public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
                 }
 
                 HashSet<string> keys = new HashSet<string>(File.ReadAllLines(indexPath));
-                if (keys.Remove(objectDataKey.Key))
+                if (keys.Remove(objectDataKey.Key!))
                 {
                     if (keys.Count == 0)
                     {
@@ -164,7 +164,7 @@ public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
                     ? new HashSet<string>(File.ReadAllLines(indexPath))
                     : new HashSet<string>();
 
-                if (keys.Add(objectDataKey.Key))
+                if (keys.Add(objectDataKey.Key!))
                 {
                     File.WriteAllLines(indexPath, keys);
                 }
@@ -175,7 +175,7 @@ public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
     private string GetSearchIndexDirectoryForType(Type type)
     {
         List<string> parts = new List<string>();
-        parts.Add(StorageManager.GetRootStorageHolder().FullName);
+        parts.Add(StorageManager.GetRootStorageHolder().FullName!);
         parts.Add("search-index");
         string fullName = type.FullName ?? "UNSPECIFIED_TYPE_NAME";
         parts.AddRange(fullName.Split('.'));
@@ -185,7 +185,7 @@ public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
     private string GetSearchIndexPath(Type type, string propertyName, string valueHash)
     {
         List<string> parts = new List<string>();
-        parts.Add(StorageManager.GetRootStorageHolder().FullName);
+        parts.Add(StorageManager.GetRootStorageHolder().FullName!);
         parts.Add("search-index");
         string fullName = type.FullName ?? "UNSPECIFIED_TYPE_NAME";
         parts.AddRange(fullName.Split('.'));

@@ -12,10 +12,10 @@ public class ObjectDataIndexResult : IObjectDataIndexResult
     public ulong Id { get; set; }
 
     /// <inheritdoc />
-    public IObjectDataKey ObjectDataKey { get; set; }
+    public IObjectDataKey ObjectDataKey { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets a message describing the result, typically populated on failure.
     /// </summary>
-    public string Message { get; set; }
+    public string Message { get; set; } = null!;
 }

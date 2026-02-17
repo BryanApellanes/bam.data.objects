@@ -31,5 +31,5 @@ public class PropertyStorageRevisionHolder : PropertyStorageHolder, IPropertySto
     /// <summary>
     /// Gets the full path including the version subdirectory.
     /// </summary>
-    public override string? FullName => Path.Combine(base.FullName, Version.ToString());
+    public override string? FullName => Path.Combine(base.FullName!, Version.ToString());
 }

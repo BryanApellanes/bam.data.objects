@@ -41,8 +41,8 @@ public class ObjectDataDeleter : IObjectDataDeleter
 
             // Delete the object's property storage directory
             ITypeStorageHolder typeHolder = StorageManager.GetObjectStorageHolder(objectDataKey.TypeDescriptor);
-            List<string> keyParts = new List<string> { typeHolder.FullName };
-            keyParts.AddRange(objectDataKey.Key.Split(2));
+            List<string> keyParts = new List<string> { typeHolder.FullName! };
+            keyParts.AddRange(objectDataKey.Key!.Split(2));
             string objectStoragePath = Path.Combine(keyParts.ToArray());
             if (Directory.Exists(objectStoragePath))
             {
@@ -83,14 +83,14 @@ public class ObjectDataDeleter : IObjectDataDeleter
 
     private static string GetUuid(object data)
     {
-        PropertyInfo uuidProp = data.GetType().GetProperty("Uuid");
-        return uuidProp?.GetValue(data) as string;
+        PropertyInfo uuidProp = data.GetType().GetProperty("Uuid")!;
+        return (uuidProp?.GetValue(data) as string)!;
     }
 
     private string GetIndexPath(TypeDescriptor typeDescriptor, ulong id)
     {
         List<string> parts = new List<string>();
-        parts.Add(StorageManager.GetRootStorageHolder().FullName);
+        parts.Add(StorageManager.GetRootStorageHolder().FullName!);
         parts.Add("index");
         string fullName = typeDescriptor.Type.FullName ?? "UNSPECIFIED_TYPE_NAME";
         parts.AddRange(fullName.Split('.'));
@@ -101,7 +101,7 @@ public class ObjectDataDeleter : IObjectDataDeleter
     private string GetUuidIndexPath(TypeDescriptor typeDescriptor, string uuid)
     {
         List<string> parts = new List<string>();
-        parts.Add(StorageManager.GetRootStorageHolder().FullName);
+        parts.Add(StorageManager.GetRootStorageHolder().FullName!);
         parts.Add("index-uuid");
         string fullName = typeDescriptor.Type.FullName ?? "UNSPECIFIED_TYPE_NAME";
         parts.AddRange(fullName.Split('.'));

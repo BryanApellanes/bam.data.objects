@@ -42,7 +42,7 @@ public class PropertyStorageHolderShould: UnitTestMenuContainer
                 };
                 IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
                 PropertyStorageHolder propertyStorageHolder = new PropertyStorageHolder(testDataPath);
-                return propertyStorageHolder.GetPropertyVersionSlot(fsObjectDataStorageManager, objectData.Property("StringProperty"), 1);
+                return propertyStorageHolder.GetPropertyVersionSlot(fsObjectDataStorageManager, objectData.Property("StringProperty")!, 1);
             })
         .TheTest
         .ShouldPass(because =>
@@ -80,7 +80,7 @@ public class PropertyStorageHolderShould: UnitTestMenuContainer
                     DateTimeProperty = DateTime.Now
                 };
                 IObjectData objectData = dataFactory.GetObjectData(new ObjectData(plainTestClass));
-                return fsObjectDataStorageManager.GetPropertyStorageHolder(objectData.Property("StringProperty").ToDescriptor());
+                return fsObjectDataStorageManager.GetPropertyStorageHolder(objectData.Property("StringProperty")!.ToDescriptor());
             })
         .TheTest
         .ShouldPass(because =>

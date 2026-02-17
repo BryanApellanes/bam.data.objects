@@ -166,7 +166,7 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
                 ulong createdId = created.Id;
                 repository.Update(created);
                 TestRepoData retrieved = repository.Retrieve<TestRepoData>(createdId);
-                return new object[] { retrieved != null, originalUuid, retrieved?.Uuid, createdId, retrieved?.Id ?? 0UL };
+                return new object[] { retrieved != null, originalUuid, retrieved?.Uuid!, createdId, retrieved?.Id ?? 0UL };
             })
         .TheTest
         .ShouldPass(because =>
@@ -232,7 +232,7 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
                 repository.Create(data3);
                 ulong targetId = data2.Id;
                 IEnumerable<TestRepoData> results = repository.Query<TestRepoData>(item => item.Id == targetId);
-                return new object[] { results.Count(), results.FirstOrDefault()?.Uuid, data2.Uuid };
+                return new object[] { results.Count(), results.FirstOrDefault()?.Uuid!, data2.Uuid };
             })
         .TheTest
         .ShouldPass(because =>
@@ -345,9 +345,9 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
 
                 IObjectDataSearcher searcher = ConfigureTestRegistry(root).Get<IObjectDataSearcher>();
                 IObjectDataSearchResult result = searcher.SearchAsync(search).GetAwaiter().GetResult();
-                object foundData = result.Results.FirstOrDefault()?.Data;
-                string foundUuid = (foundData as TestRepoData)?.Uuid;
-                return new object[] { result.Success, result.TotalCount, foundUuid, data2.Uuid };
+                object? foundData = result.Results.FirstOrDefault()?.Data;
+                string? foundUuid = (foundData as TestRepoData)?.Uuid;
+                return new object[] { result.Success, result.TotalCount, foundUuid!, data2.Uuid };
             })
         .TheTest
         .ShouldPass(because =>
@@ -386,9 +386,9 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
 
                 IObjectDataSearcher searcher = ConfigureTestRegistry(root).Get<IObjectDataSearcher>();
                 IObjectDataSearchResult result = searcher.SearchAsync(search).GetAwaiter().GetResult();
-                object foundData = result.Results.FirstOrDefault()?.Data;
-                string foundCuid = (foundData as TestRepoData)?.Cuid;
-                return new object[] { result.Success, result.TotalCount, foundCuid, data1.Cuid };
+                object? foundData = result.Results.FirstOrDefault()?.Data;
+                string? foundCuid = (foundData as TestRepoData)?.Cuid;
+                return new object[] { result.Success, result.TotalCount, foundCuid!, data1.Cuid };
             })
         .TheTest
         .ShouldPass(because =>
@@ -763,7 +763,7 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
                     }
                 }
 
-                return new object[] { created.Id, retrieved?.Id ?? 0UL, retrieved?.Uuid, data.Uuid, rawFilesArePlaintext };
+                return new object[] { created.Id, retrieved?.Id ?? 0UL, retrieved?.Uuid!, data.Uuid, rawFilesArePlaintext };
             })
         .TheTest
         .ShouldPass(because =>
@@ -806,9 +806,9 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
 
                 IObjectDataSearcher searcher = registry.Get<IObjectDataSearcher>();
                 IObjectDataSearchResult result = searcher.SearchAsync(search).GetAwaiter().GetResult();
-                object foundData = result.Results.FirstOrDefault()?.Data;
-                string foundUuid = (foundData as TestRepoData)?.Uuid;
-                return new object[] { result.Success, result.TotalCount, foundUuid, data2.Uuid };
+                object? foundData = result.Results.FirstOrDefault()?.Data;
+                string? foundUuid = (foundData as TestRepoData)?.Uuid;
+                return new object[] { result.Success, result.TotalCount, foundUuid!, data2.Uuid };
             })
         .TheTest
         .ShouldPass(because =>

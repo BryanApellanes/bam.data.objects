@@ -36,7 +36,7 @@ namespace Bam
         /// </summary>
         /// <param name="obj">The object to compare with.</param>
         /// <returns>True if the object is a <see cref="JsonMultiProcessDataLockInfo"/> with the same ProcessId and MachineName.</returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is JsonMultiProcessDataLockInfo lockInfo)
             {

@@ -9,13 +9,13 @@ namespace Bam.Data.Repositories;
 public class PropertyReadResult : IPropertyReadResult
 {
     /// <inheritdoc />
-    public Type Type { get; }
+    public Type Type { get; } = null!;
 
     /// <inheritdoc />
-    public PropertyInfo Property { get; }
+    public PropertyInfo Property { get; } = null!;
 
     /// <inheritdoc />
-    public object Value { get; }
+    public object Value { get; } = null!;
 
     /// <inheritdoc />
     public bool Success { get; }

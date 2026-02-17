@@ -8,7 +8,7 @@ namespace Bam.Data.Objects;
 public class ObjectDataIdentifier : IObjectDataIdentifier
 {
     /// <inheritdoc />
-    public TypeDescriptor TypeDescriptor { get; set; }
+    public TypeDescriptor TypeDescriptor { get; set; } = null!;
 
     /// <inheritdoc />
     public IStorageIdentifier GetStorageIdentifier(IObjectDataStorageManager objectDataStorageManager)

@@ -11,7 +11,7 @@ public class PropertyRevision : IPropertyRevision
     /// <param name="property">The property associated with this revision.</param>
     /// <param name="number">The 1-based revision number.</param>
     /// <param name="metaData">Optional metadata associated with this revision.</param>
-    public PropertyRevision(IProperty property, int number = 1, string metaData = null)
+    public PropertyRevision(IProperty property, int number = 1, string metaData = null!)
     {
         this.Property = property;
         this.Number = number;
@@ -19,10 +19,10 @@ public class PropertyRevision : IPropertyRevision
     }
 
     /// <inheritdoc />
-    public ITypeDescriptor TypeDescriptor => this.Property?.Parent?.TypeDescriptor;
+    public ITypeDescriptor TypeDescriptor => this.Property?.Parent?.TypeDescriptor!;
 
     /// <inheritdoc />
-    public IObjectData Parent => this.Property?.Parent;
+    public IObjectData Parent => this.Property?.Parent!;
 
     /// <inheritdoc />
     public IProperty Property { get; }

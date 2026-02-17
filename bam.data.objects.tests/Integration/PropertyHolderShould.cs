@@ -18,7 +18,7 @@ public class PropertyHolderShould: UnitTestMenuContainer
     public async Task WriteDatFileToExpectedPath()
     {
         string rootPath = Path.Combine(Environment.CurrentDirectory, nameof(SaveObjectProperty));
-        string expected = null;
+        string? expected = null;
 
         When.A<PropertyStorageHolder>("writes a dat file to expected path",
             () =>
@@ -42,8 +42,8 @@ public class PropertyHolderShould: UnitTestMenuContainer
                 IObjectDataKey dataKey = objectData.GetObjectKey();
 
                 List<string> pathSegments = new List<string> { rootPath, "objects" };
-                pathSegments.AddRange(typeof(PlainTestClass).FullName.Split('.'));
-                pathSegments.AddRange(dataKey.Key.Split(2));
+                pathSegments.AddRange(typeof(PlainTestClass).FullName!.Split('.'));
+                pathSegments.AddRange(dataKey.Key!.Split(2));
                 pathSegments.Add("StringProperty");
                 pathSegments.Add("1");
                 pathSegments.Add("dat");
@@ -53,14 +53,14 @@ public class PropertyHolderShould: UnitTestMenuContainer
                 {
                     File.Delete(expected);
                 }
-                IPropertyWriteResult writeResult = storageHolder.Save(dataStorageManager, objectData.Property("StringProperty"));
-                return new object[] { writeResult.PointerStorageSlot.FullName, File.Exists(writeResult.PointerStorageSlot.FullName) };
+                IPropertyWriteResult writeResult = storageHolder.Save(dataStorageManager, objectData.Property("StringProperty")!);
+                return new object[] { writeResult.PointerStorageSlot.FullName!, File.Exists(writeResult.PointerStorageSlot.FullName) };
             })
         .TheTest
         .ShouldPass(because =>
         {
             object[] results = (object[])because.Result;
-            because.ItsTrue("write result path equals expected", expected.Equals((string)results[0]));
+            because.ItsTrue("write result path equals expected", expected!.Equals((string)results[0]));
             because.ItsTrue("file exists", (bool)results[1]);
         })
         .SoBeHappy()
@@ -88,11 +88,11 @@ public class PropertyHolderShould: UnitTestMenuContainer
                 {
                     StringProperty = "StringProperty-SaveObjectPropertyTest"
                 });
-                IProperty property = objectData.Property("StringProperty");
+                IProperty property = objectData.Property("StringProperty")!;
                 IPropertyStorageHolder propertyStorageHolder =
                     dataStorageManager.GetPropertyStorageHolder(property.ToDescriptor());
                 IPropertyWriteResult writeResult = propertyStorageHolder.Save(dataStorageManager, property);
-                return new object[] { writeResult.PointerStorageSlot.FullName, File.Exists(writeResult.PointerStorageSlot.FullName) };
+                return new object[] { writeResult.PointerStorageSlot.FullName!, File.Exists(writeResult.PointerStorageSlot.FullName) };
             })
         .TheTest
         .ShouldPass(because =>

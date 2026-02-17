@@ -17,7 +17,7 @@ public class ObjectData : IObjectData
     public ObjectData(object data) : base()
     {
         this.Data = data;
-        this.TypeDescriptor = new TypeDescriptor(data?.GetType());
+        this.TypeDescriptor = new TypeDescriptor(data?.GetType()!);
         this.ObjectEncoder = JsonObjectDataEncoder.Default;
         this.DataTypeTranslator = Bam.Data.DataTypeTranslator.Default;
     }
@@ -37,7 +37,7 @@ public class ObjectData : IObjectData
     internal ObjectData(object data, IObjectEncoderDecoder encoder)
     {
         this.Data = data;
-        this.TypeDescriptor = new TypeDescriptor(data?.GetType());
+        this.TypeDescriptor = new TypeDescriptor(data?.GetType()!);
         this.ObjectEncoder = encoder;
         this.DataTypeTranslator = Bam.Data.DataTypeTranslator.Default;
     }
@@ -64,7 +64,7 @@ public class ObjectData : IObjectData
     }
     
     /// <inheritdoc />
-    public IObjectDataLocatorFactory ObjectDataLocatorFactory { get; set; }
+    public IObjectDataLocatorFactory ObjectDataLocatorFactory { get; set; } = null!;
 
     /// <inheritdoc />
     public TypeDescriptor TypeDescriptor
@@ -73,7 +73,7 @@ public class ObjectData : IObjectData
         set;
     }
 
-    private Dictionary<string, IProperty> _propertyDictionary;
+    private Dictionary<string, IProperty> _propertyDictionary = null!;
 
     /// <inheritdoc />
     public IProperty? Property(string propertyName)
@@ -102,7 +102,7 @@ public class ObjectData : IObjectData
         return this;
     }
 
-    private IEnumerable<IProperty> _properties;
+    private IEnumerable<IProperty> _properties = null!;
 
     /// <inheritdoc />
     public IEnumerable<IProperty> Properties
@@ -161,7 +161,7 @@ public class ObjectData : IObjectData
             DataTypes enumType = DataTypeTranslator.EnumFromType(propertyInfo.PropertyType);
             if (enumType != DataTypes.Default)
             {
-                object propValue = propertyInfo.GetValue(this.Data);
+                object propValue = propertyInfo.GetValue(this.Data)!;
                 if (propValue != null)
                 {
                     yield return new Property(this, propertyInfo.Name, propValue);

@@ -86,16 +86,16 @@ public class ObjectDataRepository : AsyncRepository
     /// <inheritdoc />
     public override T Retrieve<T>(ulong id)
     {
-        IObjectDataKey key = Indexer.LookupAsync(typeof(T), id).GetAwaiter().GetResult();
+        IObjectDataKey key = Indexer.LookupAsync(typeof(T), id).GetAwaiter().GetResult()!;
         if (key == null)
         {
-            return default;
+            return default!;
         }
 
         IObjectDataReadResult result = Reader.ReadObjectDataAsync(key).GetAwaiter().GetResult();
         if (result?.ObjectData?.Data == null)
         {
-            return default;
+            return default!;
         }
 
         return (T)result.ObjectData.Data;
@@ -116,16 +116,16 @@ public class ObjectDataRepository : AsyncRepository
     /// <inheritdoc />
     public override T Retrieve<T>(string uuid)
     {
-        IObjectDataKey key = Indexer.LookupByUuidAsync(typeof(T), uuid).GetAwaiter().GetResult();
+        IObjectDataKey key = Indexer.LookupByUuidAsync(typeof(T), uuid).GetAwaiter().GetResult()!;
         if (key == null)
         {
-            return default;
+            return default!;
         }
 
         IObjectDataReadResult result = Reader.ReadObjectDataAsync(key).GetAwaiter().GetResult();
         if (result?.ObjectData?.Data == null)
         {
-            return default;
+            return default!;
         }
 
         return (T)result.ObjectData.Data;
@@ -140,33 +140,33 @@ public class ObjectDataRepository : AsyncRepository
     /// <inheritdoc />
     public override object Retrieve(Type objectType, ulong id)
     {
-        IObjectDataKey key = Indexer.LookupAsync(objectType, id).GetAwaiter().GetResult();
+        IObjectDataKey key = Indexer.LookupAsync(objectType, id).GetAwaiter().GetResult()!;
         if (key == null)
         {
-            return null;
+            return null!;
         }
 
         IObjectDataReadResult result = Reader.ReadObjectDataAsync(key).GetAwaiter().GetResult();
-        return result?.ObjectData?.Data;
+        return result?.ObjectData?.Data!;
     }
 
     /// <inheritdoc />
     public override object Retrieve(Type objectType, string uuid)
     {
-        IObjectDataKey key = Indexer.LookupByUuidAsync(objectType, uuid).GetAwaiter().GetResult();
+        IObjectDataKey key = Indexer.LookupByUuidAsync(objectType, uuid).GetAwaiter().GetResult()!;
         if (key == null)
         {
-            return null;
+            return null!;
         }
 
         IObjectDataReadResult result = Reader.ReadObjectDataAsync(key).GetAwaiter().GetResult();
-        return result?.ObjectData?.Data;
+        return result?.ObjectData?.Data!;
     }
 
     /// <inheritdoc />
     public override T Update<T>(T toUpdate)
     {
-        IObjectData objectData = Factory.GetObjectData(toUpdate);
+        IObjectData objectData = Factory.GetObjectData(toUpdate!);
 
         ulong id = CompositeKeyCalculator.CalculateULongKey(objectData);
         PropertyInfo keyProp = GetKeyProperty(typeof(T));
@@ -204,7 +204,7 @@ public class ObjectDataRepository : AsyncRepository
     /// <inheritdoc />
     public override bool Delete<T>(T toDelete)
     {
-        IObjectData objectData = Factory.GetObjectData(toDelete);
+        IObjectData objectData = Factory.GetObjectData(toDelete!);
         SearchIndexer.RemoveAsync(objectData).GetAwaiter().GetResult();
         IObjectDataDeleteResult result = Deleter.DeleteAsync(objectData).GetAwaiter().GetResult();
         return result.Success;
@@ -326,13 +326,13 @@ public class ObjectDataRepository : AsyncRepository
 
         return RetrieveAll(DefaultType).Where(item =>
         {
-            PropertyInfo prop = item.GetType().GetProperty(propertyName);
+            PropertyInfo prop = item.GetType().GetProperty(propertyName)!;
             if (prop == null)
             {
                 return false;
             }
 
-            object value = prop.GetValue(item);
+            object value = prop.GetValue(item)!;
             return Equals(value, propertyValue);
         });
     }
@@ -341,13 +341,13 @@ public class ObjectDataRepository : AsyncRepository
     {
         foreach (KeyValuePair<string, object> param in queryParameters)
         {
-            PropertyInfo prop = item.GetType().GetProperty(param.Key);
+            PropertyInfo prop = item.GetType().GetProperty(param.Key)!;
             if (prop == null)
             {
                 return false;
             }
 
-            object value = prop.GetValue(item);
+            object value = prop.GetValue(item)!;
             if (!Equals(value, param.Value))
             {
                 return false;
@@ -363,20 +363,20 @@ public class ObjectDataRepository : AsyncRepository
         {
             if (token is IParameterInfo parameterInfo)
             {
-                string columnName = parameterInfo.ColumnName;
-                object filterValue = parameterInfo.Value;
+                string columnName = parameterInfo.ColumnName!;
+                object filterValue = parameterInfo.Value!;
                 if (columnName == null)
                 {
                     continue;
                 }
 
-                PropertyInfo prop = item.GetType().GetProperty(columnName);
+                PropertyInfo prop = item.GetType().GetProperty(columnName)!;
                 if (prop == null)
                 {
                     return false;
                 }
 
-                object itemValue = prop.GetValue(item);
+                object itemValue = prop.GetValue(item)!;
                 if (!Equals(itemValue, filterValue))
                 {
                     return false;

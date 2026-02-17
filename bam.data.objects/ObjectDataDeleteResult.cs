@@ -9,5 +9,5 @@ public class ObjectDataDeleteResult : IObjectDataDeleteResult
     public bool Success { get; set; }
 
     /// <inheritdoc />
-    public string Message { get; set; }
+    public string Message { get; set; } = null!;
 }

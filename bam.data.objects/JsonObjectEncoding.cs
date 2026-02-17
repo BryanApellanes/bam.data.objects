@@ -13,14 +13,14 @@ public class JsonObjectEncoding : RawData, IObjectEncoding
     /// </summary>
     /// <param name="value">The JSON-encoded bytes.</param>
     /// <param name="encoding">The text encoding to use, or null for the default.</param>
-    public JsonObjectEncoding(byte[] value, Encoding encoding = null): base(value, encoding)
+    public JsonObjectEncoding(byte[] value, Encoding encoding = null!): base(value, encoding)
     {
     }
 
     /// <summary>
     /// Gets or sets the CLR type to deserialize the JSON bytes into.
     /// </summary>
-    public virtual Type Type { get; set; }
+    public virtual Type Type { get; set; } = null!;
 
     /// <summary>
     /// Deserializes the JSON bytes back to an object of the specified <see cref="Type"/>.

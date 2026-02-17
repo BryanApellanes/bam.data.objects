@@ -6,10 +6,10 @@ namespace Bam.Data.Objects;
 public class ObjectDataReadResult : IObjectDataReadResult
 {
     /// <inheritdoc />
-    public IObjectData ObjectData { get; internal set; }
+    public IObjectData ObjectData { get; internal set; } = null!;
 
     /// <inheritdoc />
-    public string Message { get; set; }
+    public string Message { get; set; } = null!;
 
     /// <inheritdoc />
     public bool Success { get; set; }

@@ -10,16 +10,16 @@ namespace bam.data.dynamic.Objects;
 public class PropertyReadResult<TValue> : IPropertyReadResult<TValue>
 {
     /// <inheritdoc />
-    public Type Type { get; }
+    public Type Type { get; } = null!;
 
     /// <inheritdoc />
-    public PropertyInfo Property { get; }
+    public PropertyInfo Property { get; } = null!;
 
     /// <inheritdoc />
-    public TValue Value { get; }
+    public TValue Value { get; } = default!;
 
     /// <inheritdoc />
-    object IPropertyReadResult.Value => Value;
+    object IPropertyReadResult.Value => Value!;
 
     /// <inheritdoc />
     public bool Success { get; }

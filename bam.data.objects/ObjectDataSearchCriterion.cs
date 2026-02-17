@@ -8,12 +8,12 @@ public class ObjectDataSearchCriterion
     /// <summary>
     /// Gets or sets the name of the property to filter on.
     /// </summary>
-    public string PropertyName { get; set; }
+    public string PropertyName { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the value to compare the property against.
     /// </summary>
-    public object Value { get; set; }
+    public object Value { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the comparison operator to use for this criterion.

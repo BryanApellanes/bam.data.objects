@@ -14,7 +14,7 @@ public class JsonObjectEncoding<T> : JsonObjectEncoding
     /// </summary>
     /// <param name="value">The JSON-encoded bytes.</param>
     /// <param name="encoding">The text encoding to use, or null for the default.</param>
-    public JsonObjectEncoding(byte[] value, Encoding encoding = null): base(value, encoding)
+    public JsonObjectEncoding(byte[] value, Encoding encoding = null!): base(value, encoding)
     {
     }
 
@@ -23,7 +23,7 @@ public class JsonObjectEncoding<T> : JsonObjectEncoding
     /// </summary>
     /// <param name="data">The data object to encode.</param>
     /// <param name="encoding">The text encoding to use, or null for the default.</param>
-    public JsonObjectEncoding(T data, Encoding encoding = null) : base(encoding.GetBytes(data.ToJson()), encoding)
+    public JsonObjectEncoding(T data, Encoding encoding = null!) : base(encoding!.GetBytes(data!.ToJson()), encoding)
     {
     }
 
@@ -34,7 +34,7 @@ public class JsonObjectEncoding<T> : JsonObjectEncoding
     /// Deserializes the JSON bytes back to an instance of <typeparamref name="T"/>.
     /// </summary>
     /// <returns>The deserialized instance.</returns>
-    public virtual T ToObject()
+    public new virtual T ToObject()
     {
         return (T)base.ToObject();
     }

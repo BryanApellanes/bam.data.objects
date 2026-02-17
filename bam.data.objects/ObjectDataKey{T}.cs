@@ -18,8 +18,8 @@ public class ObjectDataKey<T> : ObjectDataKey, IObjectDataKey<T>
     }
 
     /// <inheritdoc />
-    public TypeDescriptor TypeDescriptor { get; }
+    public new TypeDescriptor TypeDescriptor { get; }
 
     /// <inheritdoc />
-    public string Key { get; }
+    public new string Key { get; } = null!;
 }

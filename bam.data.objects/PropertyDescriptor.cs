@@ -24,11 +24,11 @@ public class PropertyDescriptor : IPropertyDescriptor
         this.PropertyType = property.Type;
     }
     /// <inheritdoc />
-    public IObjectDataKey ObjectDataKey { get; set; }
+    public IObjectDataKey ObjectDataKey { get; set; } = null!;
 
     /// <inheritdoc />
-    public string PropertyName { get; set; }
+    public string PropertyName { get; set; } = null!;
 
     /// <inheritdoc />
-    public Type PropertyType { get; set; }
+    public Type PropertyType { get; set; } = null!;
 }

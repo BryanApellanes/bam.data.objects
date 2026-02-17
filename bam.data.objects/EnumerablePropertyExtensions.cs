@@ -16,7 +16,7 @@ public static class EnumerablePropertyExtensions
     /// <returns>The reconstructed object, or null if the type cannot be resolved.</returns>
     public static T? FromObjectProperties<T>(this IEnumerable<IProperty> properties)
     {
-        return (T)FromObjectProperties(properties);
+        return (T)FromObjectProperties(properties)!;
     }
 
     /// <summary>
@@ -27,7 +27,7 @@ public static class EnumerablePropertyExtensions
     public static object? FromObjectProperties(this IEnumerable<IProperty> properties)
     {
         EnsureMatchingTypeNames(properties);
-        Type type = Type.GetType(properties.First().AssemblyQualifiedTypeName);
+        Type type = Type.GetType(properties.First().AssemblyQualifiedTypeName)!;
         if (type == null)
         {
             return null;
@@ -35,9 +35,9 @@ public static class EnumerablePropertyExtensions
         object data = type.Construct();
         foreach (Property property in properties)
         {
-            PropertyInfo propertyInfo = type.GetProperty(property.PropertyName);
+            PropertyInfo propertyInfo = type.GetProperty(property.PropertyName)!;
 
-            object value = property.Value.FromJson(propertyInfo.PropertyType);
+            object value = property.Value.FromJson(propertyInfo.PropertyType)!;
             
             propertyInfo.SetValue(data, value);
         }
@@ -47,7 +47,7 @@ public static class EnumerablePropertyExtensions
     
     private static void EnsureMatchingTypeNames(IEnumerable<IProperty> properties)
     {
-        string typeName = null;
+        string typeName = null!;
         foreach (Property property in properties)
         {
             if (string.IsNullOrEmpty(typeName))
