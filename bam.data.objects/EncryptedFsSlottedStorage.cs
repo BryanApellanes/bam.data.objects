@@ -6,15 +6,15 @@ namespace Bam.Data.Dynamic.Objects;
 /// <summary>
 /// Extends <see cref="FsSlottedStorage"/> to transparently encrypt data on save and decrypt on load.
 /// </summary>
-public class EncryptingFsSlottedStorage : FsSlottedStorage
+public class EncryptedFsSlottedStorage : FsSlottedStorage
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="EncryptingFsSlottedStorage"/> class.
+    /// Initializes a new instance of the <see cref="EncryptedFsSlottedStorage"/> class.
     /// </summary>
     /// <param name="path">The file system path for the slotted storage root.</param>
     /// <param name="encryptor">The encryptor used to encrypt raw data before writing.</param>
     /// <param name="decryptor">The decryptor used to decrypt raw data after reading.</param>
-    public EncryptingFsSlottedStorage(string path, IEncryptor encryptor, IDecryptor decryptor) : base(path)
+    public EncryptedFsSlottedStorage(string path, IEncryptor encryptor, IDecryptor decryptor) : base(path)
     {
         this.Encryptor = encryptor;
         this.Decryptor = decryptor;
