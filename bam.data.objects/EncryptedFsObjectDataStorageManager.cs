@@ -30,9 +30,9 @@ public class EncryptedFsObjectDataStorageManager : FsObjectDataStorageManager
     /// <summary>
     /// Gets the raw storage, returning an encrypting variant that transparently encrypts and decrypts data.
     /// </summary>
-    /// <returns>An <see cref="EncryptingFsSlottedStorage"/> instance that encrypts data on save and decrypts on load.</returns>
+    /// <returns>An <see cref="EncryptedFsSlottedStorage"/> instance that encrypts data on save and decrypts on load.</returns>
     public override IRawStorage GetRawStorage()
     {
-        return new EncryptingFsSlottedStorage(Path.Combine(GetRootStorageHolder().FullName!, "raw"), Encryptor, Decryptor);
+        return new EncryptedFsSlottedStorage(Path.Combine(GetRootStorageHolder().FullName!, "raw"), Encryptor, Decryptor);
     }
 }
