@@ -20,6 +20,30 @@ public interface IObjectDataSearchIndexer
     Task RemoveAsync(IObjectData data);
 
     /// <summary>
+    /// Re-indexes an object whose property values may have changed: removes index entries for
+    /// properties of <paramref name="previous"/> whose values differ from (or are absent in)
+    /// <paramref name="current"/>, then indexes <paramref name="current"/>.  Callers on the
+    /// update path MUST use this instead of <see cref="IndexAsync"/> alone — indexing only the
+    /// current state leaves stale entries mapping the object's prior values to its key, so a
+    /// search for a superseded value (e.g. a rotated-away public key) would still surface the
+    /// object.
+    /// </summary>
+    /// <param name="previous">The previously stored state of the object, or null when no prior state exists (falls back to a plain index).</param>
+    /// <param name="current">The current state of the object to index.</param>
+    /// <returns>The result of the index operation, including the number of properties indexed.</returns>
+    Task<IObjectDataSearchIndexResult> ReindexAsync(IObjectData? previous, IObjectData current);
+
+    /// <summary>
+    /// Determines whether a search index exists for the specified type.  False for a legacy
+    /// store whose objects were written before search indexing was in place (and for types with
+    /// no indexed objects at all) — callers should treat a missing index as "unknown", not
+    /// "no matches", and fall back to scanning rather than trusting an empty lookup result.
+    /// </summary>
+    /// <param name="type">The type to check for a search index.</param>
+    /// <returns>True when a search index directory exists for the type.</returns>
+    bool HasIndex(Type type);
+
+    /// <summary>
     /// Looks up object keys that have the specified property value hash for the given type and property name.
     /// </summary>
     /// <param name="type">The type to search within.</param>

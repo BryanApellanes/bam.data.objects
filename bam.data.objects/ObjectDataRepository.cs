@@ -167,6 +167,7 @@ public class ObjectDataRepository : AsyncRepository
     public override T Update<T>(T toUpdate)
     {
         IObjectData objectData = Factory.GetObjectData(toUpdate!);
+        IObjectData? previous = LoadStoredState(objectData);
 
         ulong id = CompositeKeyCalculator.CalculateULongKey(objectData);
         PropertyInfo keyProp = GetKeyProperty(typeof(T));
@@ -174,7 +175,7 @@ public class ObjectDataRepository : AsyncRepository
 
         Writer.WriteAsync(objectData).GetAwaiter().GetResult();
         Indexer.IndexAsync(objectData).GetAwaiter().GetResult();
-        SearchIndexer.IndexAsync(objectData).GetAwaiter().GetResult();
+        SearchIndexer.ReindexAsync(previous, objectData).GetAwaiter().GetResult();
 
         return toUpdate;
     }
@@ -183,6 +184,7 @@ public class ObjectDataRepository : AsyncRepository
     public override object Update(object toUpdate)
     {
         IObjectData objectData = Factory.GetObjectData(toUpdate);
+        IObjectData? previous = LoadStoredState(objectData);
 
         ulong id = CompositeKeyCalculator.CalculateULongKey(objectData);
         PropertyInfo keyProp = GetKeyProperty(toUpdate.GetType());
@@ -190,9 +192,27 @@ public class ObjectDataRepository : AsyncRepository
 
         Writer.WriteAsync(objectData).GetAwaiter().GetResult();
         Indexer.IndexAsync(objectData).GetAwaiter().GetResult();
-        SearchIndexer.IndexAsync(objectData).GetAwaiter().GetResult();
+        SearchIndexer.ReindexAsync(previous, objectData).GetAwaiter().GetResult();
 
         return toUpdate;
+    }
+
+    /// <summary>
+    /// Loads the currently stored state of the object identified by <paramref name="objectData"/>'s
+    /// key, wrapped fresh via the factory so its properties and key resolve from the stored
+    /// instance.  Returns null when no stored state exists.  Must be called BEFORE the new state
+    /// is written — the prior property values are what <see cref="IObjectDataSearchIndexer.ReindexAsync"/>
+    /// needs to remove superseded search-index entries.
+    /// </summary>
+    private IObjectData? LoadStoredState(IObjectData objectData)
+    {
+        IObjectDataReadResult readResult = Reader.ReadObjectDataAsync(objectData.GetObjectKey()).GetAwaiter().GetResult();
+        if (readResult?.ObjectData?.Data == null)
+        {
+            return null;
+        }
+
+        return Factory.GetObjectData(readResult.ObjectData.Data);
     }
 
     /// <inheritdoc />
@@ -293,27 +313,120 @@ public class ObjectDataRepository : AsyncRepository
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// Equality criteria are resolved through the search index (hash lookup + verify-on-read)
+    /// instead of a full scan when the index is usable; see <see cref="TrySearchIndex"/> for the
+    /// fallback conditions.
+    /// </remarks>
     public override IEnumerable<T> Query<T>(Dictionary<string, object> queryParameters)
     {
+        IEnumerable<object>? indexed = TrySearchIndex(typeof(T), queryParameters);
+        if (indexed != null)
+        {
+            return indexed.OfType<T>().ToList();
+        }
+
         return RetrieveAll<T>().Where(item => MatchesQueryParameters(item, queryParameters));
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// Equality criteria are resolved through the search index when usable; see <see cref="TrySearchIndex"/>.
+    /// </remarks>
     public override IEnumerable<object> Query(Type type, Dictionary<string, object> queryParameters)
     {
+        IEnumerable<object>? indexed = TrySearchIndex(type, queryParameters);
+        if (indexed != null)
+        {
+            return indexed.ToList();
+        }
+
         return RetrieveAll(type).Where(item => MatchesQueryParameters(item, queryParameters));
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// Parameter-token equality filters are resolved through the search index when usable; see
+    /// <see cref="TrySearchIndex"/>.
+    /// </remarks>
     public override IEnumerable<T> Query<T>(IQueryFilter query)
     {
+        IEnumerable<object>? indexed = TrySearchIndex(typeof(T), GetEqualityCriteria(query));
+        if (indexed != null)
+        {
+            return indexed.OfType<T>().ToList();
+        }
+
         return RetrieveAll<T>().Where(item => MatchesQueryFilter(item, query));
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// Parameter-token equality filters are resolved through the search index when usable; see
+    /// <see cref="TrySearchIndex"/>.
+    /// </remarks>
     public override IEnumerable<object> Query(Type type, IQueryFilter query)
     {
+        IEnumerable<object>? indexed = TrySearchIndex(type, GetEqualityCriteria(query));
+        if (indexed != null)
+        {
+            return indexed.ToList();
+        }
+
         return RetrieveAll(type).Where(item => MatchesQueryFilter(item, query));
+    }
+
+    /// <summary>
+    /// Attempts to resolve equality criteria through the search index, returning null when the
+    /// caller must fall back to a full scan.  Fallback conditions: no criteria (an index search
+    /// with zero criteria returns nothing, while the scan path matches everything); any null
+    /// criterion value (null-valued properties are never indexed); no index directory for the
+    /// type (a legacy store written before search indexing — an empty lookup there means
+    /// "unknown", not "no matches"); or a failed search.  Results are verified against live
+    /// property values by <see cref="ObjectDataSearcher"/>, so a hit list is value-identical to
+    /// what the scan path would produce.
+    /// </summary>
+    private IEnumerable<object>? TrySearchIndex(Type type, IEnumerable<KeyValuePair<string, object>> criteria)
+    {
+        List<KeyValuePair<string, object>> criteriaList = criteria.ToList();
+        if (criteriaList.Count == 0
+            || criteriaList.Any(criterion => criterion.Value == null)
+            || !SearchIndexer.HasIndex(type))
+        {
+            return null;
+        }
+
+        ObjectDataSearch search = new ObjectDataSearch(type);
+        foreach (KeyValuePair<string, object> criterion in criteriaList)
+        {
+            search.Where(criterion.Key, criterion.Value);
+        }
+
+        IObjectDataSearchResult searchResult = Searcher.SearchAsync(search).GetAwaiter().GetResult();
+        if (!searchResult.Success)
+        {
+            return null;
+        }
+
+        return searchResult.Results
+            .Where(objectData => objectData.Data != null)
+            .Select(objectData => objectData.Data);
+    }
+
+    /// <summary>
+    /// Extracts the (column, value) equality pairs from a query filter's parameter tokens,
+    /// mirroring <see cref="MatchesQueryFilter"/>: parameter tokens with a null column name and
+    /// non-parameter tokens are ignored.
+    /// </summary>
+    private static IEnumerable<KeyValuePair<string, object>> GetEqualityCriteria(IQueryFilter query)
+    {
+        foreach (IFilterToken token in query.Filters)
+        {
+            if (token is IParameterInfo parameterInfo && parameterInfo.ColumnName != null)
+            {
+                yield return new KeyValuePair<string, object>(parameterInfo.ColumnName, parameterInfo.Value!);
+            }
+        }
     }
 
     /// <inheritdoc />

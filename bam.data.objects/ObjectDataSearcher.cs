@@ -136,7 +136,10 @@ public class ObjectDataSearcher : IObjectDataSearcher
                 };
             }
 
-            // 4. Parallel object loading
+            // 4. Parallel object loading, verifying Equals criteria against live values —
+            //    index entries may be stale (values superseded before reindexing existed) or
+            //    hash-collided, so a loaded object only qualifies when its current property
+            //    values actually equal the criteria.
             ConcurrentBag<IObjectData> results = new();
 
             Parallel.ForEach(matchingKeysResult, hexKey =>
@@ -148,7 +151,7 @@ public class ObjectDataSearcher : IObjectDataSearcher
                 };
                 IObjectDataReadResult readResult = Reader
                     .ReadObjectDataAsync(key).GetAwaiter().GetResult();
-                if (readResult?.ObjectData != null)
+                if (readResult?.ObjectData != null && MatchesEqualsCriteria(readResult.ObjectData, equalsCriteria))
                 {
                     results.Add(readResult.ObjectData);
                 }
@@ -173,6 +176,43 @@ public class ObjectDataSearcher : IObjectDataSearcher
                 TotalCount = 0
             };
         }
+    }
+
+    /// <summary>
+    /// True when the loaded object's live property values equal every Equals criterion,
+    /// compared via the same encoding the index hashes were computed from.  Guards against
+    /// stale index entries (a value superseded by an update) and hash collisions surfacing an
+    /// object whose current state does not match the search.
+    /// </summary>
+    private static bool MatchesEqualsCriteria(IObjectData objectData, ObjectDataSearchCriterion[] equalsCriteria)
+    {
+        if (equalsCriteria.Length == 0)
+        {
+            return true;
+        }
+
+        object data = objectData.Data;
+        if (data == null)
+        {
+            return false;
+        }
+
+        foreach (ObjectDataSearchCriterion criterion in equalsCriteria)
+        {
+            System.Reflection.PropertyInfo property = data.GetType().GetProperty(criterion.PropertyName)!;
+            if (property == null)
+            {
+                return false;
+            }
+
+            object propertyValue = property.GetValue(data)!;
+            if (!string.Equals(EncodeValue(propertyValue), EncodeValue(criterion.Value), StringComparison.Ordinal))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static bool MatchesOperator(string propertyValue, string searchValue, SearchOperator op)
