@@ -337,6 +337,194 @@ public class SearchIndexQueryShould : UnitTestMenuContainer
         .UnlessItFailed();
     }
 
+    [UnitTest]
+    public async Task EngageTheIndexRatherThanSilentlyScanning()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(EngageTheIndexRatherThanSilentlyScanning));
+        CleanDirectory(root);
+        ServiceRegistry registry = null!;
+
+        When.A<ObjectDataRepository>("queries after the target's specific index entry file is removed",
+            () =>
+            {
+                registry = ConfigureTestRegistry(root);
+                return registry.Get<ObjectDataRepository>();
+            },
+            (repository) =>
+            {
+                TestRepoData target = new TestRepoData { Name = "engaged-target" };
+                repository.Create(target);
+
+                IObjectDataSearchIndexer searchIndexer = registry.Get<IObjectDataSearchIndexer>();
+                bool typeIndexed = searchIndexer.HasIndex(typeof(TestRepoData));
+                bool propertyIndexed = searchIndexer.HasIndex(typeof(TestRepoData), nameof(TestRepoData.Name));
+                bool absentPropertyIndexed = searchIndexer.HasIndex(typeof(TestRepoData), "NoSuchProperty");
+
+                // Remove exactly the target value's index entry file. Under the
+                // index-authoritative contract the indexed query must now MISS while the scan
+                // path still matches — if the query silently scanned, the two would agree and
+                // this test could never fail.
+                string valueHash = JsonObjectDataEncoder.Default.Encode("engaged-target").ToString()!
+                    .HashHexString(HashAlgorithms.SHA256);
+                string entryPath = Path.Combine(
+                    root, "search-index", "Bam", "Data", "Dynamic", "TestClasses", "TestRepoData",
+                    nameof(TestRepoData.Name), valueHash);
+                bool entryExisted = File.Exists(entryPath);
+                File.Delete(entryPath);
+
+                int indexedCount = repository.Query<TestRepoData>(new Dictionary<string, object>
+                {
+                    { nameof(TestRepoData.Name), "engaged-target" }
+                }).Count();
+                int scannedCount = repository.Query<TestRepoData>(item => item.Name == "engaged-target").Count();
+
+                return new EngagementOutcome(typeIndexed, propertyIndexed, absentPropertyIndexed, entryExisted, indexedCount, scannedCount);
+            })
+        .TheTest
+        .ShouldPass<EngagementOutcome>((because, outcome) =>
+        {
+            because.ItsTrue("the type has an index after create", outcome.TypeIndexed);
+            because.ItsTrue("the queried property has an index directory", outcome.PropertyIndexed);
+            because.ItsTrue("an absent property reports no index", !outcome.AbsentPropertyIndexed);
+            because.ItsTrue("the value's index entry file existed before deletion", outcome.EntryExisted);
+            because.ItsTrue("indexed query missed after the entry was removed (index engaged)", outcome.IndexedCount == 0);
+            because.ItsTrue("scan path still matches the row", outcome.ScannedCount == 1);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
+    [UnitTest]
+    public async Task RemoveOldValueIndexEntriesOnUpdate()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(RemoveOldValueIndexEntriesOnUpdate));
+        CleanDirectory(root);
+        ServiceRegistry registry = null!;
+
+        When.A<ObjectDataRepository>("inspects the raw index after an update",
+            () =>
+            {
+                registry = ConfigureTestRegistry(root);
+                return registry.Get<ObjectDataRepository>();
+            },
+            (repository) =>
+            {
+                TestRepoData data = new TestRepoData { Name = "lookup-original" };
+                repository.Create(data);
+                data.Name = "lookup-rotated";
+                repository.Update(data);
+
+                IObjectDataSearchIndexer searchIndexer = registry.Get<IObjectDataSearchIndexer>();
+                string oldValueHash = JsonObjectDataEncoder.Default.Encode("lookup-original").ToString()!
+                    .HashHexString(HashAlgorithms.SHA256);
+                string newValueHash = JsonObjectDataEncoder.Default.Encode("lookup-rotated").ToString()!
+                    .HashHexString(HashAlgorithms.SHA256);
+                int oldEntryCount = searchIndexer
+                    .LookupAsync(typeof(TestRepoData), nameof(TestRepoData.Name), oldValueHash)
+                    .GetAwaiter().GetResult().Count();
+                int newEntryCount = searchIndexer
+                    .LookupAsync(typeof(TestRepoData), nameof(TestRepoData.Name), newValueHash)
+                    .GetAwaiter().GetResult().Count();
+
+                return new RawIndexOutcome(oldEntryCount, newEntryCount);
+            })
+        .TheTest
+        .ShouldPass<RawIndexOutcome>((because, outcome) =>
+        {
+            because.ItsTrue("the superseded value has NO raw index entries", outcome.OldEntryCount == 0);
+            because.ItsTrue("the current value has exactly one raw index entry", outcome.NewEntryCount == 1);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
+    [UnitTest]
+    public async Task FallBackToScanForUnindexableCriterionTypes()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(FallBackToScanForUnindexableCriterionTypes));
+        CleanDirectory(root);
+        DateTime created = new DateTime(2026, 1, 15, 10, 30, 0, DateTimeKind.Utc);
+
+        When.A<ObjectDataRepository>("queries with a nullable-DateTime criterion",
+            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                TestRepoData target = new TestRepoData { Name = "dated-target", Created = created };
+                repository.Create(target);
+                repository.Create(new TestRepoData { Name = "other-row", Created = created.AddDays(1) });
+
+                // Created is DateTime? — never index-enumerable — so this must fall back to the
+                // scan path and still return the matching row instead of a silent wrong-empty.
+                List<TestRepoData> byCreated = repository.Query<TestRepoData>(new Dictionary<string, object>
+                {
+                    { nameof(TestRepoData.Created), created }
+                }).ToList();
+                List<TestRepoData> mixed = repository.Query<TestRepoData>(new Dictionary<string, object>
+                {
+                    { nameof(TestRepoData.Name), "dated-target" },
+                    { nameof(TestRepoData.Created), created }
+                }).ToList();
+
+                return new UnindexableOutcome(
+                    byCreated.Count,
+                    byCreated.FirstOrDefault()?.Uuid,
+                    mixed.Count,
+                    mixed.FirstOrDefault()?.Uuid,
+                    target.Uuid);
+            })
+        .TheTest
+        .ShouldPass<UnindexableOutcome>((because, outcome) =>
+        {
+            because.ItsTrue("nullable-DateTime criterion returned the matching row", outcome.ByCreatedCount == 1);
+            because.ItsTrue("nullable-DateTime result is the target", outcome.TargetUuid.Equals(outcome.ByCreatedUuid));
+            because.ItsTrue("mixed indexable+unindexable criteria returned the matching row", outcome.MixedCount == 1);
+            because.ItsTrue("mixed-criteria result is the target", outcome.TargetUuid.Equals(outcome.MixedUuid));
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
+    [UnitTest]
+    public async Task CoerceCriterionValuesToThePropertyTypeOnBothPaths()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(CoerceCriterionValuesToThePropertyTypeOnBothPaths));
+        CleanDirectory(root);
+        DateTime created = new DateTime(2026, 2, 20, 8, 0, 0, DateTimeKind.Utc);
+
+        When.A<ObjectDataRepository>("queries a long property with an int criterion",
+            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                TestRepoData target = new TestRepoData { Name = "counted-target", Count = 42L, Created = created };
+                repository.Create(target);
+                repository.Create(new TestRepoData { Name = "counted-other", Count = 7L, Created = created });
+
+                // int 42 against the long Count property: indexed path (coerced before hashing)
+                int indexedCount = repository.Query<TestRepoData>(new Dictionary<string, object>
+                {
+                    { nameof(TestRepoData.Count), 42 }
+                }).Count();
+
+                // adding the unindexable Created criterion forces the SCAN path: coercion must
+                // align it with the indexed result (CLR Equals(42L, 42) alone is false)
+                int scannedCount = repository.Query<TestRepoData>(new Dictionary<string, object>
+                {
+                    { nameof(TestRepoData.Count), 42 },
+                    { nameof(TestRepoData.Created), created }
+                }).Count();
+
+                return new CoercionOutcome(indexedCount, scannedCount);
+            })
+        .TheTest
+        .ShouldPass<CoercionOutcome>((because, outcome) =>
+        {
+            because.ItsTrue("indexed path matched the int criterion against the long property", outcome.IndexedCount == 1);
+            because.ItsTrue("scan path agrees with the indexed path", outcome.ScannedCount == 1);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
     private static void CleanDirectory(string root)
     {
         if (Directory.Exists(root))
@@ -380,4 +568,12 @@ public class SearchIndexQueryShould : UnitTestMenuContainer
     private sealed record LegacyStoreOutcome(bool HadIndex, bool HasIndexAfterDelete, int Count, string? ResultUuid, string TargetUuid);
 
     private sealed record NullPreviousOutcome(bool Success, int Count);
+
+    private sealed record EngagementOutcome(bool TypeIndexed, bool PropertyIndexed, bool AbsentPropertyIndexed, bool EntryExisted, int IndexedCount, int ScannedCount);
+
+    private sealed record RawIndexOutcome(int OldEntryCount, int NewEntryCount);
+
+    private sealed record UnindexableOutcome(int ByCreatedCount, string? ByCreatedUuid, int MixedCount, string? MixedUuid, string TargetUuid);
+
+    private sealed record CoercionOutcome(int IndexedCount, int ScannedCount);
 }

@@ -48,7 +48,7 @@ public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
 
                 if (keys.Add(objectDataKey.Key!))
                 {
-                    File.WriteAllLines(indexPath, keys);
+                    WriteAllLinesAtomic(indexPath, keys);
                 }
             }
 
@@ -79,21 +79,31 @@ public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
     }
 
     /// <inheritdoc />
-    public Task<IObjectDataSearchIndexResult> ReindexAsync(IObjectData? previous, IObjectData current)
+    public async Task<IObjectDataSearchIndexResult> ReindexAsync(IObjectData? previous, IObjectData current)
     {
         ArgumentNullException.ThrowIfNull(current);
+
+        // Add before remove: a crash between the two leaves a stale old-value entry that
+        // verify-on-read filters, instead of a window where neither value resolves.
+        IObjectDataSearchIndexResult result = await IndexAsync(current);
         if (previous != null)
         {
             RemoveStaleEntries(previous, current);
         }
 
-        return IndexAsync(current);
+        return result;
     }
 
     /// <inheritdoc />
     public bool HasIndex(Type type)
     {
         return Directory.Exists(GetSearchIndexDirectoryForType(type));
+    }
+
+    /// <inheritdoc />
+    public bool HasIndex(Type type, string propertyName)
+    {
+        return Directory.Exists(Path.Combine(GetSearchIndexDirectoryForType(type), propertyName));
     }
 
     /// <inheritdoc />
@@ -162,7 +172,7 @@ public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
 
                 if (keys.Add(objectDataKey.Key!))
                 {
-                    File.WriteAllLines(indexPath, keys);
+                    WriteAllLinesAtomic(indexPath, keys);
                 }
             }
         }
@@ -173,6 +183,8 @@ public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
     /// differ from (or have no counterpart in) <paramref name="current"/>.  A property whose
     /// value became null disappears from <see cref="IObjectData.Properties"/> (null values are
     /// never enumerated), so its prior entry is removed via the missing-counterpart path.
+    /// Iterates sequentially (unlike <see cref="IndexAsync"/>/<see cref="RemoveAsync"/>) —
+    /// typically only a few properties change per update, below parallelization overhead.
     /// </summary>
     private void RemoveStaleEntries(IObjectData previous, IObjectData current)
     {
@@ -215,10 +227,22 @@ public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
                 }
                 else
                 {
-                    File.WriteAllLines(indexPath, keys);
+                    WriteAllLinesAtomic(indexPath, keys);
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Writes an index file atomically: the content lands in a temp file first and is moved
+    /// over the target in one operation, so a crash mid-write can never leave a truncated
+    /// index file that silently drops other objects' keys.  Callers hold the per-file lock.
+    /// </summary>
+    private static void WriteAllLinesAtomic(string indexPath, IEnumerable<string> lines)
+    {
+        string tempPath = $"{indexPath}.tmp-{Guid.NewGuid():N}";
+        File.WriteAllLines(tempPath, lines);
+        File.Move(tempPath, indexPath, overwrite: true);
     }
 
     private string GetSearchIndexDirectoryForType(Type type)

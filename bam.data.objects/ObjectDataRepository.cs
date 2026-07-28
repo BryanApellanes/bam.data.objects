@@ -1,5 +1,6 @@
 using System.Reflection;
 using Bam.Data.Repositories;
+using Bam.Logging;
 
 namespace Bam.Data.Objects;
 
@@ -52,11 +53,11 @@ public class ObjectDataRepository : AsyncRepository
         PropertyInfo keyProp = GetKeyProperty(typeof(T));
         keyProp?.SetValue(toCreate, id);
 
-        Task<IObjectDataWriteResult> writeTask = Writer.WriteAsync(objectData);
-        writeTask.GetAwaiter().GetResult();
-
-        Indexer.IndexAsync(objectData).GetAwaiter().GetResult();
+        // Search-index before write: a crash between the two leaves a stale entry readers
+        // verify-filter (harmless), instead of a stored row invisible to indexed queries.
         SearchIndexer.IndexAsync(objectData).GetAwaiter().GetResult();
+        Writer.WriteAsync(objectData).GetAwaiter().GetResult();
+        Indexer.IndexAsync(objectData).GetAwaiter().GetResult();
 
         return toCreate;
     }
@@ -70,9 +71,11 @@ public class ObjectDataRepository : AsyncRepository
         PropertyInfo keyProp = GetKeyProperty(toCreate.GetType());
         keyProp?.SetValue(toCreate, id);
 
+        // Search-index before write: a crash between the two leaves a stale entry readers
+        // verify-filter (harmless), instead of a stored row invisible to indexed queries.
+        SearchIndexer.IndexAsync(objectData).GetAwaiter().GetResult();
         Writer.WriteAsync(objectData).GetAwaiter().GetResult();
         Indexer.IndexAsync(objectData).GetAwaiter().GetResult();
-        SearchIndexer.IndexAsync(objectData).GetAwaiter().GetResult();
 
         return toCreate;
     }
@@ -380,26 +383,68 @@ public class ObjectDataRepository : AsyncRepository
     /// Attempts to resolve equality criteria through the search index, returning null when the
     /// caller must fall back to a full scan.  Fallback conditions: no criteria (an index search
     /// with zero criteria returns nothing, while the scan path matches everything); any null
-    /// criterion value (null-valued properties are never indexed); no index directory for the
-    /// type (a legacy store written before search indexing — an empty lookup there means
-    /// "unknown", not "no matches"); or a failed search.  Results are verified against live
-    /// property values by <see cref="ObjectDataSearcher"/>, so a hit list is value-identical to
-    /// what the scan path would produce.
+    /// criterion value (null-valued properties are never indexed); a criterion property that is
+    /// missing on the type, is not index-enumerable (its type maps to
+    /// <c>DataTypes.Default</c> — Guid, enums, float/double, nullable primitives, complex
+    /// types — mirroring the gate <see cref="ObjectData"/> applies at index time), has no
+    /// per-property index directory (never indexed, e.g. newly added), or whose value cannot
+    /// be coerced to the property's declared type; no index directory for the type (a legacy
+    /// store written before search indexing); or a failed search.
+    /// <para>
+    /// The index is AUTHORITATIVE for its results: positives are verified against live property
+    /// values by <see cref="ObjectDataSearcher"/> (never wrong), but an empty result reflects
+    /// the index, not a scan — rows persisted by a process that crashed before indexing, or in
+    /// a store never migrated via <see cref="IObjectDataSearchIndexer.RebuildAsync(Type)"/>,
+    /// are not found.  Stores adopting search indexing MUST run <c>RebuildAsync</c> once per
+    /// type; see the consistency contract on <see cref="IObjectDataSearchIndexer"/>.
+    /// </para>
     /// </summary>
     private IEnumerable<object>? TrySearchIndex(Type type, IEnumerable<KeyValuePair<string, object>> criteria)
     {
         List<KeyValuePair<string, object>> criteriaList = criteria.ToList();
         if (criteriaList.Count == 0
-            || criteriaList.Any(criterion => criterion.Value == null)
-            || !SearchIndexer.HasIndex(type))
+            || criteriaList.Any(criterion => criterion.Value == null))
         {
+            return null;
+        }
+
+        if (!SearchIndexer.HasIndex(type))
+        {
+            Log.Warn(
+                "No search index exists for type '{0}'; equality query is falling back to a full scan. If this store predates search indexing, run IObjectDataSearchIndexer.RebuildAsync for the type.",
+                type.FullName!);
             return null;
         }
 
         ObjectDataSearch search = new ObjectDataSearch(type);
         foreach (KeyValuePair<string, object> criterion in criteriaList)
         {
-            search.Where(criterion.Key, criterion.Value);
+            PropertyInfo? property = type.GetProperty(criterion.Key);
+            if (property == null)
+            {
+                return null;
+            }
+
+            // Mirror the index-time gate: property types mapping to DataTypes.Default are never
+            // indexed, so an indexed lookup on them is a guaranteed false empty.
+            if (DataTypeTranslator.Default.EnumFromType(property.PropertyType) == DataTypes.Default)
+            {
+                return null;
+            }
+
+            // Never-indexed property (no object has carried a non-null value for it, e.g. a
+            // property newly added to the type) — its absence from the index means "unknown".
+            if (!SearchIndexer.HasIndex(type, criterion.Key))
+            {
+                return null;
+            }
+
+            if (!TryCoerceToPropertyType(criterion.Value, property.PropertyType, out object coercedValue))
+            {
+                return null;
+            }
+
+            search.Where(criterion.Key, coercedValue);
         }
 
         IObjectDataSearchResult searchResult = Searcher.SearchAsync(search).GetAwaiter().GetResult();
@@ -414,9 +459,57 @@ public class ObjectDataRepository : AsyncRepository
     }
 
     /// <summary>
+    /// Coerces a criterion value to the property's declared type (unwrapping Nullable) so the
+    /// indexed hash, verify-on-read, and scan comparisons all evaluate the same typed value —
+    /// an <c>int 5</c> criterion matches a <c>long</c> property on every path.  Returns false
+    /// when the value cannot represent the property's type.
+    /// </summary>
+    private static bool TryCoerceToPropertyType(object value, Type propertyType, out object coercedValue)
+    {
+        coercedValue = value;
+        Type targetType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
+        if (targetType.IsInstanceOfType(value))
+        {
+            return true;
+        }
+
+        try
+        {
+            coercedValue = Convert.ChangeType(value, targetType, System.Globalization.CultureInfo.InvariantCulture);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Equality comparison for scan-path criteria: coerces the criterion to the property's
+    /// declared type first (aligning scan semantics with the indexed path's typed comparison),
+    /// falling back to plain equality when coercion is not possible.
+    /// </summary>
+    private static bool CriterionMatches(object? propertyValue, object? criterionValue, Type propertyType)
+    {
+        if (criterionValue == null || propertyValue == null)
+        {
+            return Equals(propertyValue, criterionValue);
+        }
+
+        if (TryCoerceToPropertyType(criterionValue, propertyType, out object coercedValue))
+        {
+            return Equals(propertyValue, coercedValue);
+        }
+
+        return Equals(propertyValue, criterionValue);
+    }
+
+    /// <summary>
     /// Extracts the (column, value) equality pairs from a query filter's parameter tokens,
     /// mirroring <see cref="MatchesQueryFilter"/>: parameter tokens with a null column name and
-    /// non-parameter tokens are ignored.
+    /// non-parameter tokens are ignored.  NOTE: like <see cref="MatchesQueryFilter"/>, this
+    /// treats every parameter token as an equality comparison regardless of its operator
+    /// (bam.data.objects#6) — the two methods must change together when operators are honored.
     /// </summary>
     private static IEnumerable<KeyValuePair<string, object>> GetEqualityCriteria(IQueryFilter query)
     {
@@ -461,7 +554,7 @@ public class ObjectDataRepository : AsyncRepository
             }
 
             object value = prop.GetValue(item)!;
-            if (!Equals(value, param.Value))
+            if (!CriterionMatches(value, param.Value, prop.PropertyType))
             {
                 return false;
             }
@@ -490,7 +583,7 @@ public class ObjectDataRepository : AsyncRepository
                 }
 
                 object itemValue = prop.GetValue(item)!;
-                if (!Equals(itemValue, filterValue))
+                if (!CriterionMatches(itemValue, filterValue, prop.PropertyType))
                 {
                     return false;
                 }
