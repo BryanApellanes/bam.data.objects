@@ -5,4 +5,6 @@ namespace Bam.Data.Dynamic.TestClasses;
 public class TestRepoData : AuditRepoData
 {
     public string Name { get; set; } = null!;
+
+    public long Count { get; set; }
 }
