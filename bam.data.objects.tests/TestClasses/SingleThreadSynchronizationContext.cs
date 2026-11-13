@@ -22,7 +22,18 @@ public sealed class SingleThreadSynchronizationContext : SynchronizationContext,
     /// <inheritdoc />
     public override void Post(SendOrPostCallback d, object? state)
     {
-        _queue.Add((d, state));
+        // A continuation posted after Dispose (a run that timed out and finished later) is dropped
+        // rather than thrown on a thread-pool thread, which would take down the whole test process.
+        if (!_queue.IsAddingCompleted)
+        {
+            try
+            {
+                _queue.TryAdd((d, state));
+            }
+            catch (InvalidOperationException)
+            {
+            }
+        }
     }
 
     /// <inheritdoc />
@@ -38,7 +49,9 @@ public sealed class SingleThreadSynchronizationContext : SynchronizationContext,
     public bool Run(Action work, TimeSpan timeout)
     {
         Exception? thrown = null;
-        // Not disposed: after a timeout the work may still finish later and set it.
+        // Not disposed: after a timeout the work may still finish later and set it. After a
+        // deadlock the pump thread stays blocked for the life of the process; it is a background
+        // thread, so it doesn't hold up exit.
         ManualResetEventSlim done = new ManualResetEventSlim(false);
         Post(_ =>
         {

@@ -619,47 +619,76 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
         {
             Directory.Delete(root, true);
         }
+        ServiceRegistry registry = null!;
 
         When.A<ObjectDataRepository>("runs its synchronous methods on a thread with a single-threaded synchronization context",
-            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            () =>
+            {
+                registry = ConfigureTestRegistry(root);
+                return registry.Get<ObjectDataRepository>();
+            },
             (repository) =>
             {
-                ulong createdId = 0;
-                bool retrieved = false;
-                bool updated = false;
-                int queried = -1;
-                bool deleted = false;
+                IObjectDataSearchIndexer searchIndexer = registry.Get<IObjectDataSearchIndexer>();
+                SynchronizationContextChecks checks = new SynchronizationContextChecks();
                 using SingleThreadSynchronizationContext context = new SingleThreadSynchronizationContext();
-                // Each call blocks on async work; with the continuations posted back to this
-                // context's only thread, a missing ConfigureAwait(false) hangs it.
-                bool finished = context.Run(() =>
+                // Each call blocks on async work. With the continuations posted back to this
+                // context's only thread, a missing ConfigureAwait(false) on any path hangs it.
+                checks.Finished = context.Run(() =>
                 {
                     TestRepoData created = repository.Create(new TestRepoData { Name = "on the context", Count = 1 });
-                    createdId = created.Id;
-                    TestRepoData? found = repository.Retrieve<TestRepoData>(created.Id);
-                    retrieved = found is not null && found.Name == "on the context";
+                    checks.CreatedId = created.Id;
+                    checks.Retrieved = repository.Retrieve<TestRepoData>(created.Id)?.Name == "on the context";
+                    checks.RetrievedByUuid = repository.Retrieve<TestRepoData>(created.Uuid)?.Id == created.Id;
+                    checks.RetrievedAll = repository.RetrieveAll<TestRepoData>().Any(item => item.Id == created.Id);
                     created.Count = 2;
-                    updated = repository.Update(created).Count == 2;
-                    queried = repository.Query<TestRepoData>(new Dictionary<string, object> { { nameof(TestRepoData.Name), "on the context" } }).Count();
-                    deleted = repository.Delete(created);
+                    checks.Updated = repository.Update(created).Count == 2;
+                    checks.Queried = repository.Query<TestRepoData>(new Dictionary<string, object> { { nameof(TestRepoData.Name), "on the context" } }).Count();
+                    searchIndexer.RebuildAsync<TestRepoData>().GetAwaiter().GetResult();
+                    checks.Rebuilt = searchIndexer.HasIndex(typeof(TestRepoData));
+                    // The scan fallback: a store with no search index.
+                    Directory.Delete(Path.Combine(root, "search-index"), true);
+                    checks.ScanQueried = repository.Query<TestRepoData>(new Dictionary<string, object> { { nameof(TestRepoData.Name), "on the context" } }).Count();
+                    // IQueryFilter's scan path (only equality: other comparisons are bam.data.objects#15).
+                    checks.FilterQueried = repository.Query<TestRepoData>((Bam.Data.QueryFilter)(Bam.Data.QueryFilter.Where(nameof(TestRepoData.Name)) == "on the context")).Count();
+                    checks.Deleted = repository.Delete(created);
                 }, TimeSpan.FromSeconds(30));
-                return new SynchronizationContextOutcome(finished, createdId, retrieved, updated, queried, deleted);
+                return checks;
             })
         .TheTest
-        .ShouldPass<SynchronizationContextOutcome>((because, outcome) =>
+        .ShouldPass<SynchronizationContextChecks>((because, outcome) =>
         {
             because.ItsTrue("every call returned instead of hanging", outcome.Finished);
             because.ItsTrue("create assigned an id", outcome.CreatedId > 0);
-            because.ItsTrue("retrieve found it", outcome.Retrieved);
+            because.ItsTrue("retrieve by id found it", outcome.Retrieved);
+            because.ItsTrue("retrieve by uuid found it", outcome.RetrievedByUuid);
+            because.ItsTrue("retrieve all listed it", outcome.RetrievedAll);
             because.ItsTrue("update saved it", outcome.Updated);
-            because.ItsTrue($"the query found it ({outcome.Queried})", outcome.Queried == 1);
+            because.ItsTrue($"the dictionary query found it ({outcome.Queried})", outcome.Queried == 1);
+            because.ItsTrue("the search index rebuilt", outcome.Rebuilt);
+            because.ItsTrue($"the scan fallback found it ({outcome.ScanQueried})", outcome.ScanQueried == 1);
+            because.ItsTrue($"the filter query's scan path found it ({outcome.FilterQueried})", outcome.FilterQueried == 1);
             because.ItsTrue("delete removed it", outcome.Deleted);
         })
         .SoBeHappy()
         .UnlessItFailed();
     }
 
-    private sealed record SynchronizationContextOutcome(bool Finished, ulong CreatedId, bool Retrieved, bool Updated, int Queried, bool Deleted);
+    // Written from the context's thread and read after Run returns.
+    private sealed class SynchronizationContextChecks
+    {
+        public bool Finished { get; set; }
+        public ulong CreatedId { get; set; }
+        public bool Retrieved { get; set; }
+        public bool RetrievedByUuid { get; set; }
+        public bool RetrievedAll { get; set; }
+        public bool Updated { get; set; }
+        public int Queried { get; set; } = -1;
+        public int FilterQueried { get; set; } = -1;
+        public bool Rebuilt { get; set; }
+        public int ScanQueried { get; set; } = -1;
+        public bool Deleted { get; set; }
+    }
 
     private static ServiceRegistry ConfigureTestRegistry(string root)
     {

@@ -1,0 +1,5 @@
+# The library's synchronous repository methods block on its async ones, so no await in the
+# library may capture the caller's synchronization context (bam.data.objects#13): every await
+# needs ConfigureAwait(false). Scoped to the library, not its tests.
+[*.cs]
+dotnet_diagnostic.CA2007.severity = error
