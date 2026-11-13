@@ -136,7 +136,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
             return false;
         }
         IProperty latest = ReadProperty(property.Parent, property.ToDescriptor(), GetLatestPropertyStorageRevisionSlot(property.ToDescriptor()))!;
-        return latest != null && latest.Decode().Equals(property.Decode());
+        return latest != null && Equals(latest.Decode(), property.Decode());
     }
 
     /// <inheritdoc />
@@ -249,6 +249,15 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
             }
 
             IObjectDataKey objectDataKey = data.GetObjectKey();
+            // data.Properties leaves out null values, so a property set to null since it was last
+            // written would keep its old value and read back as it.  Write a null revision for each
+            // property that is null now and whose latest stored revision is not known to be null
+            // (bam.data.objects#9).  A property with no stored revision stays unwritten, so writing
+            // an object under a fresh key stores no null revisions.
+            foreach (IProperty cleared in ClearedProperties(data, objectDataKey))
+            {
+                result.AddPropertyWriteResult(this.WriteProperty(cleared));
+            }
             ITypeStorageHolder typeHolder = GetObjectStorageHolder(objectDataKey.TypeDescriptor);
             List<string> keyParts = new List<string> { typeHolder.FullName! };
             keyParts.AddRange(objectDataKey.Key!.Split(2));
@@ -265,6 +274,47 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
         return result;
     }
     
+    /// <summary>
+    /// Returns a null-valued property for each property of <paramref name="data"/> that is null now
+    /// and has a stored revision that isn't known to be null: the properties an update cleared.
+    /// A latest revision that can't be read counts as holding a value, so the clear fails closed
+    /// (bam.data.objects#10 review): a redundant null revision reads back the same null, while a
+    /// skipped one would leave the old value current.
+    /// </summary>
+    private IEnumerable<IProperty> ClearedProperties(IObjectData data, IObjectDataKey objectDataKey)
+    {
+        IDataTypeTranslator translator = Bam.Data.DataTypeTranslator.Default;
+        List<IProperty> cleared = new List<IProperty>();
+        foreach (PropertyInfo propertyInfo in data.TypeDescriptor.Type.GetProperties())
+        {
+            if (translator.EnumFromType(propertyInfo.PropertyType) == DataTypes.Default || propertyInfo.GetIndexParameters().Length > 0)
+            {
+                continue;
+            }
+            if (propertyInfo.GetValue(data.Data) is not null)
+            {
+                continue;
+            }
+            IPropertyDescriptor descriptor = new PropertyDescriptor
+            {
+                ObjectDataKey = objectDataKey,
+                PropertyName = propertyInfo.Name,
+                PropertyType = propertyInfo.PropertyType
+            };
+            if (GetLatestRevisionNumber(descriptor) == 0)
+            {
+                continue;
+            }
+            IProperty? latest = ReadProperty(data, descriptor, GetLatestPropertyStorageRevisionSlot(descriptor));
+            if (latest is not null && latest.Decode() is null)
+            {
+                continue;
+            }
+            cleared.Add(new Property(data, propertyInfo.Name, null!));
+        }
+        return cleared;
+    }
+
     /// <inheritdoc />
     public IObjectData ReadObject(IObjectDataKey objectDataKey)
     {

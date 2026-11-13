@@ -65,10 +65,15 @@ public class JsonObjectDataEncoder : ObjectDataEncoder
     /// <summary>
     /// Encodes the specified object as a JSON byte array wrapped in a <see cref="JsonObjectEncoding"/>.
     /// </summary>
-    /// <param name="data">The object to encode.</param>
+    /// <param name="data">The object to encode; null encodes as the JSON literal <c>null</c>.</param>
     /// <returns>The JSON-encoded representation of the object.</returns>
     public override IObjectEncoding Encode(object data)
     {
+        if (data is null)
+        {
+            // A property cleared to null is stored as a "null" revision (bam.data.objects#9).
+            return new JsonObjectEncoding(Encoding.GetBytes("null"), Encoding) { Type = typeof(object) };
+        }
         string json = string.Empty;
         if (data is IJsonable jsonable)
         {
