@@ -26,10 +26,10 @@ public class ObjectDataIndexer : IObjectDataIndexer
     {
         if (data is IObjectData objectData)
         {
-            return await IndexAsync(objectData);
+            return await IndexAsync(objectData).ConfigureAwait(false);
         }
 
-        return await IndexAsync(new ObjectData(data));
+        return await IndexAsync(new ObjectData(data)).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -41,7 +41,7 @@ public class ObjectDataIndexer : IObjectDataIndexer
         string indexPath = GetIndexPath(data.TypeDescriptor.Type, id);
         FileInfo fileInfo = new FileInfo(indexPath);
         fileInfo.Directory?.Create();
-        await File.WriteAllTextAsync(indexPath, objectDataKey.Key);
+        await File.WriteAllTextAsync(indexPath, objectDataKey.Key).ConfigureAwait(false);
 
         string uuid = GetUuid(data.Data);
         if (!string.IsNullOrEmpty(uuid))
@@ -49,7 +49,7 @@ public class ObjectDataIndexer : IObjectDataIndexer
             string uuidIndexPath = GetUuidIndexPath(data.TypeDescriptor.Type, uuid);
             FileInfo uuidFileInfo = new FileInfo(uuidIndexPath);
             uuidFileInfo.Directory?.Create();
-            await File.WriteAllTextAsync(uuidIndexPath, objectDataKey.Key);
+            await File.WriteAllTextAsync(uuidIndexPath, objectDataKey.Key).ConfigureAwait(false);
         }
 
         return new ObjectDataIndexResult
@@ -75,7 +75,7 @@ public class ObjectDataIndexer : IObjectDataIndexer
             return null;
         }
 
-        string hexKey = await File.ReadAllTextAsync(indexPath);
+        string hexKey = await File.ReadAllTextAsync(indexPath).ConfigureAwait(false);
         return new ObjectDataKey
         {
             TypeDescriptor = new TypeDescriptor(type),
@@ -98,7 +98,7 @@ public class ObjectDataIndexer : IObjectDataIndexer
             return null;
         }
 
-        string hexKey = await File.ReadAllTextAsync(indexPath);
+        string hexKey = await File.ReadAllTextAsync(indexPath).ConfigureAwait(false);
         return new ObjectDataKey
         {
             TypeDescriptor = new TypeDescriptor(type),
@@ -124,7 +124,7 @@ public class ObjectDataIndexer : IObjectDataIndexer
 
         foreach (string filePath in Directory.GetFiles(indexDirectory))
         {
-            string hexKey = await File.ReadAllTextAsync(filePath);
+            string hexKey = await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
             keys.Add(new ObjectDataKey
             {
                 TypeDescriptor = new TypeDescriptor(type),
