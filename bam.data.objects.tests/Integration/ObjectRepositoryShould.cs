@@ -477,6 +477,91 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
         .UnlessItFailed();
     }
 
+    [UnitTest]
+    public async Task UpdateAPropertyToNull()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(UpdateAPropertyToNull));
+        CleanDirectory(root);
+        ClearedPropertyOutcome outcome = ClearAProperty(ConfigureTestRegistry(root));
+
+        When.A<ObjectDataRepository>("updates a property to null over the file store",
+            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) => outcome)
+        .TheTest
+        .ShouldPass<ClearedPropertyOutcome>((because, result) => AssertCleared(because, result))
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
+    [UnitTest]
+    public async Task EncryptedUpdateAPropertyToNull()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(EncryptedUpdateAPropertyToNull));
+        CleanDirectory(root);
+        ClearedPropertyOutcome outcome = ClearAProperty(ConfigureEncryptedTestRegistry(root));
+
+        When.A<ObjectDataRepository>("updates a property to null over the encrypted file store",
+            () => ConfigureEncryptedTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) => outcome)
+        .TheTest
+        .ShouldPass<ClearedPropertyOutcome>((because, result) => AssertCleared(because, result))
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
+    // bam.data.objects#9: Update used to skip null properties, so a cleared value came back on every read.
+    private static ClearedPropertyOutcome ClearAProperty(ServiceRegistry registry)
+    {
+        ObjectDataRepository repository = registry.Get<ObjectDataRepository>();
+        IObjectDataStorageManager storage = registry.Get<IObjectDataStorageManager>();
+        IObjectDataFactory factory = registry.Get<IObjectDataFactory>();
+
+        TestRepoData neverNamed = repository.Create(new TestRepoData { Name = null!, Count = 1 });
+        int neverNamedRevisions = storage.GetLatestRevisionNumber(NameOf(factory, neverNamed));
+
+        string oldName = "named-" + Guid.NewGuid().ToString("N");
+        TestRepoData created = repository.Create(new TestRepoData { Name = oldName, Count = 2 });
+        created.Name = null!;
+        repository.Update(created);
+        int revisionsAfterClear = storage.GetLatestRevisionNumber(NameOf(factory, created));
+        repository.Update(created);
+        int revisionsAfterSecondUpdate = storage.GetLatestRevisionNumber(NameOf(factory, created));
+        IPropertyDescriptor name = NameOf(factory, created);
+        string? firstRevision = storage.ReadRevisions(factory.GetObjectData(created), name).First().Property.Decode() as string;
+
+        TestRepoData? retrieved = repository.Retrieve<TestRepoData>(created.Id);
+        TestRepoData? fromAll = repository.RetrieveAll<TestRepoData>().FirstOrDefault(item => item.Id == created.Id);
+        ulong createdId = created.Id;
+        TestRepoData? fromQuery = repository.Query<TestRepoData>(item => item.Id == createdId).FirstOrDefault();
+        int oldNameMatches = repository.Query<TestRepoData>(new Dictionary<string, object> { { "Name", oldName } }).Count();
+
+        return new ClearedPropertyOutcome(neverNamedRevisions, retrieved?.Name, retrieved?.Count ?? 0, fromAll?.Name, fromQuery?.Name,
+            revisionsAfterClear, revisionsAfterSecondUpdate, firstRevision, oldName, oldNameMatches);
+    }
+
+    private static IPropertyDescriptor NameOf(IObjectDataFactory factory, TestRepoData data)
+    {
+        return new PropertyDescriptor
+        {
+            ObjectDataKey = factory.GetObjectData(data).GetObjectKey(),
+            PropertyName = nameof(TestRepoData.Name),
+            PropertyType = typeof(string)
+        };
+    }
+
+    private static void AssertCleared(Because because, ClearedPropertyOutcome outcome)
+    {
+        because.ItsTrue("create writes no revision for a null property", outcome.NeverNamedRevisions == 0);
+        because.ItsTrue("retrieve reads the cleared property back as null", outcome.Retrieved is null);
+        because.ItsTrue("the other properties are kept", outcome.RetrievedCount == 2);
+        because.ItsTrue("retrieve-all reads it back as null", outcome.FromAll is null);
+        because.ItsTrue("query reads it back as null", outcome.FromQuery is null);
+        because.ItsTrue("clearing writes one new revision", outcome.RevisionsAfterClear == 2);
+        because.ItsTrue("updating it while still null writes no further revision", outcome.RevisionsAfterSecondUpdate == 2);
+        because.ItsTrue("the earlier value stays in the history", outcome.OldName.Equals(outcome.FirstRevision));
+        because.ItsTrue("a query on the old value no longer finds it", outcome.OldNameMatches == 0);
+    }
+
     private static void CleanDirectory(string root)
     {
         if (Directory.Exists(root))
@@ -864,4 +949,7 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
         .SoBeHappy()
         .UnlessItFailed();
     }
+
+    private sealed record ClearedPropertyOutcome(int NeverNamedRevisions, string? Retrieved, long RetrievedCount, string? FromAll, string? FromQuery,
+        int RevisionsAfterClear, int RevisionsAfterSecondUpdate, string? FirstRevision, string OldName, int OldNameMatches);
 }
