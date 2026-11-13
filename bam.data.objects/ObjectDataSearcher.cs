@@ -71,7 +71,7 @@ public class ObjectDataSearcher : IObjectDataSearcher
             // 2. In-memory scan for non-Equals criteria
             if (nonEqualsCriteria.Length > 0)
             {
-                IEnumerable<IObjectDataKey> allKeys = await Indexer.GetAllKeysAsync(type);
+                IEnumerable<IObjectDataKey> allKeys = await Indexer.GetAllKeysAsync(type).ConfigureAwait(false);
                 IObjectDataKey[] allKeysArray = allKeys.ToArray();
 
                 ConcurrentDictionary<string, IObjectData> loadedObjects = new();

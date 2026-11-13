@@ -85,7 +85,7 @@ public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
 
         // Add before remove: a crash between the two leaves a stale old-value entry that
         // verify-on-read filters, instead of a window where neither value resolves.
-        IObjectDataSearchIndexResult result = await IndexAsync(current);
+        IObjectDataSearchIndexResult result = await IndexAsync(current).ConfigureAwait(false);
         if (previous != null)
         {
             RemoveStaleEntries(previous, current);
@@ -115,7 +115,7 @@ public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
             return Enumerable.Empty<IObjectDataKey>();
         }
 
-        string[] hexKeys = await File.ReadAllLinesAsync(indexPath);
+        string[] hexKeys = await File.ReadAllLinesAsync(indexPath).ConfigureAwait(false);
         return hexKeys
             .Where(k => !string.IsNullOrEmpty(k))
             .Select(key => new ObjectDataKey
@@ -128,7 +128,7 @@ public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
     /// <inheritdoc />
     public async Task RebuildAsync<T>()
     {
-        await RebuildAsync(typeof(T));
+        await RebuildAsync(typeof(T)).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -140,7 +140,7 @@ public class ObjectDataSearchIndexer : IObjectDataSearchIndexer
             Directory.Delete(searchIndexDir, true);
         }
 
-        IEnumerable<IObjectDataKey> allKeys = await Indexer.GetAllKeysAsync(type);
+        IEnumerable<IObjectDataKey> allKeys = await Indexer.GetAllKeysAsync(type).ConfigureAwait(false);
         IObjectDataKey[] keyArray = allKeys.ToArray();
 
         Parallel.ForEach(keyArray, key =>

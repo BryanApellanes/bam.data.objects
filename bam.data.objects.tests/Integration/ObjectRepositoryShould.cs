@@ -7,6 +7,7 @@ using Bam.Encryption;
 using Bam.Services;
 using Bam.Storage;
 using Bam.Test;
+using Bam.Data.Objects.Tests.TestClasses;
 
 namespace Bam.Data.Objects.Tests.Integration;
 
@@ -609,6 +610,56 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
             Directory.Delete(root, true);
         }
     }
+
+    [UnitTest]
+    public void NotDeadlockUnderASingleThreadedSynchronizationContext()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(NotDeadlockUnderASingleThreadedSynchronizationContext));
+        if (Directory.Exists(root))
+        {
+            Directory.Delete(root, true);
+        }
+
+        When.A<ObjectDataRepository>("runs its synchronous methods on a thread with a single-threaded synchronization context",
+            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                ulong createdId = 0;
+                bool retrieved = false;
+                bool updated = false;
+                int queried = -1;
+                bool deleted = false;
+                using SingleThreadSynchronizationContext context = new SingleThreadSynchronizationContext();
+                // Each call blocks on async work; with the continuations posted back to this
+                // context's only thread, a missing ConfigureAwait(false) hangs it.
+                bool finished = context.Run(() =>
+                {
+                    TestRepoData created = repository.Create(new TestRepoData { Name = "on the context", Count = 1 });
+                    createdId = created.Id;
+                    TestRepoData? found = repository.Retrieve<TestRepoData>(created.Id);
+                    retrieved = found is not null && found.Name == "on the context";
+                    created.Count = 2;
+                    updated = repository.Update(created).Count == 2;
+                    queried = repository.Query<TestRepoData>(new Dictionary<string, object> { { nameof(TestRepoData.Name), "on the context" } }).Count();
+                    deleted = repository.Delete(created);
+                }, TimeSpan.FromSeconds(30));
+                return new SynchronizationContextOutcome(finished, createdId, retrieved, updated, queried, deleted);
+            })
+        .TheTest
+        .ShouldPass<SynchronizationContextOutcome>((because, outcome) =>
+        {
+            because.ItsTrue("every call returned instead of hanging", outcome.Finished);
+            because.ItsTrue("create assigned an id", outcome.CreatedId > 0);
+            because.ItsTrue("retrieve found it", outcome.Retrieved);
+            because.ItsTrue("update saved it", outcome.Updated);
+            because.ItsTrue($"the query found it ({outcome.Queried})", outcome.Queried == 1);
+            because.ItsTrue("delete removed it", outcome.Deleted);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
+    }
+
+    private sealed record SynchronizationContextOutcome(bool Finished, ulong CreatedId, bool Retrieved, bool Updated, int Queried, bool Deleted);
 
     private static ServiceRegistry ConfigureTestRegistry(string root)
     {
