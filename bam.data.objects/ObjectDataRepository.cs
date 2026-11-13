@@ -166,7 +166,15 @@ public class ObjectDataRepository : AsyncRepository
         return result?.ObjectData?.Data!;
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Writes the object's current state over the stored one.  Every property is written as it is
+    /// now, nulls included: a property that is null on <paramref name="toUpdate"/> is cleared, not
+    /// left at its stored value (bam.data.objects#9).  Read the object, change it, then update it;
+    /// don't pass a sparse object expecting its null properties to be ignored.
+    /// </summary>
+    /// <param name="toUpdate">The object, carrying its full current state.</param>
+    /// <returns>The updated object.</returns>
+    /// <typeparam name="T">The object type.</typeparam>
     public override T Update<T>(T toUpdate)
     {
         IObjectData objectData = Factory.GetObjectData(toUpdate!);
@@ -183,7 +191,14 @@ public class ObjectDataRepository : AsyncRepository
         return toUpdate;
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Writes the object's current state over the stored one.  Every property is written as it is
+    /// now, nulls included: a property that is null on <paramref name="toUpdate"/> is cleared, not
+    /// left at its stored value (bam.data.objects#9).  Read the object, change it, then update it;
+    /// don't pass a sparse object expecting its null properties to be ignored.
+    /// </summary>
+    /// <param name="toUpdate">The object, carrying its full current state.</param>
+    /// <returns>The updated object.</returns>
     public override object Update(object toUpdate)
     {
         IObjectData objectData = Factory.GetObjectData(toUpdate);

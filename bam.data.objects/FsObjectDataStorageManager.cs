@@ -251,8 +251,9 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
             IObjectDataKey objectDataKey = data.GetObjectKey();
             // data.Properties leaves out null values, so a property set to null since it was last
             // written would keep its old value and read back as it.  Write a null revision for each
-            // property that is null now and whose latest stored revision is not (bam.data.objects#9).
-            // A property never written stays unwritten, so Create still stores no null revisions.
+            // property that is null now and whose latest stored revision is not known to be null
+            // (bam.data.objects#9).  A property with no stored revision stays unwritten, so writing
+            // an object under a fresh key stores no null revisions.
             foreach (IProperty cleared in ClearedProperties(data, objectDataKey))
             {
                 result.AddPropertyWriteResult(this.WriteProperty(cleared));
@@ -275,7 +276,10 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
     
     /// <summary>
     /// Returns a null-valued property for each property of <paramref name="data"/> that is null now
-    /// but whose latest stored revision holds a value: the properties an update cleared.
+    /// and has a stored revision that isn't known to be null: the properties an update cleared.
+    /// A latest revision that can't be read counts as holding a value, so the clear fails closed
+    /// (bam.data.objects#10 review): a redundant null revision reads back the same null, while a
+    /// skipped one would leave the old value current.
     /// </summary>
     private IEnumerable<IProperty> ClearedProperties(IObjectData data, IObjectDataKey objectDataKey)
     {
@@ -302,7 +306,7 @@ public class FsObjectDataStorageManager : IObjectDataStorageManager
                 continue;
             }
             IProperty? latest = ReadProperty(data, descriptor, GetLatestPropertyStorageRevisionSlot(descriptor));
-            if (latest is null || latest.Decode() is null)
+            if (latest is not null && latest.Decode() is null)
             {
                 continue;
             }

@@ -520,8 +520,9 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
         int neverNamedRevisions = storage.GetLatestRevisionNumber(NameOf(factory, neverNamed));
 
         string oldName = "named-" + Guid.NewGuid().ToString("N");
-        TestRepoData created = repository.Create(new TestRepoData { Name = oldName, Count = 2 });
+        TestRepoData created = repository.Create(new TestRepoData { Name = oldName, Count = 2, Modified = DateTime.UtcNow });
         created.Name = null!;
+        created.Modified = null;
         repository.Update(created);
         int revisionsAfterClear = storage.GetLatestRevisionNumber(NameOf(factory, created));
         repository.Update(created);
@@ -534,9 +535,11 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
         ulong createdId = created.Id;
         TestRepoData? fromQuery = repository.Query<TestRepoData>(item => item.Id == createdId).FirstOrDefault();
         int oldNameMatches = repository.Query<TestRepoData>(new Dictionary<string, object> { { "Name", oldName } }).Count();
+        // the predicate path filters what it reads back, so it found the stale value before the fix
+        int oldNameScanMatches = repository.Query<TestRepoData>(item => item.Name == oldName).Count();
 
-        return new ClearedPropertyOutcome(neverNamedRevisions, retrieved?.Name, retrieved?.Count ?? 0, fromAll?.Name, fromQuery?.Name,
-            revisionsAfterClear, revisionsAfterSecondUpdate, firstRevision, oldName, oldNameMatches);
+        return new ClearedPropertyOutcome(neverNamedRevisions, retrieved?.Name, retrieved?.Count ?? 0, retrieved?.Modified, fromAll?.Name, fromQuery?.Name,
+            revisionsAfterClear, revisionsAfterSecondUpdate, firstRevision, oldName, oldNameMatches, oldNameScanMatches);
     }
 
     private static IPropertyDescriptor NameOf(IObjectDataFactory factory, TestRepoData data)
@@ -554,12 +557,49 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
         because.ItsTrue("create writes no revision for a null property", outcome.NeverNamedRevisions == 0);
         because.ItsTrue("retrieve reads the cleared property back as null", outcome.Retrieved is null);
         because.ItsTrue("the other properties are kept", outcome.RetrievedCount == 2);
+        because.ItsTrue("a nullable value type is cleared too", outcome.RetrievedModified is null);
         because.ItsTrue("retrieve-all reads it back as null", outcome.FromAll is null);
         because.ItsTrue("query reads it back as null", outcome.FromQuery is null);
         because.ItsTrue("clearing writes one new revision", outcome.RevisionsAfterClear == 2);
         because.ItsTrue("updating it while still null writes no further revision", outcome.RevisionsAfterSecondUpdate == 2);
         because.ItsTrue("the earlier value stays in the history", outcome.OldName.Equals(outcome.FirstRevision));
         because.ItsTrue("a query on the old value no longer finds it", outcome.OldNameMatches == 0);
+        because.ItsTrue("a predicate query on the old value no longer finds it", outcome.OldNameScanMatches == 0);
+    }
+
+    [UnitTest]
+    public async Task ClearAPropertyWhoseLatestRevisionCannotBeRead()
+    {
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(ClearAPropertyWhoseLatestRevisionCannotBeRead));
+        CleanDirectory(root);
+
+        // bam.data.objects#10 review: an unreadable latest revision must not skip the clear.
+        When.A<ObjectDataRepository>("clears a property whose latest revision can't be read",
+            () => ConfigureTestRegistry(root).Get<ObjectDataRepository>(),
+            (repository) =>
+            {
+                ServiceRegistry registry = ConfigureTestRegistry(root);
+                IObjectDataStorageManager storage = registry.Get<IObjectDataStorageManager>();
+                IObjectDataFactory factory = registry.Get<IObjectDataFactory>();
+                TestRepoData created = repository.Create(new TestRepoData { Name = "unreadable-" + Guid.NewGuid().ToString("N"), Count = 3 });
+                IPropertyDescriptor name = NameOf(factory, created);
+                File.WriteAllText(storage.GetLatestPropertyStorageRevisionSlot(name).FullName!, "not a pointer");
+
+                created.Name = null!;
+                repository.Update(created);
+                int revisions = storage.GetLatestRevisionNumber(name);
+                TestRepoData? retrieved = repository.Retrieve<TestRepoData>(created.Id);
+                return new UnreadableClearOutcome(revisions, retrieved is not null, retrieved?.Name);
+            })
+        .TheTest
+        .ShouldPass<UnreadableClearOutcome>((because, outcome) =>
+        {
+            because.ItsTrue("a null revision is written over the unreadable one", outcome.Revisions == 2);
+            because.ItsTrue("the object still reads back", outcome.Retrieved);
+            because.ItsTrue("the property reads back as null", outcome.Name is null);
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
 
     private static void CleanDirectory(string root)
@@ -950,6 +990,8 @@ public class ObjectRepositoryShould : UnitTestMenuContainer
         .UnlessItFailed();
     }
 
-    private sealed record ClearedPropertyOutcome(int NeverNamedRevisions, string? Retrieved, long RetrievedCount, string? FromAll, string? FromQuery,
-        int RevisionsAfterClear, int RevisionsAfterSecondUpdate, string? FirstRevision, string OldName, int OldNameMatches);
+    private sealed record ClearedPropertyOutcome(int NeverNamedRevisions, string? Retrieved, long RetrievedCount, DateTime? RetrievedModified, string? FromAll, string? FromQuery,
+        int RevisionsAfterClear, int RevisionsAfterSecondUpdate, string? FirstRevision, string OldName, int OldNameMatches, int OldNameScanMatches);
+
+    private sealed record UnreadableClearOutcome(int Revisions, bool Retrieved, string? Name);
 }
